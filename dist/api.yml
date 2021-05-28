@@ -469,7 +469,7 @@ components:
           type: string
           description: user's email
           example: ladygaga@gmail.com
-        image-url:
+        image_url:
           pattern: URL
           type: string
           description: URL for the user's image
