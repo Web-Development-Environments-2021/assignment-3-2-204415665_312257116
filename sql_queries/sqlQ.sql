@@ -8,7 +8,7 @@ CREATE TABLE [dbo].[Users](
 	[lastname] [varchar](300) NOT NULL,
 	[country] [varchar](300) NOT NULL,
 	[email] [varchar](300) NOT NULL,
-	[image_url] [varchar](300) NOT NULL
+	[image-url] [varchar](300) NOT NULL
 )
 
 --------------- UnionAgents table ---------------
@@ -24,20 +24,21 @@ CREATE TABLE [dbo].[UnionAgents](
 CREATE TABLE [dbo].[Referee](
 	[referee_id] [int] IDENTITY(1,1) NOT NULL UNIQUE,
 	[firstname] [varchar](300) NOT NULL,
-	[lastname] [varchar](300) NOT NULL
+	[lastname] [varchar](300) NOT NULL,
+	[course] [varchar](30) NOT NULL CHECK ([course] IN('Regular', 'Main')) DEFAULT 'Regular'
 )
 
---------------- FavoriteTeams table ---------------
-CREATE TABLE [dbo].[FavoriteTeams](
-	[user_id] [int] NOT NULL,
-	[team_id] [int] NOT NULL
-)
+-- --------------- FavoriteTeams table ---------------
+-- CREATE TABLE [dbo].[FavoriteTeams](
+-- 	[user_id] [int] NOT NULL,
+-- 	[team_id] [int] NOT NULL
+-- )
 
---------------- FavoritePlayers table ---------------
-CREATE TABLE [dbo].[FavoritePlayers](
-	[user_id] [int] NOT NULL,
-	[player_id] [int] NOT NULL
-)
+-- --------------- FavoritePlayers table ---------------
+-- CREATE TABLE [dbo].[FavoritePlayers](
+-- 	[user_id] [int] NOT NULL,
+-- 	[player_id] [int] NOT NULL
+-- )
 
 --------------- FavoriteMatches table ---------------
 CREATE TABLE [dbo].[FavoriteMatches](
@@ -62,7 +63,7 @@ CREATE TABLE [dbo].[PastMatches](
 	[localTeamName] [varchar](300) NOT NULL,
 	[visitorTeamName] [varchar](300) NOT NULL,
 	[venueName] [varchar](300) NOT NULL,
-    [refereeID] [int] NOT NULL,
+    [refereeID] [int] ,
     [localTeamSocore] [int] NOT NULL,
     [visitorTeamScore] [int] NOT NULL,
     [firstEventID] [int] NOT NULL
@@ -74,7 +75,7 @@ CREATE TABLE [dbo].[MatchEvents](
 	[eventTimeAndDate] [datetime] NOT NULL,
     [minuteInMatch] [time] NOT NULL,
     [eventType] nvarchar (255) NOT NULL CHECK (eventType IN('Goal', 'Red Card', 'Yellow Card', 'Injury', 'Subsitute','None')) DEFAULT 'None',
-    [eventDescription] [text] NOT NULL,
-    [nextMatchEventID] [int] NOT NULL
+    [eventDescription] [text],
+    [nextMatchEventID] [int] 
 )
 
