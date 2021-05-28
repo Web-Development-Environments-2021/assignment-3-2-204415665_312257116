@@ -4,12 +4,13 @@ info:
   description: API for  project
   version: 1.0.0
 tags:
-  - name: Users
   - name: Auth
+  - name: Users
+  - name: UnionAgent
   - name: League
   - name: Players
   - name: Teams
-  - name: Games
+  - name: Matches
 paths:
   /Register:
     post:
@@ -27,7 +28,8 @@ paths:
         "201":
           description: A new user has been added
         "400":
-          description: wrong input parameters
+          description: Wrong input parameters
+
   /Login:
     post:
       tags:
@@ -54,22 +56,274 @@ paths:
             # Note that the Set-Cookie header and securitySchemes are not connected in any way, and the Set-Header definition is for documentation purposes only.
         "401":
           description: Authentication failed
+
   /logout:
     post:
       tags:
         - Auth
-      summary: logout a user from the system and delete his cookie
+      summary: Logout a user from the system and delete his cookie
       responses:
         "200":
-          description: "the user has ben successfully logged out"
+          description: "The user has ben successfully logged out"
+        "400":
+          description: Bad request
+
+  /users/favoriteMatches:
+    get:
+      tags:
+        - Users
+      summary: Return the favorite matches that were saved by user
+      responses:
+        "200":
+          description: Data about the user's favorites matches returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/featureMatchInformation"
+        "401":
+          description: User is not authorized
+    post:
+      summary: Save match in the favorites list of a user
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchId:
+                  type: string
+                  description: Match's id which the user saved
+                  example: 85
+      responses:
+        "201":
+          description: The match successfully saved as favorite
+        "401":
+          description: User is not authorized
+
+  /users/search/{Search query}:
+    get:
+      tags: 
+        - Users
+      summary: Return search results
+      description: Returns all results according to the user's search query
+      parameters: 
+        - name: Search query
+          in: path
+          description: User's search query
+          required: true
+          schema:
+            type: string
+            example: Beitar Jerusalem
+        - name: Search type
+          in: query
+          description: Search on coaches or teams or players 
+          required: true
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+              - Players
+              - Teams
+        - name: Sort teams alphabetical
+          in: query
+          description: Sort the teams by names in alphabetical order 
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: no
+              enum: 
+              - no
+              - yes
+        - name: Sort players
+          in: query
+          description: Sort the players
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: no
+              enum: 
+              - no
+              - yes
+        - name: Sort players by
+          in: query
+          description: Sort the players by name or team name
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: own name
+              enum: 
+              - own name
+              - team name
+        - name: Filter players
+          in: query
+          description: Filter the players/ by position or team name
+          schema:
+            type: string
+            example: "1"
+      responses:
+        '200':
+          description: Search results returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:   
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlayerPreview'
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamName:
+                          type: string
+                        teamLogo:
+                          type: string
+                          format: URL
+                      example:
+                        teamName: Beitar Jerusalem
+                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        '400':
+          description: Bad request
+
+  /unionAgent/leagueManagementPage:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all league matches
+      description: All league matches that exists in the system
+      parameters: 
+      - in: query
+        name: sortBy
+        description: Sort matches by date or teams 
+        style: form
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - Date
+            - Teams
+      responses:
+        '200':
+          description: The league management page uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/pastMatchInformation'
+                  featureMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/featureMatchInformation'
+        '400':
+          description: Bad request
+
+  /unionAgent/addMatch:
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add match to the league
+      description: Add match to the league by union agent user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/featureMatchInformation'
+      responses:
+        '200':
+          description: Match added to league's matches successfully
+        '400':
+          description: Bad request
+
+  /unionAgent/addMatchResult:
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add result to match
+      description: Add result to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add result
+                localTeamScore:
+                  type: number
+                  description: The number of goals scored by the home team
+                visitorTeamScore:
+                  type: number
+                  description: The number of goals scored by the home team
+              example: 
+                matchID: 939
+                localTeamScore: 5
+                visitorTeamScore: 1
+      responses:
+        '200':
+          description: Result added to match successfully
+        '400':
+          description: Bad request
+
+  /unionAgent/addMatchEventsLog:
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add events log to match
+      description: Add events log to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add result
+                  example: 939
+                eventsLog:
+                  type: array
+                  description: Match's event log
+                  items:
+                    $ref: '#/components/schemas/matchEvent'
+                  
+      responses:
+        '200':
+          description: Events log added match successfully
+        '400':
+          description: Bad request
+
   /league/getDetails:
     get:
       tags:
-        - league
+        - League
       summary: Return the details about the current league
       responses:
         "200":
-          description: data about the current league returned
+          description: Data about the current league returned
           content:
             application/json:
               schema:
@@ -77,49 +331,35 @@ paths:
                 items:
                   $ref: "#/components/schemas/League"
         "400":
-          description: wrong input parameters
-  /users/favoritePlayers:
+          description: Wrong input parameters
+
+  /players/playerFullDetails/{playerID}:
     get:
+      summary: Get full deatils about a player
+      description: Useful for player page
       tags:
-        - Users
         - Players
-      summary: Return the favorite players that were saved by user
       parameters:
+        - in: path
+          name: playerID
+          description: Player's id
+          required: true
+          schema:
+            type: integer
       responses:
-        "200":
-          description: data about the user's favorites players returned
+        '200':
+          description: Data about the player returned
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PlayerPreview"
-        "401":
-          description: user is not authorized
-    post:
-      summary: save player in the favorites list of a user
-      tags:
-        - Users
-        - Players
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                playerId:
-                  type: string
-                  description: player's id which the user saved
-                  example: 85
-      responses:
-        "201":
-          description: The player successfully saved as favorite
-        "401":
-          description: user is not authorized
+                $ref: '#/components/schemas/playerFullInformation'
+        "404":
+          description: playerID is not exists
+
   /teams/teamFullDetails/{teamId}:
     get:
-      summary: get full deatils about a team
-      description: useful for team page
+      summary: Get full deatils about a team
+      description: Useful for team page
       tags:
         - Teams
       parameters:
@@ -131,13 +371,39 @@ paths:
             type: integer
       responses:
         "200":
-          description: data about the team
+          description: Data about the team
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Team"
         "404":
           description: teamId is not exists
+
+  /matches/currentStageMatches:
+    get:
+      tags:
+        - Matches
+      summary: Return current stage matches information
+      description: The current stage page with all relevant inforamtion
+      responses:
+        "200":
+          description: Data about the current stage matches returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/pastMatchInformation'
+                  featureMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/featureMatchInformation'
+        '400':
+          description: Wrong input parameters
+
 components:
   schemas:
     User:
@@ -181,6 +447,7 @@ components:
           description: URL for the user's image
           example: https://cloudinary.com/
       description: Model containing user info
+
     LoginScheme:
       type: object
       properties:
@@ -197,6 +464,7 @@ components:
           format: password
           description: password conatins at least one number and one special char
           example: naor@55
+
     League:
       type: object
       properties:
@@ -212,6 +480,7 @@ components:
           type: string
           description: current stage name
           example: Championship Round
+
     PlayerPreview:
       type: object
       properties:
@@ -232,15 +501,178 @@ components:
           type: string
           description: player's team name
           example: København
+
+    playerFullInformation:
+      type: object
+      description: Player's full information for personal page
+      required:
+        - playerShortInfo
+        - commonName
+        - nationality
+        - birthDate
+        - birthCountry
+        - height
+      properties:
+        playerShortInfo:
+          $ref: '#/components/schemas/PlayerPreview'
+        commonName:
+          type: string
+          description: Player's common name
+          example: I. Israeli
+        nationality:
+          type: string
+          description: Player's nationality
+          example: Israeli
+        birthDate:
+          type: string
+          description: Player's birth date
+          example: "01/01/2020"
+        birthCountry:
+          type: string
+          description: Player's birth country
+          example: Israel
+        height:
+          type: string
+          description: Player's height
+          example: 175 cm
+        weight:
+          type: string
+          description: Player's weight
+          example: 84 kg
+
     Team:
       type: object
       properties:
-        name:
+        teamLogo:
           type: string
-          description: team name
-          example: København
-        players:
+          format: url
+          description: Link for team's logo
+          example: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        teamName:
+          type: string
+          description: Team's name
+          example: Beitar Jerusalem
+        teamShortCode:
+          type: string
+          description: Team's short name
+          example: BJ
+        teamSquad:
           type: array
+          description: Team's players
           items:
-            type: object
-            $ref: "#/components/schemas/PlayerPreview"
+            $ref: '#/components/schemas/PlayerPreview'
+        featureMatches:
+          type: array
+          description: Team's feature matches
+          items:
+            $ref: '#/components/schemas/featureMatchInformation'
+        pastMatches:
+          type: array
+          description: Team's past matches
+          items:
+            $ref: '#/components/schemas/pastMatchInformation'
+
+    featureMatchInformation:
+      type: object
+      description: The information about feature match
+      required:
+        - matchDate
+        - loaclTeamName
+        - visitorTeamName
+        - venueName
+      properties:
+        matchDate:
+          type: string
+          format: date-time
+          description: Match's date and time of begining
+          example: "2020-08-02 15:30:00"
+        loaclTeamName:
+          type: string
+          description: The local team name
+          example: Beitar Jerusalem
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: Hapoel Jerusalem
+        venueName:
+          type: string
+          description: The match stadium name
+          example: Teddy stadium 
+          
+    pastMatchInformation:
+      type: object
+      description: The information about past match
+      required:
+        - matchDateAndTime
+        - loaclTeamName
+        - visitorTeamName
+        - venueName
+        - localTeamScore
+        - visitorTeamScore
+        - eventsLog
+      properties:
+        matchDateAndTime:
+          type: string
+          format: date-time
+          description: Match's date and time of begining
+          example: "2020-08-02 15:30:00"
+        loaclTeamName:
+          type: string
+          description: The local team name
+          example: Beitar Jerusalem
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: Hapoel Jerusalem
+        venueName:
+          type: string
+          description: The match field's name
+          example: Teddy stadium 
+        localTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 5
+        visitorTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 1
+        eventsLog:
+          type: array
+          description: Match's event log
+          minItems: 3
+          items:
+            $ref: '#/components/schemas/matchEvent'
+          
+    matchEvent:
+      type: object
+      description: Match Event
+      required:
+        - eventTimeAndDate
+        - minuteInMatch
+        - eventType
+      properties:
+        eventTimeAndDate:
+          type: string
+          format: date-time
+          description: The date and time the event occurred 
+          example: "2020-08-02 15:30:00"
+        minuteInMatch:
+          type: number
+          description: The minute in match the event occurred
+          example: 10
+        eventType:
+          type: string
+          description: Type of the match event
+          example: Goal
+          enum: 
+          - Goal
+          - Offside
+          - Red Card
+          - Yellow Card
+          - Injury
+          - Subsitute
+        eventDescription:
+          type: string
+          description: More information about the event
+          example: Yellow card to Messi
+  
