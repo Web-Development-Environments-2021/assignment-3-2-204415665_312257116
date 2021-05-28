@@ -30,3 +30,4 @@ async function getLeagueDetails() {
   };
 }
 exports.getLeagueDetails = getLeagueDetails;
+
