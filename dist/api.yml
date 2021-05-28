@@ -11,6 +11,7 @@ tags:
   - name: Players
   - name: Teams
   - name: Matches
+  
 paths:
   /Register:
     post:
@@ -81,7 +82,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/featureMatchInformation"
+                  $ref: "#/components/schemas/FeatureMatchInformation"
         "401":
           description: User is not authorized
     post:
@@ -103,7 +104,7 @@ paths:
           description: The match successfully saved as favorite
         "401":
           description: User is not authorized
-
+          
   /users/search/{Search query}:
     get:
       tags: 
@@ -229,11 +230,11 @@ paths:
                   pastMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/pastMatchInformation'
+                      $ref: '#/components/schemas/PastMatchInformation'
                   featureMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/featureMatchInformation'
+                      $ref: '#/components/schemas/FeatureMatchInformation'
         '400':
           description: Bad request
 
@@ -248,7 +249,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/featureMatchInformation'
+              $ref: '#/components/schemas/FeatureMatchInformation'
       responses:
         '200':
           description: Match added to league's matches successfully
@@ -286,7 +287,7 @@ paths:
           description: Result added to match successfully
         '400':
           description: Bad request
-
+  
   /unionAgent/addMatchEventsLog:
     post:
       tags: 
@@ -308,11 +309,38 @@ paths:
                   type: array
                   description: Match's event log
                   items:
-                    $ref: '#/components/schemas/matchEvent'
+                    $ref: '#/components/schemas/MatchEvent'
                   
       responses:
         '200':
           description: Events log added match successfully
+        '400':
+          description: Bad request
+  
+  /unionAgent/addRefereeToMatch:
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add referee to match
+      description: Add referee to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add referee
+                  example: 939
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 252
+      responses:
+        '200':
+          description: Referee added to match successfully
         '400':
           description: Bad request
 
@@ -352,7 +380,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/playerFullInformation'
+                $ref: '#/components/schemas/PlayerFullInformation'
         "404":
           description: playerID is not exists
 
@@ -378,7 +406,7 @@ paths:
                 $ref: "#/components/schemas/Team"
         "404":
           description: teamId is not exists
-
+  
   /matches/currentStageMatches:
     get:
       tags:
@@ -396,13 +424,13 @@ paths:
                   pastMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/pastMatchInformation'
+                      $ref: '#/components/schemas/PastMatchInformation'
                   featureMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/featureMatchInformation'
+                      $ref: '#/components/schemas/FeatureMatchInformation'
         '400':
-          description: Wrong input parameters
+          description: Bad request
 
 components:
   schemas:
@@ -502,7 +530,7 @@ components:
           description: player's team name
           example: København
 
-    playerFullInformation:
+    PlayerFullInformation:
       type: object
       description: Player's full information for personal page
       required:
@@ -565,14 +593,14 @@ components:
           type: array
           description: Team's feature matches
           items:
-            $ref: '#/components/schemas/featureMatchInformation'
+            $ref: '#/components/schemas/FeatureMatchInformation'
         pastMatches:
           type: array
           description: Team's past matches
           items:
-            $ref: '#/components/schemas/pastMatchInformation'
-
-    featureMatchInformation:
+            $ref: '#/components/schemas/PastMatchInformation'
+            
+    FeatureMatchInformation:
       type: object
       description: The information about feature match
       required:
@@ -597,9 +625,11 @@ components:
         venueName:
           type: string
           description: The match stadium name
-          example: Teddy stadium 
+          example: Teddy stadium
+        refereeInforamtion:
+          $ref: '#/components/schemas/Referee'
           
-    pastMatchInformation:
+    PastMatchInformation:
       type: object
       description: The information about past match
       required:
@@ -641,9 +671,11 @@ components:
           description: Match's event log
           minItems: 3
           items:
-            $ref: '#/components/schemas/matchEvent'
+            $ref: '#/components/schemas/MatchEvent'
+        refereeInforamtion:
+          $ref: '#/components/schemas/Referee'
           
-    matchEvent:
+    MatchEvent:
       type: object
       description: Match Event
       required:
@@ -675,4 +707,24 @@ components:
           type: string
           description: More information about the event
           example: Yellow card to Messi
-  
+          
+    Referee:
+      type: object
+      description: Referee information
+      properties:
+        firstname:
+          type: string
+          description: Referee's first name
+          example: Stefani
+        lastname:
+          type: string
+          description: Referee's last name
+          example: Germanotta
+        course:
+          type: string
+          description: Referee's course
+          example: Regular
+          enum: 
+          - Regular
+          - Main
+ 
