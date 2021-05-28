@@ -52,12 +52,16 @@ const users = require("./routes/users");
 const league = require("./routes/league");
 const teams = require("./routes/teams");
 
+const unionAgent = require("./routes/unionAgent");
+const players = require("./routes/players");
+const matches = require("./routes/matches");
+
 //#endregion
 
 //#region cookie middleware
 app.use(function (req, res, next) {
   if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT user_id FROM users")
+    DButils.execQuery("SELECT user_id FROM Users")
       .then((users) => {
         if (users.find((x) => x.user_id === req.session.user_id)) {
           req.user_id = req.session.user_id;
@@ -78,7 +82,15 @@ app.get("/alive", (req, res) => res.send("I'm alive"));
 app.use("/users", users);
 app.use("/league", league);
 app.use("/teams", teams);
+
+app.use("/unionAgent", unionAgent);
+app.use("/players", players);
+app.use("/matches", matches);
+
 app.use(auth);
+
+
+
 
 app.use(function (err, req, res, next) {
   console.error(err);
