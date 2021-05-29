@@ -105,23 +105,23 @@ paths:
         "401":
           description: User is not authorized
           
-  /users/search/{Search query}:
+  /users/search/{Search_Query}:
     get:
       tags: 
         - Users
       summary: Return search results
       description: Returns all results according to the user's search query
       parameters: 
-        - name: Search query
+        - name: Search_Query
           in: path
           description: User's search query
           required: true
           schema:
             type: string
             example: Beitar Jerusalem
-        - name: Search type
+        - name: Search_Type
           in: query
-          description: Search on coaches or teams or players 
+          description: Search on teams or players 
           required: true
           style: form
           schema:
@@ -131,7 +131,7 @@ paths:
               enum:
               - Players
               - Teams
-        - name: Sort teams alphabetical
+        - name: Sort_Teams_Alphabetica
           in: query
           description: Sort the teams by names in alphabetical order 
           style: form
@@ -143,7 +143,7 @@ paths:
               enum: 
               - no
               - yes
-        - name: Sort players
+        - name: Sort_Players
           in: query
           description: Sort the players
           style: form
@@ -155,7 +155,7 @@ paths:
               enum: 
               - no
               - yes
-        - name: Sort players by
+        - name: Sort_Players_By
           in: query
           description: Sort the players by name or team name
           style: form
@@ -167,7 +167,7 @@ paths:
               enum: 
               - own name
               - team name
-        - name: Filter players
+        - name: Filter_Players
           in: query
           description: Filter the players/ by position or team name
           schema:

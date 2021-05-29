@@ -20,7 +20,9 @@ async function getMatchsInfo(match_ids_array) {
     let matchs_info = await Promise.all(promises);
     return extractRelevantMatchsData(matchs_info);
   }
-  //* ------------------------------ extractRelevantPlayerData ------------------------------ *//
+
+//* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+
 function extractRelevantMatchsData(matchs_info) {
     return matchs_info.map((curr_match_info) => {
       var homeTeamName = curr_match_info.data.data.localTeam.data["name"];

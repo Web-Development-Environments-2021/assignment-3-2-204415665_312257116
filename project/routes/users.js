@@ -45,15 +45,29 @@ router.post("/favoriteMatches", async (req, res, next) => {
 router.get("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    let favorite_matcs = {};
-    const match_ids = await users_utils.getFavoriteMatches(user_id);
-    let match_ids_array = [];
-    match_ids.map((element) => match_ids_array.push(element.match_id)); //extracting the players ids into array
-    const results = await matches_utils.getMatchsInfo(match_ids_array);
+    let favorite_matches = {};
+    const matches_ids = await users_utils.getFavoriteMatches(user_id);
+    let matches_ids_array = [];
+    matches_ids.map((element) => matches_ids_array.push(element.match_id)); //extracting the players ids into array
+    const results = await matches_utils.getMatchsInfo(matches_ids_array);
     res.status(200).send(results);
   } catch (error) {
     next(error);
   }
 });
 
+
+/*----------------------------- search -----------------------------*/
+//Returns all results according to the user's search query
+  router.get("/search/:Search_Query", async (req, res, next) => {
+    try {
+      //Extracting the relevant information from the query
+      const { Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
+      const { Search_Query } = req.params;
+      var results = users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players);
+
+      } catch (error) {
+        next(error);
+      }
+});
 module.exports = router;

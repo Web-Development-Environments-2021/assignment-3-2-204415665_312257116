@@ -38,8 +38,21 @@ async function getPlayersInfo(players_ids_list) {
   let players_info = await Promise.all(promises);
   return extractRelevantPlayerData(players_info);
 }
-
-
+/*-------------------------------------------------------------------------------------*/
+async function getPlayerfullinfo(player_id) {
+  player_id.map((id) =>
+    promises.push(
+      axios.get(`${api_domain}/players/${id}`, {
+        params: {
+          api_token: process.env.api_token,
+          include: "team",
+        },
+      })
+    )
+  );
+  let players_info = await Promise.all(promises);
+  return extractRelevantPlayerData(players_info);
+}
 //* ------------------------------ extractRelevantPlayerData ------------------------------ *//
 
 function extractRelevantPlayerData(players_info) {
