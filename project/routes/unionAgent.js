@@ -58,12 +58,14 @@ router.use(async function (req, res, next) {
  router.post("/addMatch", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInfomation.matchDate;
-    const loaclTeamName = req.body.matchInfomation.loaclTeamName;
+    const localTeamName = req.body.matchInfomation.loaclTeamName;
     const visitorTeamName = req.body.matchInfomation.visitorTeamName;
     const venueName = req.body.matchInfomation.venueName;
     const refereeID = req.body.refereeID;
 
-    await unionAgent_utils.addNewMatch(matchDate, loaclTeamName, visitorTeamName, venueName, refereeID);
+    //TODO: Check Valid Date
+
+    await unionAgent_utils.addNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
     res.status(200).send("Match added to league's matches successfully");
   } catch (error) {
     next(error);
@@ -99,14 +101,34 @@ router.use(async function (req, res, next) {
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
       var dateTime = date+' '+time;
 
-      if (date < futureMatches[i]){
+      if (dateTime < futureMatches[i]["matchDateAndTime"]){
         //TODO: Throw Current Error Message
       }
-      
 
+      var matchDate = futureMatches[i]["matchDateAndTime"];
+      var localTeamName = futureMatches[i]["localTeamName"];
+      var visitorTeamName = futureMatches[i]["visitorTeamName"];
+      var venueName = futureMatches[i]["venueName"];
+      var refereeID = futureMatches[i]["refereeID"];
+
+      await unionAgent_utils.addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
     }
 
-    res.status(200).send("Match added to league's matches successfully");
+    if (!foundMatch){
+      for (var i = 0 ; i < pastMatches ; i++){
+
+        if (matchID != futureMatches[i]["match_id"]){
+          continue;
+        }
+        foundMatch = true;
+        //TODO: start hhhhh
+
+      }
+    }
+
+
+
+    res.status(200).send("Result added to match successfully");
   } catch (error) {
     next(error);
   }
