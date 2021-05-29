@@ -12,7 +12,7 @@ async function getMatchsInfo(match_ids_array) {
         axios.get(`${api_domain}/fixtures/${id}`, {
           params: {
             api_token: process.env.api_token,
-            includes: localTeam, visitorTeam, venue,
+            include:`localTeam, visitorTeam, venue`,
           },
         })
       )
@@ -21,15 +21,14 @@ async function getMatchsInfo(match_ids_array) {
     return extractRelevantMatchsData(matchs_info);
   }
   //* ------------------------------ extractRelevantPlayerData ------------------------------ *//
-
 function extractRelevantMatchsData(matchs_info) {
     return matchs_info.map((curr_match_info) => {
-      const { homeTeamName } = curr_match_info.data.localTeam.data.name;
-      const { awayTeamName } = curr_match_info.data.visitorTeam.data.name;
-      const {gameDate} = curr_match_info.data.time;
-      const { stadium } = curr_match_info.data.venue.data.name;
+      var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
+      var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
+      const { date_time } = curr_match_info.data.data.time.starting_at;
+      var stadium = curr_match_info.data.data.venue.data["name"];
       return {
-        matchDate: gameDate,
+        matchDate: date_time,
         loaclTeamName: homeTeamName,
         visitorTeamName: awayTeamName,
         venueName: stadium,
