@@ -2,7 +2,6 @@ var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
 const users_utils = require("./utils/users_utils");
-const players_utils = require("./utils/players_utils");
 const unionAgent_utils = require("./utils/unionAgent_utils");
 
 /**
@@ -20,6 +19,27 @@ router.use(async function (req, res, next) {
       .catch((err) => next(err));
   } else {
     res.sendStatus(401);
+  }
+});
+
+
+//* ------------------------------ /addMatch ------------------------------ *//
+
+/**
+ * This path gets body with match inforamtion and save new match in the matches DB
+ */
+ router.post("/addMatch", async (req, res, next) => {
+  try {
+    const matchDate = req.body.matchDate;
+    const loaclTeamName = req.body.loaclTeamName;
+    const visitorTeamName = req.body.visitorTeamName;
+    const venueName = req.body.venueName;
+    
+
+    await users_utils.markPlayerAsFavorite(user_id, player_id);
+    res.status(201).send("The player successfully saved as favorite");
+  } catch (error) {
+    next(error);
   }
 });
 
