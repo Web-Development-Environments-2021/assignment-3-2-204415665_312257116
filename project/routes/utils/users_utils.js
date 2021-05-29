@@ -3,13 +3,12 @@ const DButils = require("./DButils");
 
 
 
-//* ------------------------------ markPlayerAsFavorite ------------------------------ *//
-//------------------------------------------------------------------------------------
-// -------------------------------   insert function   -------------------------------
-//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------//
+// -------------------------------   insert function   -------------------------------//
+//------------------------------------------------------------------------------------//
 
 
-// --------------------   Favorites Player insert   ----------------------------
+// --------------------   Favorites Player insert   ----------------------------//
 // add a Player to User Favorites Players
 
 async function markPlayerAsFavorite(user_id, player_id) {
@@ -19,7 +18,7 @@ async function markPlayerAsFavorite(user_id, player_id) {
 }
 exports.markPlayerAsFavorite = markPlayerAsFavorite;
 
-// --------------------   Favorites Matche insert   ----------------------------
+// --------------------   Favorites Matche insert   ----------------------------//
 // add a Matche to User Favorites Matches
 
 async function markMatchesAsFavorite(user_id, match_id) {
@@ -30,7 +29,7 @@ async function markMatchesAsFavorite(user_id, match_id) {
 exports.markMatchesAsFavorite = markMatchesAsFavorite;
 
 
-// --------------------   Favorites Teams insert   ----------------------------
+// ----------------------------   Favorites Teams insert   ---------------------------- //
 // add a Team to User Favorites Teams
 
 async function markTeamsAsFavorite(user_id, team_id) {
@@ -41,11 +40,9 @@ async function markTeamsAsFavorite(user_id, team_id) {
 exports.markTeamsAsFavorite = markTeamsAsFavorite;
 
 
-
-
-// -----------------------------------------------------------------------------------
-// -----------------------------------   getters   -----------------------------------
-// -----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------- //
+// -----------------------------------   getters   ----------------------------------- //
+// ----------------------------------------------------------------------------------- //
 
 
 // --------------------   get user Favorites Players   ----------------------------
@@ -61,7 +58,7 @@ async function getFavoritePlayers(user_id) {
 }
 exports.getFavoritePlayers = getFavoritePlayers;
 
-// --------------------   get  user Favorites Teams   ----------------------------
+// --------------------   get  user Favorites Teams   ---------------------------- //
 
 async function getFavoriteMatches(user_id) {
   const match_ids = await DButils.execQuery(
@@ -71,7 +68,7 @@ async function getFavoriteMatches(user_id) {
 }
 exports.getFavoriteMatches = getFavoriteMatches;
 
-// --------------------   get User Favorites Teams   ----------------------------
+// --------------------   get User Favorites Teams   ---------------------------- //
 
 async function getFavoriteTeams(user_id) {
   const team_ids = await DButils.execQuery(
@@ -82,12 +79,12 @@ async function getFavoriteTeams(user_id) {
 exports.getFavoriteTeams = getFavoriteTeams;
 
 
-//------------------------------------------------------------------------------------
-// -------------------------------   remove function   -------------------------------
-//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------ //
+// -------------------------------   remove function   ------------------------------- //
+//------------------------------------------------------------------------------------ //
 
 
-// --------------------   remove from Favorites Players    ------------------------
+// --------------------   remove from Favorites Players    ------------------------ //
 // remove a Players from User Favorites Teams
 async function removePlayersFromFavorite(user_id, player_id) {
   await DButils.execQuery(
@@ -96,7 +93,7 @@ async function removePlayersFromFavorite(user_id, player_id) {
 }
 exports.removePlayersFromFavorite = removePlayersFromFavorite;
 
-// --------------------   remove from Favorites Matches    ------------------------
+// --------------------   remove from Favorites Matches    ------------------------ //
 // remove a Matches from User Favorites Matches
 async function removeMatchesFromFavorite(user_id, match_id) {
   await DButils.execQuery(
@@ -105,7 +102,7 @@ async function removeMatchesFromFavorite(user_id, match_id) {
 }
 exports.removeMatchesFromFavorite = removeMatchesFromFavorite;
 
-// --------------------   remove from Favorites TeamS    ---------------------------
+// --------------------   remove from Favorites TeamS    --------------------------- //
 // remove a Team from User Favorites Teams
 async function removeTeamsFromFavorite(user_id, team_id) {
   await DButils.execQuery(
