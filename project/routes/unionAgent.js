@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
-const users_utils = require("./utils/users_utils");
 const unionAgent_utils = require("./utils/unionAgent_utils");
 
 /**
@@ -30,14 +29,14 @@ router.use(async function (req, res, next) {
  */
  router.post("/addMatch", async (req, res, next) => {
   try {
-    const matchDate = req.body.matchDate;
-    const loaclTeamName = req.body.loaclTeamName;
-    const visitorTeamName = req.body.visitorTeamName;
-    const venueName = req.body.venueName;
-    
+    const matchDate = req.body.matchInfomation.matchDate;
+    const loaclTeamName = req.body.matchInfomation['loaclTeamName'];
+    const visitorTeamName = req.body.matchInfomation.visitorTeamName;
+    const venueName = req.body.matchInfomation.venueName;
+    const refereeID = req.body.refereeID;
 
-    await users_utils.markPlayerAsFavorite(user_id, player_id);
-    res.status(201).send("The player successfully saved as favorite");
+    await unionAgent_utils.addNewMatch(matchDate, loaclTeamName, visitorTeamName, venueName, refereeID);
+    res.status(200).send("Match added to league's matches successfully");
   } catch (error) {
     next(error);
   }

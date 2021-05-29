@@ -245,11 +245,18 @@ paths:
       summary: Add match to the league
       description: Add match to the league by union agent user
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureMatchInformation'
+              type: object
+              properties:
+                matchInfomation:
+                  $ref: '#/components/schemas/FeatureMatchInformation'
+                  required: true
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 252
       responses:
         '200':
           description: Match added to league's matches successfully
