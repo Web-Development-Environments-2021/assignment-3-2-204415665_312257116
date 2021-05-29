@@ -58,13 +58,77 @@ router.use(async function (req, res, next) {
  router.post("/addMatch", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInfomation.matchDate;
-    const loaclTeamName = req.body.matchInfomation.loaclTeamName;
+    const localTeamName = req.body.matchInfomation.loaclTeamName;
     const visitorTeamName = req.body.matchInfomation.visitorTeamName;
     const venueName = req.body.matchInfomation.venueName;
     const refereeID = req.body.refereeID;
 
-    await unionAgent_utils.addNewMatch(matchDate, loaclTeamName, visitorTeamName, venueName, refereeID);
+    //TODO: Check Valid Date
+
+    await unionAgent_utils.addNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
     res.status(200).send("Match added to league's matches successfully");
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+//* ------------------------------ /addMatchResult ------------------------------ *//
+
+/**
+ * This path gets body with match's result and save matches DB
+ */
+ router.post("/addMatchResult", async (req, res, next) => {
+  try {
+    const matchID = req.body.matchID;
+    const localTeamScore = req.body.localTeamScore;
+    const visitorTeamScore = req.body.visitorTeamScore;
+    const leagueMatches = await unionAgent_utils.getLeagueMatches();
+
+    var futureMatches = leagueMatches[1];
+    var pastMatches = leagueMatches[0];
+    var foundMatch = false;
+
+    for (var i = 0 ; i < futureMatches ; i++){
+
+      if (matchID != futureMatches[i]["match_id"]){
+        continue;
+      }
+      foundMatch = true;
+      
+      var today = new Date();
+      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      var dateTime = date+' '+time;
+
+      if (dateTime < futureMatches[i]["matchDateAndTime"]){
+        //TODO: Throw Current Error Message
+      }
+
+      var matchDate = futureMatches[i]["matchDateAndTime"];
+      var localTeamName = futureMatches[i]["localTeamName"];
+      var visitorTeamName = futureMatches[i]["visitorTeamName"];
+      var venueName = futureMatches[i]["venueName"];
+      var refereeID = futureMatches[i]["refereeID"];
+
+      await unionAgent_utils.addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
+    }
+
+    if (!foundMatch){
+      for (var i = 0 ; i < pastMatches ; i++){
+
+        if (matchID != futureMatches[i]["match_id"]){
+          continue;
+        }
+        foundMatch = true;
+        //TODO: start hhhhh
+
+      }
+    }
+
+
+
+    res.status(200).send("Result added to match successfully");
   } catch (error) {
     next(error);
   }
@@ -84,7 +148,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchDate : element.matchDateAndTime,
-      loaclTeamName : element.localTeamName,
+      localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
       refereeID : element.refereeID
@@ -106,7 +170,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchDateAndTime : element.matchDateAndTime,
-      loaclTeamName : element.localTeamName,
+      localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
       refereeID : element.refereeID,

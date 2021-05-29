@@ -77,27 +77,6 @@ function extractRelevantQueryInfo(Query_info, Search_Type) {
 }
 
 exports.getQueryInfo = getQueryInfo;
-=======
-// //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
-
-// function extractRelevantMatchsData(matchs_info) {
-//   return matchs_info.map((curr_match_info) => {
-//     var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
-//     var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
-//     const { date_time } = curr_match_info.data.data.time.starting_at;
-//     var stadium = curr_match_info.data.data.venue.data["name"];
-//     return {
-//       matchDate: date_time,
-//       loaclTeamName: homeTeamName,
-//       visitorTeamName: awayTeamName,
-//       venueName: stadium,
-//     };
-//   });
-// }
-
-// exports.getMatchsInfo = getMatchsInfo;
->>>>>>> 398e523d6f1141bb1f80971cdb841b417c30e760
-
 
 
 

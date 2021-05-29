@@ -98,3 +98,26 @@ async function extractEventLog(EventID){
 
 exports.extractEventLog = extractEventLog;
 
+
+//* ------------------------------ Add Past Match Result------------------------------ *//
+
+async function addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore) {
+  
+  if (refereeID == undefined){
+    await DButils.execQuery(
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null,'${localTeamScore}','${visitorTeamScore}', null )`
+    );
+
+  } else {
+    await DButils.execQuery(
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}','${localTeamScore}','${visitorTeamScore}', null )`
+    );
+  }
+
+  await DButils.execQuery(
+    `delete from FutureMatches where match_id='${matchID}'`
+  );
+
+}
+exports.addPastMatchResult = addPastMatchResult;
+
