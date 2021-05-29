@@ -5,5 +5,5 @@ CREATE TABLE [dbo].[FutureMatches](
 	[localTeamName] [varchar](300) NOT NULL,
 	[visitorTeamName] [varchar](300) NOT NULL,
 	[venueName] [varchar](300) NOT NULL,
-    [refereeID] [int] NOT NULL
+    [refereeID] [int]
 )
