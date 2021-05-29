@@ -6,7 +6,7 @@ CREATE TABLE [dbo].[PastMatches](
 	[visitorTeamName] [varchar](300) NOT NULL,
 	[venueName] [varchar](300) NOT NULL,
     [refereeID] [int] ,
-    [localTeamSocore] [int] NOT NULL,
-    [visitorTeamScore] [int] NOT NULL,
-    [firstEventID] [int] NOT NULL
+    [localTeamScore] [int] ,
+    [visitorTeamScore] [int] ,
+    [firstEventID] [int] 
 )

@@ -22,6 +22,34 @@ router.use(async function (req, res, next) {
 });
 
 
+
+//* ------------------------------ /leagueManagementPage ------------------------------ *//
+// TODO: What to do With Sort 
+/**
+ * This path gets parameter with sort information and Return all matches
+ */
+ router.get("/leagueManagementPage", async (req, res, next) => {
+  try {
+
+    const sortBy = req.query.sortBy;
+
+    const leagueMatches = await unionAgent_utils.getLeagueMatches();
+
+    const featureMatchesWithReferees = await addRefereeToFutureMatches(leagueMatches[1]);
+    const pastMatchesWithReferees = await addRefereeToPastMatches(leagueMatches[0]);
+
+    var resultRespone ={};
+    resultRespone["pastMatches"] = pastMatchesWithReferees;
+    resultRespone["featureMatches"] = featureMatchesWithReferees;
+
+    res.status(200).send(resultRespone);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
 //* ------------------------------ /addMatch ------------------------------ *//
 
 /**
@@ -30,7 +58,7 @@ router.use(async function (req, res, next) {
  router.post("/addMatch", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInfomation.matchDate;
-    const loaclTeamName = req.body.matchInfomation['loaclTeamName'];
+    const loaclTeamName = req.body.matchInfomation.loaclTeamName;
     const visitorTeamName = req.body.matchInfomation.visitorTeamName;
     const venueName = req.body.matchInfomation.venueName;
     const refereeID = req.body.refereeID;
@@ -44,3 +72,64 @@ router.use(async function (req, res, next) {
 
 
 module.exports = router;
+
+
+
+//* ------------------------------ Help Functions ------------------------------ *//
+
+
+async function addRefereeToFutureMatches(matchesToAdd){
+
+  var matchesWithReferee = [];
+  matchesToAdd.map((element) => matchesWithReferee.push(
+     {
+      matchDate : element.matchDateAndTime,
+      loaclTeamName : element.localTeamName,
+      visitorTeamName : element.visitorTeamName,
+      venueName : element.venueName,
+      refereeID : element.refereeID
+    }
+  ));
+
+  for (var i = 0 ; i < matchesWithReferee.length ; i++){
+
+    var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
+    matchesWithReferee[i]["refereeInforamtion"] = refereeDic[0];
+    delete matchesWithReferee[i]["refereeID"]
+  }
+  return matchesWithReferee;
+}
+
+async function addRefereeToPastMatches(matchesToAdd){
+
+  var matchesWithReferee = [];
+  matchesToAdd.map((element) => matchesWithReferee.push(
+     {
+      matchDateAndTime : element.matchDateAndTime,
+      loaclTeamName : element.localTeamName,
+      visitorTeamName : element.visitorTeamName,
+      venueName : element.venueName,
+      refereeID : element.refereeID,
+      localTeamScore : element.localTeamScore,
+      visitorTeamScore : element.visitorTeamScore,
+      firstEventID : element.firstEventID
+    }
+  ));
+
+  for (var i = 0 ; i < matchesWithReferee.length ; i++){
+
+    var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
+    matchesWithReferee[i]["refereeInforamtion"] = refereeDic[0];
+    delete matchesWithReferee[i]["refereeID"]
+
+    var eventDic = await unionAgent_utils.extractEventLog(matchesWithReferee[i]["firstEventID"]);
+    matchesWithReferee[i]["eventsLog"] = eventDic;
+    delete matchesWithReferee[i]["firstEventID"]
+
+  }
+  return matchesWithReferee;
+}
+
+
+
+
