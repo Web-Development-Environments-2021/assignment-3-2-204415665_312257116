@@ -612,7 +612,7 @@ components:
       description: The information about feature match
       required:
         - matchDate
-        - loaclTeamName
+        - localTeamName
         - visitorTeamName
         - venueName
       properties:
@@ -621,7 +621,7 @@ components:
           format: date-time
           description: Match's date and time of begining
           example: "2020-08-02 15:30:00"
-        loaclTeamName:
+        localTeamName:
           type: string
           description: The local team name
           example: Beitar Jerusalem
@@ -633,7 +633,7 @@ components:
           type: string
           description: The match stadium name
           example: Teddy stadium
-        refereeInforamtion:
+        refereeInformation:
           $ref: '#/components/schemas/Referee'
           
     PastMatchInformation:
@@ -641,7 +641,7 @@ components:
       description: The information about past match
       required:
         - matchDateAndTime
-        - loaclTeamName
+        - localTeamName
         - visitorTeamName
         - venueName
         - localTeamScore
@@ -653,7 +653,7 @@ components:
           format: date-time
           description: Match's date and time of begining
           example: "2020-08-02 15:30:00"
-        loaclTeamName:
+        localTeamName:
           type: string
           description: The local team name
           example: Beitar Jerusalem
@@ -679,7 +679,7 @@ components:
           minItems: 3
           items:
             $ref: '#/components/schemas/MatchEvent'
-        refereeInforamtion:
+        refereeInformation:
           $ref: '#/components/schemas/Referee'
           
     MatchEvent:

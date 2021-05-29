@@ -40,24 +40,24 @@ async function getQueryInfo(Search_Query, Search_Type) {
   return extractRelevantMatchsData(matchs_info);
 }
 
-//* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+// //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-function extractRelevantMatchsData(matchs_info) {
-  return matchs_info.map((curr_match_info) => {
-    var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
-    var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
-    const { date_time } = curr_match_info.data.data.time.starting_at;
-    var stadium = curr_match_info.data.data.venue.data["name"];
-    return {
-      matchDate: date_time,
-      loaclTeamName: homeTeamName,
-      visitorTeamName: awayTeamName,
-      venueName: stadium,
-    };
-  });
-}
+// function extractRelevantMatchsData(matchs_info) {
+//   return matchs_info.map((curr_match_info) => {
+//     var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
+//     var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
+//     const { date_time } = curr_match_info.data.data.time.starting_at;
+//     var stadium = curr_match_info.data.data.venue.data["name"];
+//     return {
+//       matchDate: date_time,
+//       loaclTeamName: homeTeamName,
+//       visitorTeamName: awayTeamName,
+//       venueName: stadium,
+//     };
+//   });
+// }
 
-exports.getMatchsInfo = getMatchsInfo;
+// exports.getMatchsInfo = getMatchsInfo;
 
 
 
