@@ -30,10 +30,16 @@ router.use(async function (req, res, next) {
  */
 router.post("/favoriteMatches", async (req, res, next) => {
   try {
+
     const user_id = req.session.user_id;
     const match_id = req.body.matchId;
-    await users_utils.markMatchesAsFavorite(user_id, match_id);
-    res.status(201).send("The match successfully saved as favorite");
+    const flag =await users_utils.markMatchesAsFavorite(user_id, match_id);
+    if (flag){
+      res.status(201).send("The match successfully saved as favorite");
+    }
+    else{
+      res.status(400).send("Bad request");
+    }
   } catch (error) {
     next(error);
   }
