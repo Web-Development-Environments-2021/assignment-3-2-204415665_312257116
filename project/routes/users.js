@@ -65,6 +65,7 @@ router.get("/favoriteMatches", async (req, res, next) => {
       const { Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
       const { Search_Query } = req.params;
       var results = users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players);
+      res.status(200).send(results);
 
       } catch (error) {
         next(error);

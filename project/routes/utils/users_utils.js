@@ -19,46 +19,64 @@ exports.SQL_searchByQuery = SQL_searchByQuery;
 // //* ------------------------------ getMatchsInfo ------------------------------ *//
 
 async function getQueryInfo(Search_Query, Search_Type) {
+
   let promises = [];
   var include_params;
+
   if (Search_Type == "Teams"){
-    include_params = "league";
+    Search_Type="teams"
+    // include_params = `squad.player , league`;
   }
   else{
-    include_params = `Team , Team.league`;
+    Search_Type="players"
+    include_params = `team`;
   }
+  
   promises.push(
-      axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
+      await axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
         params: {
           api_token: process.env.api_token,
-
-          include: include_params,
+          include: `${include_params}`,
         },
       })
     ) 
-  let matchs_info = await Promise.all(promises);
-  return extractRelevantMatchsData(matchs_info);
+  let Query_info = await Promise.all(promises);
+  return extractRelevantQueryInfo(Query_info, Search_Type)[0];
 }
 
-// //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+<<<<<<< HEAD
+//* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-// function extractRelevantMatchsData(matchs_info) {
-//   return matchs_info.map((curr_match_info) => {
-//     var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
-//     var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
-//     const { date_time } = curr_match_info.data.data.time.starting_at;
-//     var stadium = curr_match_info.data.data.venue.data["name"];
-//     return {
-//       matchDate: date_time,
-//       loaclTeamName: homeTeamName,
-//       visitorTeamName: awayTeamName,
-//       venueName: stadium,
-//     };
-//   });
-// }
+function extractRelevantQueryInfo(Query_info, Search_Type) {
 
-// exports.getMatchsInfo = getMatchsInfo;
+  return Query_info.map((curr_item) => {
+    if (Search_Type == "teams"){
+      const { name } = curr_item.data.data[0];
+      const { logo_path } = curr_item.data.data[0];
+      return {
+        teamName: name,
+        teamLogo: logo_path,
+      };
+    }
+    else{
+      const { teamName } = Query_info.data.data["name"];
+  
+      // "name"
+      // "image"
+      // "position"
+      // "team_name"
+      return {
+        matchDate: date_time,
+        loaclTeamName: homeTeamName,
+        visitorTeamName: awayTeamName,
+        venueName: stadium,
+      };
+    }
 
+  });
+}
+
+exports.getQueryInfo = getQueryInfo;
 
 
 
