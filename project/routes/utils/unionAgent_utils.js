@@ -4,16 +4,16 @@ const DButils = require("./DButils");
 
 //* ------------------------------ Add New Match ------------------------------ *//
 
-async function addNewMatch(matchDate, loaclTeamName, visitorTeamName, venueName, refereeID) {
+async function addNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID) {
   
   if (refereeID == undefined){
     await DButils.execQuery(
-      `insert into FutureMatches values ('${matchDate}','${loaclTeamName}','${visitorTeamName}','${venueName}', null)`
+      `insert into FutureMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null)`
     );
 
   } else {
     await DButils.execQuery(
-      `insert into FutureMatches values ('${matchDate}','${loaclTeamName}','${visitorTeamName}','${venueName}', '${refereeID}')`
+      `insert into FutureMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}')`
     );
   }
 }
@@ -120,4 +120,18 @@ async function addPastMatchResult(matchID, matchDate, localTeamName, visitorTeam
 
 }
 exports.addPastMatchResult = addPastMatchResult;
+
+
+//* ------------------------------ Add Future Match Result------------------------------ *//
+
+async function addFutureMatchResult(matchID, localTeamScore, visitorTeamScore) {
+  
+  await DButils.execQuery(
+    `update FutureMatches 
+      set localTeamScore='${localTeamScore}', visitorTeamScore='${visitorTeamScore}' 
+      where match_id='${matchID}'`
+  );
+
+}
+exports.addFutureMatchResult = addFutureMatchResult;
 

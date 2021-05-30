@@ -46,7 +46,7 @@ paths:
       responses:
         "200":
           description: >
-            User was found in the DB and authenitcated successfully.
+            User was found in the DB and authenticated successfully.
             The session ID is returned in a cookie named `session`. 
             You should include this cookie in subsequent requests
           # headers:
@@ -131,7 +131,7 @@ paths:
               enum:
               - Players
               - Teams
-        - name: Sort_Teams_Alphabetica
+        - name: Sort_Teams_Alphabetical
           in: query
           description: Sort the teams by names in alphabetical order 
           style: form
@@ -250,7 +250,7 @@ paths:
             schema:
               type: object
               properties:
-                matchInfomation:
+                matchInformation:
                   $ref: '#/components/schemas/FeatureMatchInformation'
                   required: true
                 refereeID:
@@ -370,7 +370,7 @@ paths:
 
   /players/playerFullDetails/{playerID}:
     get:
-      summary: Get full deatils about a player
+      summary: Get full details about a player
       description: Useful for player page
       tags:
         - Players
@@ -393,7 +393,7 @@ paths:
 
   /teams/teamFullDetails/{teamId}:
     get:
-      summary: Get full deatils about a team
+      summary: Get full details about a team
       description: Useful for team page
       tags:
         - Teams
@@ -419,7 +419,7 @@ paths:
       tags:
         - Matches
       summary: Return current stage matches information
-      description: The current stage page with all relevant inforamtion
+      description: The current stage page with all relevant information
       responses:
         "200":
           description: Data about the current stage matches returned
@@ -448,7 +448,7 @@ components:
           maxLength: 8
           minLength: 3
           type: string
-          description: username conatins between 3 to 8 letters only
+          description: username contains between 3 to 8 letters only
           example: ladygaga
         firstname:
           type: string
@@ -467,7 +467,7 @@ components:
           minLength: 5
           type: string
           description:
-            password conatins between 5 to 10 chars, at least one of them
+            password contains between 5 to 10 chars, at least one of them
             is a number and a special char
           format: password
           example: lady@56
@@ -490,14 +490,14 @@ components:
           type: string
           minLength: 3
           maxLength: 8
-          description: username conatins letters only
+          description: username contains letters only
           example: naorbe
         password:
           type: string
           minLength: 5
           maxLength: 10
           format: password
-          description: password conatins at least one number and one special char
+          description: password contains at least one number and one special char
           example: naor@55
 
     League:
@@ -619,7 +619,7 @@ components:
         matchDate:
           type: string
           format: date-time
-          description: Match's date and time of begining
+          description: Match's date and time of beginning
           example: "2020-08-02 15:30:00"
         localTeamName:
           type: string
@@ -651,7 +651,7 @@ components:
         matchDateAndTime:
           type: string
           format: date-time
-          description: Match's date and time of begining
+          description: Match's date and time of beginning
           example: "2020-08-02 15:30:00"
         localTeamName:
           type: string
