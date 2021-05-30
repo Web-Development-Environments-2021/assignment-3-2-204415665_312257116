@@ -57,9 +57,7 @@ function extractRelevantMatchesData(matches_info) {
     });
   }
   
-<<<<<<< HEAD
   exports.getMatchesInfo = getMatchesInfo;
-=======
 
 
 
@@ -241,4 +239,3 @@ exports.addPastMatchResult = addPastMatchResult;
 
 
 
->>>>>>> 6fd5826c1085faaeba2356e7af5333941f2c214a
