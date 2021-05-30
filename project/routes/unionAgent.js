@@ -95,7 +95,7 @@ router.use(async function (req, res, next) {
     var futureMatches = leagueMatches[1];
     var pastMatches = leagueMatches[0];
 
-    for (var i = 0 ; i < futureMatches ; i++){
+    for (var i = 0 ; i < futureMatches.length ; i++){
 
       if (badRequest){
         break;
@@ -121,11 +121,12 @@ router.use(async function (req, res, next) {
       var venueName = futureMatches[i]["venueName"];
       var refereeID = futureMatches[i]["refereeID"];
 
-      await unionAgent_utils.addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
+      await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
     }
 
-    if (!foundMatch || !badRequest){
-      for (var i = 0 ; i < pastMatches ; i++){
+    if (!foundMatch && !badRequest){
+
+      for (var i = 0 ; i < pastMatches.length ; i++){
 
         if (matchID != pastMatches[i]["match_id"]){
           continue;
@@ -140,7 +141,7 @@ router.use(async function (req, res, next) {
           break;
         }
 
-        await unionAgent_utils.addFutureMatchResult(matchID, localTeamScore, visitorTeamScore);
+        await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
         break;
 
       }
@@ -166,6 +167,9 @@ module.exports = router;
 //* ------------------------------ Help Functions ------------------------------ *//
 
 
+
+//* ------------------------------ Add Referee To Future Matches ------------------------------ *//
+
 async function addRefereeToFutureMatches(matchesToAdd){
 
   var matchesWithReferee = [];
@@ -187,6 +191,9 @@ async function addRefereeToFutureMatches(matchesToAdd){
   }
   return matchesWithReferee;
 }
+
+
+//* ------------------------------ Add Referee To Past Matches ------------------------------ *//
 
 async function addRefereeToPastMatches(matchesToAdd){
 

@@ -101,7 +101,7 @@ exports.extractEventLog = extractEventLog;
 
 //* ------------------------------ Add Past Match Result------------------------------ *//
 
-async function addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore) {
+async function addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore) {
   
   if (refereeID == undefined){
     await DButils.execQuery(
@@ -119,19 +119,19 @@ async function addPastMatchResult(matchID, matchDate, localTeamName, visitorTeam
   );
 
 }
-exports.addPastMatchResult = addPastMatchResult;
+exports.addFutureMatchResult = addFutureMatchResult;
 
 
 //* ------------------------------ Add Future Match Result------------------------------ *//
 
-async function addFutureMatchResult(matchID, localTeamScore, visitorTeamScore) {
+async function addPastMatchResult(matchID, localTeamScore, visitorTeamScore) {
   
   await DButils.execQuery(
-    `update FutureMatches 
+    `update PastMatches 
       set localTeamScore='${localTeamScore}', visitorTeamScore='${visitorTeamScore}' 
       where match_id='${matchID}'`
   );
 
 }
-exports.addFutureMatchResult = addFutureMatchResult;
+exports.addPastMatchResult = addPastMatchResult;
 
