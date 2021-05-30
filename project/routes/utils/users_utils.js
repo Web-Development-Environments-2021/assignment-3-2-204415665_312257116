@@ -31,17 +31,17 @@ async function getQueryInfo(Search_Query, Search_Type) {
     Search_Type="players"
     include_params = `team`;
   }
-  
+
   promises.push(
-      await axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
+        axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
         params: {
           api_token: process.env.api_token,
           include: `${include_params}`,
         },
       })
-    ) 
+  ) 
   let Query_info = await Promise.all(promises);
-  return extractRelevantQueryInfo(Query_info, Search_Type)[0];
+  return extractRelevantQueryInfo(Query_info, Search_Type);
 }
 
 
