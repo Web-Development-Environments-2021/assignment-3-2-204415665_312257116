@@ -6,6 +6,7 @@ const unionAgent_utils = require("./utils/unionAgent_utils");
 /**
  * Authenticate all incoming requests by middleware
  */
+//TODO: Need To Authenticate UnionAgent
 router.use(async function (req, res, next) {
   if (req.session && req.session.user_id) {
     DButils.execQuery("SELECT user_id FROM Users")
@@ -63,9 +64,18 @@ router.use(async function (req, res, next) {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    //TODO: Check Valid Date
+    //TODO: Sanity Check ?? (Date)
 
-    await unionAgent_utils.addNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+    if (dateTime < matchDate){
+      await unionAgent_utils.addNewFutureMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+    } else{
+      await unionAgent_utils.addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+    }
+
     res.status(200).send("Match added to league's matches successfully");
   } catch (error) {
     next(error);
@@ -87,8 +97,11 @@ router.use(async function (req, res, next) {
     var badRequest = false;
 
     //TODO: Add Sanity Check
-    if (visitorTeamScore < 0 || localTeamScore < 0){
+    if (visitorTeamScore < 0 || localTeamScore < 0 || !Number.isInteger(matchID) ||
+        !Number.isInteger(localTeamScore) || 
+        !Number.isInteger(visitorTeamScore)){
       badRequest = true;
+
     }
 
     const leagueMatches = await unionAgent_utils.getLeagueMatches();
@@ -100,7 +113,6 @@ router.use(async function (req, res, next) {
       if (badRequest){
         break;
       }
-
       if (matchID != futureMatches[i]["match_id"]){
         continue;
       }
@@ -140,10 +152,8 @@ router.use(async function (req, res, next) {
           badRequest = true;
           break;
         }
-
         await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
         break;
-
       }
     }
 
@@ -152,15 +162,44 @@ router.use(async function (req, res, next) {
     } else{
       res.status(400).send("Bad request");
     }
-
-    
   } catch (error) {
     next(error);
   }
 });
 
 
+//* ------------------------------ /addMatchEventsLog ------------------------------ *//
+
+/**
+ * This path gets body with match's Events Log and save matches DB
+ */
+router.get("/addMatchEventsLog", async (req, res, next) => {
+  try {
+
+    const matchID = req.body.matchID;
+    const eventsLog = req.body.eventsLog;
+
+    var badRequest = false;
+    const match = await unionAgent_utils.getMatchByID(matchID);
+    
+    
+    
+
+    res.status(200).send(resultResponse);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+
 module.exports = router;
+
+
+
+
+
 
 
 
@@ -175,6 +214,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
   var matchesWithReferee = [];
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
+      matchID : element.match_id,
       matchDate : element.matchDateAndTime,
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
@@ -200,6 +240,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   var matchesWithReferee = [];
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
+      matchID : element.match_id,
       matchDateAndTime : element.matchDateAndTime,
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
