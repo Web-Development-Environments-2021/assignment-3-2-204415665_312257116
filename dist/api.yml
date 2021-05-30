@@ -519,6 +519,10 @@ components:
     PlayerPreview:
       type: object
       properties:
+        playerID:
+          type: number
+          description: Player's ID
+          example: 1 
         name:
           type: string
           description: player's name
@@ -578,6 +582,10 @@ components:
     Team:
       type: object
       properties:
+        TeamID:
+          type: number
+          description: Team's ID
+          example: 1 
         teamLogo:
           type: string
           format: url
@@ -616,6 +624,10 @@ components:
         - visitorTeamName
         - venueName
       properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
         matchDate:
           type: string
           format: date-time
@@ -648,6 +660,10 @@ components:
         - visitorTeamScore
         - eventsLog
       properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
         matchDateAndTime:
           type: string
           format: date-time
