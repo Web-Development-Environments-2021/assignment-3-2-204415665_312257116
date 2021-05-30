@@ -165,6 +165,7 @@ exports.removeTeamsFromFavorite = removeTeamsFromFavorite;
 // add a Player to User Favorites Players
 
 async function markPlayerAsFavorite(user_id, player_id) {
+  var userFavoritePlayer = getFavoriteTeams(user_id);
   await DButils.execQuery(
     `insert into FavoritePlayers values ('${user_id}',${player_id})`
   );
@@ -175,10 +176,13 @@ exports.markPlayerAsFavorite = markPlayerAsFavorite;
 // add a Matched to User Favorites Matches
 
 async function markMatchesAsFavorite(user_id, match_id) {
-  await DButils.execQuery(
-    `insert into FavoriteMatches values ('${user_id}',${match_id})`
-  );
+    await DButils.execQuery(
+      `insert into FavoriteMatches values 
+       SELECT * FROM (SELECT '${user_id}',${match_id}) AS tmp
+       WHERE NOT EXISTS (SELECT user_id,match_id FROM FavoriteMatches WHERE user_id = '${user_id}' AND match_id = '${match_id}') LIMIT 1`
+    );
 }
+
 exports.markMatchesAsFavorite = markMatchesAsFavorite;
 
 
