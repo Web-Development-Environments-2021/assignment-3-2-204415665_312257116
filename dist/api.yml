@@ -104,6 +104,8 @@ paths:
           description: The match successfully saved as favorite
         "401":
           description: User is not authorized
+        '400':
+          description: Bad request
           
   /users/search/{Search_Query}:
     get:
