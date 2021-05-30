@@ -38,11 +38,11 @@ router.use(async function (req, res, next) {
     const featureMatchesWithReferees = await addRefereeToFutureMatches(leagueMatches[1]);
     const pastMatchesWithReferees = await addRefereeToPastMatches(leagueMatches[0]);
 
-    var resultRespone ={};
-    resultRespone["pastMatches"] = pastMatchesWithReferees;
-    resultRespone["featureMatches"] = featureMatchesWithReferees;
+    var resultResponse ={};
+    resultResponse["pastMatches"] = pastMatchesWithReferees;
+    resultResponse["featureMatches"] = featureMatchesWithReferees;
 
-    res.status(200).send(resultRespone);
+    res.status(200).send(resultResponse);
   } catch (error) {
     next(error);
   }
@@ -53,14 +53,14 @@ router.use(async function (req, res, next) {
 //* ------------------------------ /addMatch ------------------------------ *//
 
 /**
- * This path gets body with match inforamtion and save new match in the matches DB
+ * This path gets body with match information and save new match in the matches DB
  */
  router.post("/addMatch", async (req, res, next) => {
   try {
-    const matchDate = req.body.matchInfomation.matchDate;
-    const localTeamName = req.body.matchInfomation.loaclTeamName;
-    const visitorTeamName = req.body.matchInfomation.visitorTeamName;
-    const venueName = req.body.matchInfomation.venueName;
+    const matchDate = req.body.matchInformation.matchDate;
+    const localTeamName = req.body.matchInformation.localTeamName;
+    const visitorTeamName = req.body.matchInformation.visitorTeamName;
+    const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
     //TODO: Check Valid Date
@@ -83,13 +83,23 @@ router.use(async function (req, res, next) {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
     const visitorTeamScore = req.body.visitorTeamScore;
-    const leagueMatches = await unionAgent_utils.getLeagueMatches();
+    var foundMatch = false;
+    var badRequest = false;
 
+    //TODO: Add Sanity Check
+    if (visitorTeamScore < 0 || localTeamScore < 0){
+      badRequest = true;
+    }
+
+    const leagueMatches = await unionAgent_utils.getLeagueMatches();
     var futureMatches = leagueMatches[1];
     var pastMatches = leagueMatches[0];
-    var foundMatch = false;
 
     for (var i = 0 ; i < futureMatches ; i++){
+
+      if (badRequest){
+        break;
+      }
 
       if (matchID != futureMatches[i]["match_id"]){
         continue;
@@ -100,9 +110,9 @@ router.use(async function (req, res, next) {
       var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
       var dateTime = date+' '+time;
-
       if (dateTime < futureMatches[i]["matchDateAndTime"]){
-        //TODO: Throw Current Error Message
+        //Match's Date is in the future
+        badRequest = true;
       }
 
       var matchDate = futureMatches[i]["matchDateAndTime"];
@@ -114,21 +124,35 @@ router.use(async function (req, res, next) {
       await unionAgent_utils.addPastMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
     }
 
-    if (!foundMatch){
+    if (!foundMatch || !badRequest){
       for (var i = 0 ; i < pastMatches ; i++){
 
-        if (matchID != futureMatches[i]["match_id"]){
+        if (matchID != pastMatches[i]["match_id"]){
           continue;
         }
         foundMatch = true;
-        //TODO: start hhhhh
+
+        var localTeamScore_DB = pastMatches[i]["localTeamScore"];
+        var visitorTeamScore_DB = pastMatches[i]["visitorTeamScore"];
+        if (localTeamScore_DB != null && visitorTeamScore_DB != null){
+          //The Match Already as Result
+          badRequest = true;
+          break;
+        }
+
+        await unionAgent_utils.addFutureMatchResult(matchID, localTeamScore, visitorTeamScore);
+        break;
 
       }
     }
 
+    if (foundMatch && !badRequest){
+      res.status(200).send("Result added to match successfully");
+    } else{
+      res.status(400).send("Bad request");
+    }
 
-
-    res.status(200).send("Result added to match successfully");
+    
   } catch (error) {
     next(error);
   }
@@ -158,7 +182,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
     var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-    matchesWithReferee[i]["refereeInforamtion"] = refereeDic[0];
+    matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
     delete matchesWithReferee[i]["refereeID"]
   }
   return matchesWithReferee;
@@ -183,7 +207,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
     var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-    matchesWithReferee[i]["refereeInforamtion"] = refereeDic[0];
+    matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
     delete matchesWithReferee[i]["refereeID"]
 
     var eventDic = await unionAgent_utils.extractEventLog(matchesWithReferee[i]["firstEventID"]);
