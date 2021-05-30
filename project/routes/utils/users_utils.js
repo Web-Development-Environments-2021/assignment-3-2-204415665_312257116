@@ -2,6 +2,7 @@
 const DButils = require("./DButils");
 const axios = require("axios");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
+const matches_utils = require("./matches_utils");
 
 
 //------------------------------------------------------------------------------------ //
@@ -94,20 +95,22 @@ exports.getFavoriteMatches = getFavoriteMatches;
 
 async function markMatchesAsFavorite(user_id, match_id) {
   if (user_id && match_id)
-   {
+   {            
       const userFavoriteMatches = await getFavoriteMatches(user_id);
-      userFavoriteMatches.then((match) => {
-      if (!match.find((element) => element.match_id == match_id) ) {
-        DButils.execQuery(`insert into FavoriteMatches values ('${user_id}',${match_id})`);
-        return true;
-      }else{
-        return false;
+      var flag = false;
+      for (var i = 0 ; i < userFavoriteMatches.length ; i++){
+        if (userFavoriteMatches[i].match_id == match_id){
+          return flag;
+        }
       }
-      }) 
-  }else{
-    return false;
-  }
+      const checkMatch_exist = await matches_utils.getMatchByID(match_id);
+      if (checkMatch_exist.length > 0) {
+            DButils.execQuery(`insert into FavoriteMatches values ('${user_id}',${match_id})`);
+            flag = true;
+      }
+    }  
+  
+  return flag;
 }exports.markMatchesAsFavorite = markMatchesAsFavorite;
-
 
 
