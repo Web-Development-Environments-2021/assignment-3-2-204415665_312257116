@@ -73,7 +73,7 @@ async function getLeagueMatches() {
 exports.getLeagueMatches = getLeagueMatches;
 
 
-//* ------------------------------ Get Match By ID------------------------------ *//
+//* ------------------------------ Get Past Match By ID------------------------------ *//
 
 async function getMatchByID(matchID) {
   
@@ -84,15 +84,23 @@ async function getMatchByID(matchID) {
   const pastMatches = await DButils.execQuery(
     `select * from PastMatches where match_id='${matchID}'`
   );
-  
-  if (futureMatch.length != 0){
-    return futureMatch;
-  } else{
-    return pastMatches;
-  }
 
+  return pastMatches;
 }
-exports.getMatchByID = getMatchByID;
+exports.getPastMatchByID = getPastMatchByID;
+
+
+//* ------------------------------ Get Future Match By ID------------------------------ *//
+
+async function getFutureMatchByID(matchID) {
+  
+  var futureMatch = await DButils.execQuery(
+    `select * from FutureMatches where match_id='${matchID}'`
+  );
+
+  return futureMatch;
+}
+exports.getFutureMatchByID = getFutureMatchByID;
 
 
 //* ------------------------------ Extract Referee Information ------------------------------ *//
@@ -119,34 +127,25 @@ exports.extractRefereeInfo = extractRefereeInfo;
 
 //* ------------------------------ Extract Event Log ------------------------------ *//
 
-async function extractEventLog(EventID){
+async function extractEventLog(matchID){
 
-  if (EventID == null){
-    return [];
-  }
   var eventsLog = [];
   var next = true;
   
-  while(next){
-    var event = await DButils.execQuery(
-      `select * from MatchEvents where eventID='${EventID}'`
-    );
-    event = event.map((element) => {
-      next = element.nextMatchEventID;
-      return {
-        eventTimeAndDate : element.eventTimeAndDate,
-        minuteInMatch : element.minuteInMatch,
-        eventType : element.eventType,
-        eventDescription : element.eventDescription
-      }
-    })
 
-    if (next == null){
-      next = false;
-    } else{
-      EventID = next;
-      next = true;
+  var event = await DButils.execQuery(
+    `select * from MatchEvents where matchID='${matchID}'`
+  );
+  event = event.map((element) => {
+    next = element.nextMatchEventID;
+    return {
+      eventTimeAndDate : element.eventTimeAndDate,
+      minuteInMatch : element.minuteInMatch,
+      eventType : element.eventType,
+      eventDescription : element.eventDescription
     }
+  })
+  if (event.length !=0){
     eventsLog.push(event);
   }
 
@@ -154,6 +153,12 @@ async function extractEventLog(EventID){
 }
 
 exports.extractEventLog = extractEventLog;
+
+
+
+
+
+
 
 
 

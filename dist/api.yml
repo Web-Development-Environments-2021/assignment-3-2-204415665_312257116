@@ -212,15 +212,10 @@ paths:
       parameters: 
       - in: query
         name: sortBy
-        description: Sort matches by date or teams 
-        style: form
+        description: Sort matches by "Date" or team name or leave empty 
         schema:
-          type: array
-          items:
-            type: string
-            enum:
-            - Date
-            - Teams
+          type: string
+          example: "Date"
       responses:
         '200':
           description: The league management page uploaded successfully

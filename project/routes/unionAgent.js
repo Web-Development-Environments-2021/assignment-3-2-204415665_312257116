@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
 const unionAgent_utils = require("./utils/unionAgent_utils");
+const matches_utils = require("./utils/matches_utils");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -25,7 +26,6 @@ router.use(async function (req, res, next) {
 
 
 //* ------------------------------ /leagueManagementPage ------------------------------ *//
-// TODO: What to do With Sort 
 /**
  * This path gets parameter with sort information and Return all matches
  */
@@ -34,14 +34,14 @@ router.use(async function (req, res, next) {
 
     const sortBy = req.query.sortBy;
 
-    const leagueMatches = await unionAgent_utils.getLeagueMatches();
+    const leagueMatches = await matches_utils.getLeagueMatches();
 
-    const featureMatchesWithReferees = await addRefereeToFutureMatches(leagueMatches[1]);
-    const pastMatchesWithReferees = await addRefereeToPastMatches(leagueMatches[0]);
+    const futureMatchesWithReferees = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), sortBy, "future");
+    const pastMatchesWithReferees = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), sortBy, "past");
 
     var resultResponse ={};
     resultResponse["pastMatches"] = pastMatchesWithReferees;
-    resultResponse["featureMatches"] = featureMatchesWithReferees;
+    resultResponse["featureMatches"] = futureMatchesWithReferees;
 
     res.status(200).send(resultResponse);
   } catch (error) {
@@ -64,13 +64,10 @@ router.use(async function (req, res, next) {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    //TODO: Sanity Check ?? (Date)
+    //TODO: Sanity Check ??
 
-    var today = new Date();
-    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    var dateTime = date+' '+time;
-    if (dateTime < matchDate){
+    var dateTime =  getTodayDatTime();
+    if (Date.parse(dateTime) < Date.parse(matchDate)){
       await unionAgent_utils.addNewFutureMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
     } else{
       await unionAgent_utils.addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
@@ -104,7 +101,7 @@ router.use(async function (req, res, next) {
 
     }
 
-    const leagueMatches = await unionAgent_utils.getLeagueMatches();
+    const leagueMatches = await matches_utils.getLeagueMatches();
     var futureMatches = leagueMatches[1];
     var pastMatches = leagueMatches[0];
 
@@ -118,13 +115,11 @@ router.use(async function (req, res, next) {
       }
       foundMatch = true;
       
-      var today = new Date();
-      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      var dateTime = date+' '+time;
-      if (dateTime < futureMatches[i]["matchDateAndTime"]){
+      var dateTime =  getTodayDatTime();
+      if (Date.parse(dateTime) < Date.parse(futureMatches[i]["matchDateAndTime"])){
         //Match's Date is in the future
         badRequest = true;
+        break;
       }
 
       var matchDate = futureMatches[i]["matchDateAndTime"];
@@ -173,19 +168,46 @@ router.use(async function (req, res, next) {
 /**
  * This path gets body with match's Events Log and save matches DB
  */
-router.get("/addMatchEventsLog", async (req, res, next) => {
+router.post("/addMatchEventsLog", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;
     const eventsLog = req.body.eventsLog;
 
     var badRequest = false;
-    const match = await unionAgent_utils.getMatchByID(matchID);
-    
-    
-    
+    const match = await matches_utils.getPastMatchByID(matchID);
+    var dateTime =  getTodayDatTime();
 
-    res.status(200).send(resultResponse);
+    if (match.length != 0){
+      
+      for (var i = 0 ; i < eventsLog.length ; i++){
+
+        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ||
+            !Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 ||
+            checkEventType(eventsLog[i]["eventType"])){
+          badRequest = true;
+          break;
+        }
+
+        var eventTimeAndDate = eventsLog[i]["eventTimeAndDate"];
+        var minuteInMatch = eventsLog[i]["minuteInMatch"];
+        var eventType = eventsLog[i]["eventType"];
+        var eventDescription = eventsLog[i]["eventDescription"];
+        if (eventDescription == undefined){
+          eventDescription = 'null';
+        }
+
+        await unionAgent_utils.addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription);
+      }
+    } else{
+      badRequest = true;
+    }
+
+    if (badRequest){
+      res.status(400).send("Bad request");
+    } else {
+      res.status(200).send("Events log added match successfully");
+    }
   } catch (error) {
     next(error);
   }
@@ -206,6 +228,15 @@ module.exports = router;
 //* ------------------------------ Help Functions ------------------------------ *//
 
 
+//* ------------------------------ Get Today DataTime ------------------------------ *//
+
+function getTodayDatTime(){
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date+' '+time;
+  return dateTime;
+}
 
 //* ------------------------------ Add Referee To Future Matches ------------------------------ *//
 
@@ -225,7 +256,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
 
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
-    var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
+    var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
     matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
     delete matchesWithReferee[i]["refereeID"]
   }
@@ -247,25 +278,53 @@ async function addRefereeToPastMatches(matchesToAdd){
       venueName : element.venueName,
       refereeID : element.refereeID,
       localTeamScore : element.localTeamScore,
-      visitorTeamScore : element.visitorTeamScore,
-      firstEventID : element.firstEventID
+      visitorTeamScore : element.visitorTeamScore
     }
   ));
 
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
-    var refereeDic = await unionAgent_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
+    var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
     matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
     delete matchesWithReferee[i]["refereeID"]
 
-    var eventDic = await unionAgent_utils.extractEventLog(matchesWithReferee[i]["firstEventID"]);
+    var eventDic = await matches_utils.extractEventLog(matchesWithReferee[i]["matchID"]);
     matchesWithReferee[i]["eventsLog"] = eventDic;
-    delete matchesWithReferee[i]["firstEventID"]
 
   }
   return matchesWithReferee;
 }
 
 
+//* ------------------------------ Sort Matches By Date ------------------------------ *//
 
+async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
+  
 
+  if (sortBy == "Date"){
+    if (futureOrPast == "future"){
+      var SortedMatches = matchesToAdd.sort((a, b) => a["matchDate"] - b["matchDate"]);
+    } else{
+      var SortedMatches = matchesToAdd.sort((a, b) => a["matchDateAndTime"] - b["matchDateAndTime"]);
+    }
+  } else if (sortBy != undefined){
+    var SortedMatches = matchesToAdd.sort((a, b) => 
+                        (a["localTeamName"] == sortBy == b["localTeamName"]) ? 0 : 
+                        (a["localTeamName"] == sortBy) ? -1 : 
+                        (b["localTeamName"] == sortBy) ? 1 : 0);
+  } else{
+    return matchesToAdd;
+  }
+  
+  return SortedMatches;
+}
+
+//* ------------------------------ Check EventType ------------------------------ *//
+
+function checkEventType(eventType){
+  var types = ['Goal', 'Red Card', 'Yellow Card', 'Injury', 'Subsitute'];
+  if (types.includes(eventType)){
+    return true;
+  }
+  return false;
+}
