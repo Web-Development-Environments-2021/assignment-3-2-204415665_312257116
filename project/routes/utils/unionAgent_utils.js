@@ -1,4 +1,5 @@
 const DButils = require("./DButils");
+const matches_utils = require("./matches_utils");
 
 
 //TODO: Need Make Authentication
@@ -158,5 +159,31 @@ async function getAllReferees(){
 }
 
 exports.getAllReferees = getAllReferees;
+
+//* ------------------------------ Get All Matches Without Referee ------------------------------ *//
+
+async function GetAllMatchesWithoutReferee(){
+
+  
+  var matches = await matches_utils.getLeagueMatches();
+  var matchesWithReferee = [[],[]];
+
+  matches[0].map((element) => {
+    if(element.refereeID == null){
+      matchesWithReferee[0].push(element);
+    };
+  });
+
+  matches[1].map((element) => {
+    if(element.refereeID == null){
+      matchesWithReferee[1].push(element);
+    };
+  });
+
+  return matchesWithReferee;
+  
+}
+
+exports.GetAllMatchesWithoutReferee = GetAllMatchesWithoutReferee;
 
 

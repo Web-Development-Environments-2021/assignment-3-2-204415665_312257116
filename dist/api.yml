@@ -82,7 +82,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/FeatureMatchInformation"
+                  $ref: "#/components/schemas/FutureMatchInformation"
         "401":
           description: User is not authorized
     post:
@@ -228,10 +228,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
-                  featureMatches:
+                  futureMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/FeatureMatchInformation'
+                      $ref: '#/components/schemas/FutureMatchInformation'
         '400':
           description: Bad request
 
@@ -266,8 +266,6 @@ paths:
                     type: array
                     items:
                      $ref: '#/components/schemas/Referee'
-                      
-
         "401":
           description: User is not authorized
     post:
@@ -282,7 +280,7 @@ paths:
               type: object
               properties:
                 matchInformation:
-                  $ref: '#/components/schemas/FeatureMatchInformation'
+                  $ref: '#/components/schemas/FutureMatchInformation'
                   required: true
                 refereeID:
                   type: number
@@ -356,6 +354,32 @@ paths:
           description: Bad request
   
   /unionAgent/addRefereeToMatch:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for add referee
+      responses:
+        "200":
+          description: Data the agent need for add referee returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referees:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Referee'
+                  futureMatchesWithoutReferee:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FutureMatchInformation'
+                  pastMatchesWithoutReferee:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+        "401":
+          description: User is not authorized
     post:
       tags: 
         - UnionAgent
@@ -463,10 +487,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
-                  featureMatches:
+                  futureMatches:
                     type: array
                     items:
-                      $ref: '#/components/schemas/FeatureMatchInformation'
+                      $ref: '#/components/schemas/FutureMatchInformation'
         '400':
           description: Bad request
 
@@ -635,20 +659,20 @@ components:
           description: Team's players
           items:
             $ref: '#/components/schemas/PlayerPreview'
-        featureMatches:
+        futureMatches:
           type: array
-          description: Team's feature matches
+          description: Team's future matches
           items:
-            $ref: '#/components/schemas/FeatureMatchInformation'
+            $ref: '#/components/schemas/FutureMatchInformation'
         pastMatches:
           type: array
           description: Team's past matches
           items:
             $ref: '#/components/schemas/PastMatchInformation'
             
-    FeatureMatchInformation:
+    FutureMatchInformation:
       type: object
-      description: The information about feature match
+      description: The information about future match
       required:
         - matchDate
         - localTeamName

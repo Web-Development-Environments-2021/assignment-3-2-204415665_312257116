@@ -247,6 +247,23 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
 
 //* ------------------------------ /addRefereeToMatch ------------------------------ *//
 
+router.get("/addRefereeToMatch", async (req, res, next) => {
+  try {
+
+    const referees = await unionAgent_utils.getAllReferees();
+    const matchesWithoutReferee = await unionAgent_utils.GetAllMatchesWithoutReferee();
+
+    const dataForUnionAgent = {
+      referees : referees,
+      futureMatchesWithoutReferee : matchesWithoutReferee[1],
+      pastMatchesWithReferees : matchesWithoutReferee[0]
+    }
+
+    res.status(200).send(dataForUnionAgent);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post("/addRefereeToMatch", async (req, res, next) => {
   try {
