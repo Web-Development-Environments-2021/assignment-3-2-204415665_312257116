@@ -236,6 +236,40 @@ paths:
           description: Bad request
 
   /unionAgent/addMatch:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for new match
+      responses:
+        "200":
+          description: Data the agent need for new match returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teamsNames:
+                    type: object
+                    properties:
+                      teamName:
+                        type: string
+                        description: Team name in our league
+                        example: "Midtjylland"
+                  venuesNames:
+                    type: object
+                    properties:
+                      venueName:
+                        type: string
+                        description: Venue name in out league
+                        example: "MCH Arena"
+                  referees:
+                    type: array
+                    items:
+                     $ref: '#/components/schemas/Referee'
+                      
+
+        "401":
+          description: User is not authorized
     post:
       tags: 
         - UnionAgent
@@ -347,23 +381,6 @@ paths:
           description: Referee added to match successfully
         '400':
           description: Bad request
-
-  /unionAgent/referees:
-    get:
-      tags:
-        - UnionAgent
-      summary: Return all referees
-      responses:
-        "200":
-          description: Data about the referee's favorites matches returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Referee'
-        "401":
-          description: User is not authorized
 
   /league/getDetails:
     get:

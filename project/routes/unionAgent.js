@@ -57,7 +57,29 @@ router.use(async function (req, res, next) {
 /**
  * This path gets body with match information and save new match in the matches DB
  */
- router.post("/addMatch", async (req, res, next) => {
+
+ router.get("/addMatch", async (req, res, next) => {
+  try {
+
+    const teamsNames = await league_utils.getTeamsNames();
+    const venuesNames = await league_utils.getVenuesNames();
+    const referees = await unionAgent_utils.getAllReferees();
+
+    const dataForUnionAgent = {
+      teamsNames : teamsNames,
+      venuesName : venuesNames,
+      referees : referees 
+    }
+
+    res.status(200).send(dataForUnionAgent);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+router.post("/addMatch", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInformation.matchDate;
     const localTeamName = req.body.matchInformation.localTeamName;
@@ -83,6 +105,9 @@ router.use(async function (req, res, next) {
     next(error);
   }
 });
+
+
+
 
 
 //* ------------------------------ /addMatchResult ------------------------------ *//

@@ -33,9 +33,6 @@ async function getLeagueDetails() {
 exports.getLeagueDetails = getLeagueDetails;
 
 
-
-
-
 //* ------------------------------ checkTeamName ------------------------------ *//
 
 async function checkTeamNames(localTeamName, visitorTeamName) {
@@ -53,3 +50,46 @@ async function checkTeamNames(localTeamName, visitorTeamName) {
   return false;
 }
 exports.checkTeamNames = checkTeamNames;
+
+
+//* ------------------------------ get Venues Names ------------------------------ *//
+
+async function getVenuesNames() {
+  const venues = await axios.get(
+    `https://soccer.sportmonks.com/api/v2.0/venues/season/${season_ID}`,
+    {
+      params: {
+        api_token: process.env.api_token,
+      },
+    }
+  );
+  return venues.data.data.map((element) => {
+    return {
+      venueName : element.name
+    }
+  });
+  
+}
+exports.getVenuesNames = getVenuesNames;
+
+
+//* ------------------------------ get Teams Names ------------------------------ *//
+
+
+async function getTeamsNames() {
+  const teams = await axios.get(
+    `https://soccer.sportmonks.com/api/v2.0/teams/season/${season_ID}`,
+    {
+      params: {
+        api_token: process.env.api_token,
+      },
+    }
+  );
+  return teams.data.data.map((element) => {
+    return {
+      teamName : element.name
+    }
+  });
+  
+}
+exports.getTeamsNames = getTeamsNames;
