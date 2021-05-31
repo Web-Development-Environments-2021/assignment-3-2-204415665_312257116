@@ -115,7 +115,7 @@ router.post("/addMatch", async (req, res, next) => {
 /**
  * This path gets body with match's result and save matches DB
  */
- router.post("/addMatchResult", async (req, res, next) => {
+ router.put("/addMatchResult", async (req, res, next) => {
   try {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
@@ -198,7 +198,7 @@ router.post("/addMatch", async (req, res, next) => {
 /**
  * This path gets body with match's Events Log and save matches DB
  */
-router.post("/addMatchEventsLog", async (req, res, next) => {
+router.put("/addMatchEventsLog", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;
@@ -265,7 +265,7 @@ router.get("/addRefereeToMatch", async (req, res, next) => {
   }
 });
 
-router.post("/addRefereeToMatch", async (req, res, next) => {
+router.put("/addRefereeToMatch", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;

@@ -293,7 +293,7 @@ paths:
           description: Bad request
 
   /unionAgent/addMatchResult:
-    post:
+    put:
       tags: 
         - UnionAgent
       summary: Add result to match
@@ -325,7 +325,7 @@ paths:
           description: Bad request
   
   /unionAgent/addMatchEventsLog:
-    post:
+    put:
       tags: 
         - UnionAgent
       summary: Add events log to match
@@ -380,7 +380,7 @@ paths:
                       $ref: '#/components/schemas/PastMatchInformation'
         "401":
           description: User is not authorized
-    post:
+    put:
       tags: 
         - UnionAgent
       summary: Add referee to match
