@@ -3,7 +3,7 @@ var router = express.Router();
 const DButils = require("./utils/DButils");
 const unionAgent_utils = require("./utils/unionAgent_utils");
 const matches_utils = require("./utils/matches_utils");
-const e = require("express");
+const league_utils = require("./utils/league_utils");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -65,8 +65,11 @@ router.use(async function (req, res, next) {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    //TODO: Sanity Check ??
-    //TODO: Add check if team in season
+    var badRequest = false;
+
+    if ( await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
+      badRequest = true;
+    } //TODO: Continue Sanity Checks
 
     var dateTime =  getTodayDatTime();
     if (Date.parse(dateTime) < Date.parse(matchDate)){
@@ -367,9 +370,12 @@ async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
     }
   } else if (sortBy != undefined){
     var SortedMatches = matchesToAdd.sort((a, b) => 
-                        (a["localTeamName"] == sortBy == b["localTeamName"]) ? 0 : 
+                        (a["localTeamName"] == sortBy == b["localTeamName"]) ? 0 :
+                        (a["visitorTeamName"] == sortBy == b["visitorTeamName"]) ? 0 :
+                        (a["visitorTeamName"] == sortBy) ? -1 :
                         (a["localTeamName"] == sortBy) ? -1 : 
-                        (b["localTeamName"] == sortBy) ? 1 : 0);
+                        (b["localTeamName"] == sortBy) ? 1 :
+                        (b["visitorTeamName"] == sortBy) ? 1 : 0);
   } else{
     return matchesToAdd;
   }
