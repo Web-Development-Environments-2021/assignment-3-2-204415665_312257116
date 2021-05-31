@@ -36,8 +36,8 @@ router.use(async function (req, res, next) {
 
     const leagueMatches = await matches_utils.getLeagueMatches();
 
-    const futureMatchesWithReferees = SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), sortBy, "future");
-    const pastMatchesWithReferees = SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), sortBy, "past");
+    const futureMatchesWithReferees = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), sortBy, "future");
+    const pastMatchesWithReferees = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), sortBy, "past");
 
     var resultResponse ={};
     resultResponse["pastMatches"] = pastMatchesWithReferees;
@@ -64,12 +64,9 @@ router.use(async function (req, res, next) {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    //TODO: Sanity Check ?? (Date)
+    //TODO: Sanity Check ??
 
-    var today = new Date();
-    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    var dateTime = date+' '+time;
+    var dateTime =  getTodayDatTime();
     if (Date.parse(dateTime) < Date.parse(matchDate)){
       await unionAgent_utils.addNewFutureMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
     } else{
@@ -118,10 +115,7 @@ router.use(async function (req, res, next) {
       }
       foundMatch = true;
       
-      var today = new Date();
-      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      var dateTime = date+' '+time;
+      var dateTime =  getTodayDatTime();
       if (Date.parse(dateTime) < Date.parse(futureMatches[i]["matchDateAndTime"])){
         //Match's Date is in the future
         badRequest = true;
@@ -174,23 +168,50 @@ router.use(async function (req, res, next) {
 /**
  * This path gets body with match's Events Log and save matches DB
  */
-// router.get("/addMatchEventsLog", async (req, res, next) => {
-//   try {
+router.post("/addMatchEventsLog", async (req, res, next) => {
+  try {
 
-//     const matchID = req.body.matchID;
-//     const eventsLog = req.body.eventsLog;
+    const matchID = req.body.matchID;
+    const eventsLog = req.body.eventsLog;
 
-//     var badRequest = false;
-//     const match = await matches_utils.getMatchByID(matchID);
-    
-    
+    var badRequest = false;
+    const match = await matches_utils.getPastMatchByID(matchID);
+    var dateTime =  getTodayDatTime();
 
+    if (match.length != 0){
+      
+      for (var i = 0 ; i < eventsLog.length ; i++){
 
-//     res.status(200).send(resultResponse);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ||
+            !Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 ||
+            checkEventType(eventsLog[i]["eventType"])){
+          badRequest = true;
+          break;
+        }
+
+        var eventTimeAndDate = eventsLog[i]["eventTimeAndDate"];
+        var minuteInMatch = eventsLog[i]["minuteInMatch"];
+        var eventType = eventsLog[i]["eventType"];
+        var eventDescription = eventsLog[i]["eventDescription"];
+        if (eventDescription == undefined){
+          eventDescription = 'null';
+        }
+
+        await unionAgent_utils.addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription);
+      }
+    } else{
+      badRequest = true;
+    }
+
+    if (badRequest){
+      res.status(400).send("Bad request");
+    } else {
+      res.status(200).send("Events log added match successfully");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 
@@ -207,6 +228,15 @@ module.exports = router;
 //* ------------------------------ Help Functions ------------------------------ *//
 
 
+//* ------------------------------ Get Today DataTime ------------------------------ *//
+
+function getTodayDatTime(){
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date+' '+time;
+  return dateTime;
+}
 
 //* ------------------------------ Add Referee To Future Matches ------------------------------ *//
 
@@ -248,8 +278,7 @@ async function addRefereeToPastMatches(matchesToAdd){
       venueName : element.venueName,
       refereeID : element.refereeID,
       localTeamScore : element.localTeamScore,
-      visitorTeamScore : element.visitorTeamScore,
-      firstEventID : element.firstEventID
+      visitorTeamScore : element.visitorTeamScore
     }
   ));
 
@@ -259,9 +288,8 @@ async function addRefereeToPastMatches(matchesToAdd){
     matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
     delete matchesWithReferee[i]["refereeID"]
 
-    var eventDic = await matches_utils.extractEventLog(matchesWithReferee[i]["firstEventID"]);
+    var eventDic = await matches_utils.extractEventLog(matchesWithReferee[i]["matchID"]);
     matchesWithReferee[i]["eventsLog"] = eventDic;
-    delete matchesWithReferee[i]["firstEventID"]
 
   }
   return matchesWithReferee;
@@ -291,3 +319,12 @@ async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
   return SortedMatches;
 }
 
+//* ------------------------------ Check EventType ------------------------------ *//
+
+function checkEventType(eventType){
+  var types = ['Goal', 'Red Card', 'Yellow Card', 'Injury', 'Subsitute'];
+  if (types.includes(eventType)){
+    return true;
+  }
+  return false;
+}

@@ -27,12 +27,12 @@ async function addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueN
   
   if (refereeID == undefined){
     await DButils.execQuery(
-      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null, null, null, null)`
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null, null, null)`
     );
 
   } else {
     await DButils.execQuery(
-      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}', null, null, null)`
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}', null, null)`
     );
   }
 }
@@ -46,12 +46,12 @@ async function addFutureMatchResult(matchID, matchDate, localTeamName, visitorTe
   
   if (refereeID == undefined){
     await DButils.execQuery(
-      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null,'${localTeamScore}','${visitorTeamScore}', null )`
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', null,'${localTeamScore}','${visitorTeamScore}')`
     );
 
   } else {
     await DButils.execQuery(
-      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}','${localTeamScore}','${visitorTeamScore}', null )`
+      `insert into PastMatches values ('${matchDate}','${localTeamName}','${visitorTeamName}','${venueName}', '${refereeID}','${localTeamScore}','${visitorTeamScore}')`
     );
   }
 
@@ -75,3 +75,20 @@ async function addPastMatchResult(matchID, localTeamScore, visitorTeamScore) {
 
 }
 exports.addPastMatchResult = addPastMatchResult;
+
+
+//* ------------------------------ Add Event ------------------------------ *//
+
+async function addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription){
+
+  var hours = Math.floor(minuteInMatch/60);
+  var minutes = minuteInMatch % 60;
+  minuteInMatch = hours + ":" + minutes + ":00"
+
+  await DButils.execQuery(
+    `insert into MatchEvents values ('${matchID}', '${eventTimeAndDate}', '${minuteInMatch}', '${eventType}', '${eventDescription}')`
+  );
+  
+}
+
+exports.addEvent = addEvent;
