@@ -97,6 +97,20 @@ async function getFutureMatchByID(matchID) {
 exports.getFutureMatchByID = getFutureMatchByID;
 
 
+//* ------------------------------ Get Past Match By ID------------------------------ *//
+
+async function getPastMatchByID(matchID) {
+  
+  var pastMatch = await DButils.execQuery(
+    `select * from PastMatches where match_id='${matchID}'`
+  );
+
+  return futureMatch;
+}
+exports.getPastMatchByID = getPastMatchByID;
+
+
+
 //* ------------------------------ Extract Referee Information ------------------------------ *//
 
 async function extractRefereeInfo(refereeID){
