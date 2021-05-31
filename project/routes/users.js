@@ -32,8 +32,18 @@ router.post("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const match_id = req.body.matchId;
-    await users_utils.markMatchesAsFavorite(user_id, match_id);
-    res.status(201).send("The match successfully saved as favorite");
+
+    if (!Number.isInteger(match_id)){    //Checks if the user's input is correct
+      res.status(400).send("Bad request");
+    }
+
+    const flag = await users_utils.markMatchesAsFavorite(user_id, match_id);
+    if (flag){
+      res.status(201).send("The match successfully saved as favorite");
+    }
+    else{
+      res.status(400).send("Bad request");
+    }
   } catch (error) {
     next(error);
   }
@@ -49,7 +59,7 @@ router.get("/favoriteMatches", async (req, res, next) => {
     const matches_ids = await users_utils.getFavoriteMatches(user_id);
     let matches_ids_array = [];
     matches_ids.map((element) => matches_ids_array.push(element.match_id)); //extracting the players ids into array
-    const results = await matches_utils.getMatchsInfo(matches_ids_array);
+    const results = await matches_utils.getMatchesInfo(matches_ids_array);
     res.status(200).send(results);
   } catch (error) {
     next(error);
@@ -62,9 +72,9 @@ router.get("/favoriteMatches", async (req, res, next) => {
   router.get("/search/:Search_Query", async (req, res, next) => {
     try {
       //Extracting the relevant information from the query
-      const { Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
+      const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
       const { Search_Query } = req.params;
-      var results = users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetica, Sort_Players, Sort_Players_By, Filter_Players);
+      var results = users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
       res.status(200).send(results);
 
       } catch (error) {
@@ -72,3 +82,5 @@ router.get("/favoriteMatches", async (req, res, next) => {
       }
 });
 module.exports = router;
+
+

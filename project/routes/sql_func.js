@@ -1,9 +1,9 @@
 //init
 const DButils = require("./DButils");
 
-//------------- -------------------- -------------
-//--------------- Referee funcsion ---------------
-//------------- -------------------- -------------
+//------------- -------------------- -------------//
+//--------------- Referee funcsion ---------------//
+//------------- -------------------- -------------//
 
 //-----------------get-----------------
 async function getRefereeByID(referee_id) {
@@ -32,11 +32,153 @@ try {
 }
 });
 
-//------------- -------------------- -------------
-//------------- UnionAgents funcsion -------------
-//------------- -------------------- -------------
+//-------------------------------------------------------------------------------------------------------------------------------//
 
 
-//-------------*--------------------*-------------
-//-------------- PastMatches table ---------------
-//-------------*--------------------*-------------
+// ----------------------------------------------------------------------------------- //
+// -----------------------------------   getters   ----------------------------------- //
+// ----------------------------------------------------------------------------------- //
+
+//* ------------------------------ getFavoritePlayers ------------------------------ *//
+
+async function getFavoritePlayers(user_id) {
+  const player_ids = await DButils.execQuery(
+    `select player_id from FavoritePlayers where user_id='${user_id}'`
+  );
+  return player_ids;
+}
+exports.getFavoritePlayers = getFavoritePlayers;
+
+
+// --------------------   get User Favorites Teams   ---------------------------- //
+
+async function getFavoriteTeams(user_id) {
+  const team_ids = await DButils.execQuery(
+    `select team_id from FavoriteTeams where user_id='${user_id}'`
+  );
+  return team_ids;
+}
+exports.getFavoriteTeams = getFavoriteTeams;
+
+
+//------------------------------------------------------------------------------------ //
+// -------------------------------   remove function   ------------------------------- //
+//------------------------------------------------------------------------------------ //
+
+
+// --------------------   remove from Favorites Players    ------------------------ //
+// remove a Players from User Favorites Teams
+async function removePlayersFromFavorite(user_id, player_id) {
+  await DButils.execQuery(
+    `DELETE  FROM  FavoritePlayers WHERE user_id='${user_id}' AND player_id='${player_id}'`
+  );
+}
+exports.removePlayersFromFavorite = removePlayersFromFavorite;
+
+// --------------------   remove from Favorites Matches    ------------------------ //
+// remove a Matches from User Favorites Matches
+async function removeMatchesFromFavorite(user_id, match_id) {
+  await DButils.execQuery(
+    `DELETE  FROM  FavoriteMatches WHERE user_id='${user_id}' AND team_id='${match_id}'`
+  );
+}
+exports.removeMatchesFromFavorite = removeMatchesFromFavorite;
+
+// --------------------   remove from Favorites TeamS    --------------------------- //
+// remove a Team from User Favorites Teams
+async function removeTeamsFromFavorite(user_id, team_id) {
+  await DButils.execQuery(
+    `DELETE  FROM  FavoriteTeams WHERE user_id='${user_id}' AND team_id='${team_id}'`
+  );
+}
+exports.removeTeamsFromFavorite = removeTeamsFromFavorite;
+
+
+//------------------------------------------------------------------------------------//
+// -------------------------------   insert function   -------------------------------//
+//------------------------------------------------------------------------------------//
+
+
+// --------------------   Favorites Player insert   ----------------------------//
+// add a Player to User Favorites Players
+
+async function markPlayerAsFavorite(user_id, player_id) {
+  var userFavoritePlayer = getFavoriteTeams(user_id);
+  await DButils.execQuery(
+    `insert into FavoritePlayers values ('${user_id}',${player_id})`
+  );
+}
+exports.markPlayerAsFavorite = markPlayerAsFavorite;
+
+
+// ----------------------------   Favorites Teams insert   ---------------------------- //
+// add a Team to User Favorites Teams
+
+async function markTeamsAsFavorite(user_id, team_id) {
+  await DButils.execQuery(
+    `insert into FavoriteTeams values ('${user_id}',${team_id})`
+  );
+}
+exports.markTeamsAsFavorite = markTeamsAsFavorite;
+
+
+
+//* ------------------------------ getMatchesInfo ------------------------------ *//
+
+async function getMatchesInfo(match_ids_array) {
+  let promises = [];
+  match_ids_array.map((id) =>
+    promises.push(
+      axios.get(`${api_domain}/fixtures/${id}`, {
+        params: {
+          api_token: process.env.api_token,
+          include:`localTeam, visitorTeam, venue, referee`,
+        },
+      })
+    )
+  ); 
+  let matches_info = await Promise.all(promises);
+  return extractRelevantMatchesData(matches_info);
+}
+
+//* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+
+function extractRelevantMatchesData(matches_info) {
+  return matches_info.map((curr_match_info) => {
+    
+    const { match_id } = curr_match_info.data.data;
+    var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
+    var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
+    const { date_time } = curr_match_info.data.data.time.starting_at;
+    var stadium = curr_match_info.data.data.venue.data["name"];
+    if (curr_match_info.data.data.referee){
+      const { firstname,lastname } = curr_match_info.data.data.referee.data;
+      return {
+        matchID: match_id,
+        matchDate: date_time,
+        localTeamName: homeTeamName,
+        visitorTeamName: awayTeamName,
+        venueName: stadium,
+        
+        refereeInformation: {
+          "firstname": firstname,
+          "lastname": lastname,
+          course: "Regular"
+        },
+      };
+    }
+    return {
+      matchID: match_id,
+      matchDate: date_time,
+      localTeamName: homeTeamName,
+      visitorTeamName: awayTeamName,
+      venueName: stadium,
+    
+    };
+  });
+}
+
+exports.getMatchesInfo = getMatchesInfo;
+
+
+

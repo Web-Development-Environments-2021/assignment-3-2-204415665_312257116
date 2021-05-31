@@ -1,48 +1,53 @@
 const DButils = require("./DButils");
 const axios = require("axios");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
+const unionAgent_utils = require("./unionAgent_utils");
 
 
-//* ------------------------------ getMatchsInfo ------------------------------ *//
+//* ------------------------------ getMatchesInfo ------------------------------ *//
 
-async function getMatchsInfo(match_ids_array) {
-    let promises = [];
-    match_ids_array.map((id) =>
-      promises.push(
-        axios.get(`${api_domain}/fixtures/${id}`, {
-          params: {
-            api_token: process.env.api_token,
-            include:`localTeam, visitorTeam, venue`,
-          },
-        })
-      )
-    ); 
-    let matchs_info = await Promise.all(promises);
-    return extractRelevantMatchsData(matchs_info);
-  }
+async function getMatchesInfo(match_ids_array) {
+  let promises = [];
+  match_ids_array.map((match_id) =>
+    promises.push(
+      getMatchByID(match_id)
+    )
+  ); 
+  let matches_info = await Promise.all(promises);
 
+  return extractMatchesInfo(matches_info);
+}
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-function extractRelevantMatchsData(matchs_info) {
-    return matchs_info.map((curr_match_info) => {
-      var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
-      var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
-      const { date_time } = curr_match_info.data.data.time.starting_at;
-      var stadium = curr_match_info.data.data.venue.data["name"];
+async function extractMatchesInfo(matches_info) {
+
+  return await Promise.all(matches_info.map(async (element) => {
+    if (element[0].refereeID){
+      var refereeInfo = await extractRefereeInfo(element[0].refereeID);
+      return { 
+          matchID: element[0].match_id,
+          matchDate: element[0].matchDateAndTime,
+          localTeamName: element[0].localTeamName,
+          visitorTeamName: element[0].visitorTeamName,
+          venueName: element[0].venueName,
+          refereeInformation: refereeInfo[0]  
+        };
+      }
+    else{
       return {
-        matchDate: date_time,
-        loaclTeamName: homeTeamName,
-        visitorTeamName: awayTeamName,
-        venueName: stadium,
+        matchID: element[0].match_id,
+        matchDate: element[0].matchDateAndTime,
+        localTeamName: element[0].localTeamName,
+        visitorTeamName: element[0].visitorTeamName,
+        venueName: element[0].venueName,
       };
-    });
-  }
-  
-  exports.getMatchsInfo = getMatchsInfo;
+    }
+  })
+  );
+}
+exports.getMatchesInfo = getMatchesInfo;
 
 
-
-  
 
 //* ------------------------------ Get League Matches ------------------------------ *//
 
@@ -64,15 +69,19 @@ exports.getLeagueMatches = getLeagueMatches;
 
 //* ------------------------------ Get Past Match By ID------------------------------ *//
 
-async function getPastMatchByID(matchID) {
+async function getMatchByID(matchID) {
+  
+  const futureMatch = await DButils.execQuery(
+    `select * from FutureMatches where match_id='${matchID}'`
+  );
 
-  var pastMatches = await DButils.execQuery(
+  const pastMatches = await DButils.execQuery(
     `select * from PastMatches where match_id='${matchID}'`
   );
 
   return pastMatches;
 }
-exports.getPastMatchByID = getPastMatchByID;
+exports.getMatchByID = getMatchByID;
 
 
 //* ------------------------------ Get Future Match By ID------------------------------ *//
