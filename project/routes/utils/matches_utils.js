@@ -6,61 +6,53 @@ const api_domain = "https://soccer.sportmonks.com/api/v2.0";
 //* ------------------------------ getMatchesInfo ------------------------------ *//
 
 async function getMatchesInfo(match_ids_array) {
-    let promises = [];
-    match_ids_array.map((id) =>
-      promises.push(
-        axios.get(`${api_domain}/fixtures/${id}`, {
-          params: {
-            api_token: process.env.api_token,
-            include:`localTeam, visitorTeam, venue, referee`,
-          },
-        })
-      )
-    ); 
-    let matches_info = await Promise.all(promises);
-    return extractRelevantMatchesData(matches_info);
-  }
+  let promises = [];
+  let n;
+  match_ids_array.map((match_id) =>
+    promises.push(
+      getMatchByID(match_id)
+    )
+  ); 
+  let matches_info = await Promise.all(promises);
 
+  return extractMatchesInfo(matches_info);
+}
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-function extractRelevantMatchesData(matches_info) {
-    return matches_info.map((curr_match_info) => {
-      const { match_id } = curr_match_info.data.data;
-      var homeTeamName = curr_match_info.data.data.localTeam.data["name"];
-      var awayTeamName = curr_match_info.data.data.visitorTeam.data["name"];
-      const { date_time } = curr_match_info.data.data.time.starting_at;
-      var stadium = curr_match_info.data.data.venue.data["name"];
-      if (curr_match_info.data.data.referee){
-        const { firstname,lastname } = curr_match_info.data.data.referee.data;
-        return {
-          matchID: match_id,
-          matchDate: date_time,
-          localTeamName: homeTeamName,
-          visitorTeamName: awayTeamName,
-          venueName: stadium,
+function extractMatchesInfo(matches_info) {
+
+  return matches_info.map((element) => {
+    if (element[0].refereeID){
+      return { 
+          matchID: element[0].match_id,
+          matchDate: element[0].matchDateAndTime,
+          localTeamName: element[0].localTeamName,
+          visitorTeamName: element[0].visitorTeamName,
+          venueName: element[0].venueName,
+          refereeInformation:  extractRefereeInfo(element[0].refereeID),
           
-          refereeInformation: {
-            "firstname": firstname,
-            "lastname": lastname,
-            course: "Regular"
-          },
         };
       }
+    else{
       return {
-        matchID: match_id,
-        matchDate: date_time,
-        localTeamName: homeTeamName,
-        visitorTeamName: awayTeamName,
-        venueName: stadium,
-      
+        matchID: element[0].match_id,
+        matchDate: element[0].matchDateAndTime,
+        localTeamName: element[0].localTeamName,
+        visitorTeamName: element[0].visitorTeamName,
+        venueName: element[0].venueName,
       };
-    });
-  }
-  
-  exports.getMatchesInfo = getMatchesInfo;
+    }
+
+  });
+}
+exports.getMatchesInfo = getMatchesInfo;
 
 
-
+  // await match_ids_array.map((curr_match) => {
+  //   promises.push(
+  //      getMatchByID(curr_match.match_id)
+  //      )
+  // });
   
 
 //* ------------------------------ Get League Matches ------------------------------ *//
@@ -85,11 +77,11 @@ exports.getLeagueMatches = getLeagueMatches;
 
 async function getMatchByID(matchID) {
   
-  var futureMatch = await DButils.execQuery(
+  const futureMatch = await DButils.execQuery(
     `select * from FutureMatches where match_id='${matchID}'`
   );
 
-  var pastMatches = await DButils.execQuery(
+  const pastMatches = await DButils.execQuery(
     `select * from PastMatches where match_id='${matchID}'`
   );
   
@@ -114,13 +106,13 @@ async function extractRefereeInfo(refereeID){
     `select firstname, lastname, course from Referee where referee_id='${refereeID}'`
   );
 
-  return refereeInfo.map((element) => {
+  // return refereeInfo.map((element) => {
     return {
-      firstname : element.firstname,
-      lastname : element.lastname,
-      course : element.course
+      firstname : refereeInfo.firstname,
+      lastname : refereeInfo.lastname,
+      course : refereeInfo.course
     }
-  });
+  // });
 }
 
 exports.extractRefereeInfo = extractRefereeInfo;

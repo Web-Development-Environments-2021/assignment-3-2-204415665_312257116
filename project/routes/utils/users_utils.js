@@ -18,6 +18,7 @@ exports.SQL_searchByQuery = SQL_searchByQuery;
 
 // //* ------------------------------ getMatchesInfo ------------------------------ *//
 
+
 async function getQueryInfo(Search_Query, Search_Type) {
 
   let promises = [];
@@ -31,6 +32,8 @@ async function getQueryInfo(Search_Query, Search_Type) {
     Search_Type="players"
     include_params = `team`;
   }
+  
+//select FName from Employee where FName like '%a%' AND FName like '%b%'
 
   promises.push(
         axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
@@ -58,15 +61,15 @@ function extractRelevantQueryInfo(Query_info, Search_Type) {
         teamLogo: logo_path,
       };
     }
-    else{
-      const { teamName } = Query_info.data.data["name"];
-      return {
-        name: date_time,
-        image: homeTeamName,
-        position: awayTeamName,
-        team_name: stadium,
-      };
-    }
+    // else{
+    //   const { teamName } = Query_info.data.data["name"];
+    //   return {
+    //     name: date_time,
+    //     image: homeTeamName,
+    //     position: awayTeamName,
+    //     team_name: stadium,
+    //   };
+    // }
 
   });
 }
@@ -87,8 +90,6 @@ exports.getFavoriteMatches = getFavoriteMatches;
 
 
 
-
-
 // --------------------   Favorites Matched insert   ----------------------------//
 
 // add a Matched to User Favorites Matches
@@ -98,13 +99,8 @@ async function markMatchesAsFavorite(user_id, match_id) {
    {            
       const userFavoriteMatches = await getFavoriteMatches(user_id);
       var flag = false;
-      for (var i = 0 ; i < userFavoriteMatches.length ; i++){
-        if (userFavoriteMatches[i].match_id == match_id){
-          return flag;
-        }
-      }
       const checkMatch_exist = await matches_utils.getMatchByID(match_id);
-      if (checkMatch_exist.length > 0) {
+      if (!userFavoriteMatches.find((x) => x.match_id == match_id) && checkMatch_exist.length > 0) {
             DButils.execQuery(`insert into FavoriteMatches values ('${user_id}',${match_id})`);
             flag = true;
       }
