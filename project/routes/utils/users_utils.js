@@ -12,7 +12,6 @@ CURRENT_SEASON_ID = 17328;
 //------------------------------------------------------------------------------------ //
 // -----------------------------   SQL_searchByQuery   ------------------------------- //
 //------------------------------------------------------------------------------------ //
-
 /**
  * --------------------------SQL_searchByQuery--------------------------
  * @param {*} Search_Query The query the user entered
@@ -44,14 +43,14 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
     else if(Search_Type=="Players"){
       if(Sort_Players=="yes"){
 
-      //--------------------- Sort_Players_By players name ---------------------//
+      // ------ Sort_Players_By players name ------ //
 
         if (Sort_Players_By=="own name"){
           resultQ = Qsearch.sort((a, b) => 
           ((''+a["name"]).localeCompare(b["name"])));
         }
 
-      //--------------------- Sort_Players_By team name ---------------------//
+      // ------ Sort_Players_By team name ------ //
 
         else if (Sort_Players_By=="team name"){
           resultQ = Qsearch.sort((a, b) => 
@@ -59,27 +58,25 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
 
         }
       }
-      //-------------------------- Filter_Players --------------------------//
+      // ------ Filter_Players ------ //
       if (Filter_Players != undefined || Filter_Players > 0){
 
-      //------------------- Filter_Players - position -------------------//
+      // ------ Filter_Players - position ------ //
 
         if (!isNaN(Filter_Players)){
            resultQ = resultQ.filter(function (el) {return el.position == Filter_Players});
         }
 
-      //------------------- Filter_Players - team name -------------------//
+      // ------ Filter_Players - teams name ------ //
         else{
 
           }
         }
       
     }
-
     return { players: resultQ };
 }
 exports.SQL_searchByQuery = SQL_searchByQuery;
-
 
 //* ------------------------------ getMatchesInfo ------------------------------ *//
 
@@ -112,7 +109,7 @@ async function getQueryInfo(Search_Query, Search_Type) {
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
 function extractRelevantQueryInfo(Query_info, Search_Type) {
-
+//Auxiliary function - returns the relevant information about the array of elements - teams / players.
   return  Query_info.map((element) => {
 
     if (Search_Type == "teams" && relevant_team_check(element)){
@@ -140,9 +137,9 @@ function extractRelevantQueryInfo(Query_info, Search_Type) {
  exports.getQueryInfo = getQueryInfo;
 
  //* ---------------------------- relevant_player_check ---------------------------- *//
- //**Checks if the current player has a team and if he is relevant according to the current league */
+ //**Checks if the current player has a team, and checks if he is relevant according to the current league */
 function relevant_player_check(element) {
-  if ('team' in element /*&&  element.team.data.current_season_id == CURRENT_SEASON_ID*/){
+  if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
     return true;
   }
   else{
@@ -150,7 +147,7 @@ function relevant_player_check(element) {
   }
 }
 //* ---------------------------- relevant_team_check ---------------------------- *//
- //**Checks if the current team is relevant according to the current league
+ //**Checks if the current team is relevant according to the current league*/
 function relevant_team_check(element) {
   if (element.current_season_id == CURRENT_SEASON_ID){
     return true;
@@ -159,7 +156,6 @@ function relevant_team_check(element) {
     return false;
   }
 }
-
 // --------------------   get  user Favorites Matches   ---------------------------- //
 
 async function getFavoriteMatches(user_id) {
@@ -169,7 +165,6 @@ async function getFavoriteMatches(user_id) {
   return match_ids;
 }
 exports.getFavoriteMatches = getFavoriteMatches;
-
 
 // --------------------   Favorites Matched insert   ----------------------------//
 
