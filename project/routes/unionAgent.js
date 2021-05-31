@@ -65,6 +65,7 @@ router.use(async function (req, res, next) {
     const refereeID = req.body.refereeID;
 
     //TODO: Sanity Check ??
+    //TODO: Add check if team in season
 
     var dateTime =  getTodayDatTime();
     if (Date.parse(dateTime) < Date.parse(matchDate)){
@@ -217,9 +218,6 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
 
 
 module.exports = router;
-
-
-
 
 
 

@@ -346,6 +346,23 @@ paths:
         '400':
           description: Bad request
 
+  /unionAgent/referees:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all referees
+      responses:
+        "200":
+          description: Data about the referee's favorites matches returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Referee'
+        "401":
+          description: User is not authorized
+
   /league/getDetails:
     get:
       tags:
@@ -730,6 +747,10 @@ components:
       type: object
       description: Referee information
       properties:
+        refereeID:
+          type: number
+          description: Referee's ID
+          example: 10
         firstname:
           type: string
           description: Referee's first name
