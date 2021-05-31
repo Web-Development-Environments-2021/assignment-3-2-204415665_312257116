@@ -1,13 +1,13 @@
 const DButils = require("./DButils");
 const axios = require("axios");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
+const unionAgent_utils = require("./unionAgent_utils");
 
 
 //* ------------------------------ getMatchesInfo ------------------------------ *//
 
 async function getMatchesInfo(match_ids_array) {
   let promises = [];
-  let n;
   match_ids_array.map((match_id) =>
     promises.push(
       getMatchByID(match_id)
@@ -19,18 +19,18 @@ async function getMatchesInfo(match_ids_array) {
 }
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-function extractMatchesInfo(matches_info) {
+async function extractMatchesInfo(matches_info) {
 
-  return matches_info.map((element) => {
+  return await Promise.all(matches_info.map(async (element) => {
     if (element[0].refereeID){
+      var refereeInfo = await extractRefereeInfo(element[0].refereeID);
       return { 
           matchID: element[0].match_id,
           matchDate: element[0].matchDateAndTime,
           localTeamName: element[0].localTeamName,
           visitorTeamName: element[0].visitorTeamName,
           venueName: element[0].venueName,
-          refereeInformation:  extractRefereeInfo(element[0].refereeID),
-          
+          refereeInformation: refereeInfo[0]  
         };
       }
     else{
@@ -42,18 +42,12 @@ function extractMatchesInfo(matches_info) {
         venueName: element[0].venueName,
       };
     }
-
-  });
+  })
+  );
 }
 exports.getMatchesInfo = getMatchesInfo;
 
 
-  // await match_ids_array.map((curr_match) => {
-  //   promises.push(
-  //      getMatchByID(curr_match.match_id)
-  //      )
-  // });
-  
 
 //* ------------------------------ Get League Matches ------------------------------ *//
 
@@ -87,7 +81,7 @@ async function getMatchByID(matchID) {
 
   return pastMatches;
 }
-exports.getPastMatchByID = getPastMatchByID;
+exports.getMatchByID = getMatchByID;
 
 
 //* ------------------------------ Get Future Match By ID------------------------------ *//
@@ -114,13 +108,13 @@ async function extractRefereeInfo(refereeID){
     `select firstname, lastname, course from Referee where referee_id='${refereeID}'`
   );
 
-  // return refereeInfo.map((element) => {
+  return refereeInfo.map((element) => {
     return {
-      firstname : refereeInfo.firstname,
-      lastname : refereeInfo.lastname,
-      course : refereeInfo.course
+      firstname : element.firstname,
+      lastname : element.lastname,
+      course : element.course
     }
-  // });
+  });
 }
 
 exports.extractRefereeInfo = extractRefereeInfo;
