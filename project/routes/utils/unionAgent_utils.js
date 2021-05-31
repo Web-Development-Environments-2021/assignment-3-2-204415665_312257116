@@ -1,4 +1,5 @@
 const DButils = require("./DButils");
+const matches_utils = require("./matches_utils");
 
 
 //TODO: Need Make Authentication
@@ -92,3 +93,97 @@ async function addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eve
 }
 
 exports.addEvent = addEvent;
+
+
+//* ------------------------------ Get Referee By ID ------------------------------ *//
+
+async function getRefereeByID(refereeID){
+
+
+  return await DButils.execQuery(
+    `Select * From Referee where referee_id='${refereeID}'`
+  );
+  
+}
+
+exports.getRefereeByID = getRefereeByID;
+
+
+//* ------------------------------ Add Referee To Future Match ------------------------------ *//
+
+async function addRefereeToFutureMatch(matchID, refereeID){
+
+
+  await DButils.execQuery(
+    `update FutureMatches set refereeID=${refereeID} where match_id='${matchID}'`
+  );
+  
+}
+
+exports.addRefereeToFutureMatch = addRefereeToFutureMatch;
+
+
+//* ------------------------------ Add Referee To Past Match ------------------------------ *//
+
+async function addRefereeToPastMatch(matchID, refereeID){
+
+
+  await DButils.execQuery(
+    `update PastMatches set refereeID=${refereeID} where match_id='${matchID}'`
+  );
+  
+}
+
+exports.addRefereeToPastMatch = addRefereeToPastMatch;
+
+
+//* ------------------------------ Get All Referees ------------------------------ *//
+
+async function getAllReferees(){
+
+
+  var referees = await DButils.execQuery(
+    `select * from Referee`
+  );
+
+  return referees.map((element) => {
+    return {
+      refereeID : element.referee_id,
+      firstname : element.firstname,
+      lastname : element.lastname,
+      course : element.course
+    }
+  });
+
+  
+}
+
+exports.getAllReferees = getAllReferees;
+
+//* ------------------------------ Get All Matches Without Referee ------------------------------ *//
+
+async function GetAllMatchesWithoutReferee(){
+
+  
+  var matches = await matches_utils.getLeagueMatches();
+  var matchesWithReferee = [[],[]];
+
+  matches[0].map((element) => {
+    if(element.refereeID == null){
+      matchesWithReferee[0].push(element);
+    };
+  });
+
+  matches[1].map((element) => {
+    if(element.refereeID == null){
+      matchesWithReferee[1].push(element);
+    };
+  });
+
+  return matchesWithReferee;
+  
+}
+
+exports.GetAllMatchesWithoutReferee = GetAllMatchesWithoutReferee;
+
+

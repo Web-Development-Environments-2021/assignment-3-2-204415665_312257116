@@ -3,6 +3,7 @@ var router = express.Router();
 const DButils = require("./utils/DButils");
 const unionAgent_utils = require("./utils/unionAgent_utils");
 const matches_utils = require("./utils/matches_utils");
+const league_utils = require("./utils/league_utils");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -56,7 +57,29 @@ router.use(async function (req, res, next) {
 /**
  * This path gets body with match information and save new match in the matches DB
  */
- router.post("/addMatch", async (req, res, next) => {
+
+ router.get("/addMatch", async (req, res, next) => {
+  try {
+
+    const teamsNames = await league_utils.getTeamsNames();
+    const venuesNames = await league_utils.getVenuesNames();
+    const referees = await unionAgent_utils.getAllReferees();
+
+    const dataForUnionAgent = {
+      teamsNames : teamsNames,
+      venuesName : venuesNames,
+      referees : referees 
+    }
+
+    res.status(200).send(dataForUnionAgent);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+router.post("/addMatch", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInformation.matchDate;
     const localTeamName = req.body.matchInformation.localTeamName;
@@ -64,8 +87,11 @@ router.use(async function (req, res, next) {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    //TODO: Sanity Check ??
-    //TODO: Add check if team in season
+    var badRequest = false;
+
+    if ( await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
+      badRequest = true;
+    } //TODO: Continue Sanity Checks
 
     var dateTime =  getTodayDatTime();
     if (Date.parse(dateTime) < Date.parse(matchDate)){
@@ -81,12 +107,15 @@ router.use(async function (req, res, next) {
 });
 
 
+
+
+
 //* ------------------------------ /addMatchResult ------------------------------ *//
 
 /**
  * This path gets body with match's result and save matches DB
  */
- router.post("/addMatchResult", async (req, res, next) => {
+ router.put("/addMatchResult", async (req, res, next) => {
   try {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
@@ -169,7 +198,7 @@ router.use(async function (req, res, next) {
 /**
  * This path gets body with match's Events Log and save matches DB
  */
-router.post("/addMatchEventsLog", async (req, res, next) => {
+router.put("/addMatchEventsLog", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;
@@ -215,6 +244,82 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
 });
 
 
+
+//* ------------------------------ /addRefereeToMatch ------------------------------ *//
+
+router.get("/addRefereeToMatch", async (req, res, next) => {
+  try {
+
+    const referees = await unionAgent_utils.getAllReferees();
+    const matchesWithoutReferee = await unionAgent_utils.GetAllMatchesWithoutReferee();
+
+    const dataForUnionAgent = {
+      referees : referees,
+      futureMatchesWithoutReferee : matchesWithoutReferee[1],
+      pastMatchesWithReferees : matchesWithoutReferee[0]
+    }
+
+    res.status(200).send(dataForUnionAgent);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/addRefereeToMatch", async (req, res, next) => {
+  try {
+
+    const matchID = req.body.matchID;
+    const refereeID = req.body.refereeID;
+
+    var match;
+
+    var badRequest = false;
+    if (Number.isInteger(matchID) && Number.isInteger(refereeID)){
+      futureMatch = await matches_utils.getFutureMatchByID(matchID);
+      pastMatch = await matches_utils.getPastMatchByID(matchID);
+    } else {
+      badRequest = true;
+    }
+    
+    if (futureMatch.length != 0 || pastMatch.length !=0 ){
+
+      var refereeInfo = await unionAgent_utils.getRefereeByID(refereeID);
+
+      if ( refereeInfo.length != 0 ){
+        if (futureMatch.length != 0 && futureMatch["refereeID"] == null){
+          await unionAgent_utils.addRefereeToFutureMatch(matchID, refereeID);
+        } else if (pastMatch.length != 0 && pastMatch["refereeID"] == null){
+          await unionAgent_utils.addRefereeToPastMatch(matchID, refereeID);
+        }
+      }
+    } else{
+      badRequest = true;
+    }
+
+    if (badRequest){
+      res.status(400).send("Bad request");
+    } else {
+      res.status(200).send("Referee added to match successfully");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+//* ------------------------------ /addRefereeToMatch ------------------------------ *//
+
+
+router.get("/referees", async (req, res, next) => {
+  try {
+
+    var referees = await unionAgent_utils.getAllReferees();
+    res.status(200).send(referees);
+    
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 module.exports = router;
@@ -307,9 +412,12 @@ async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
     }
   } else if (sortBy != undefined){
     var SortedMatches = matchesToAdd.sort((a, b) => 
-                        (a["localTeamName"] == sortBy == b["localTeamName"]) ? 0 : 
+                        (a["localTeamName"] == sortBy == b["localTeamName"]) ? 0 :
+                        (a["visitorTeamName"] == sortBy == b["visitorTeamName"]) ? 0 :
+                        (a["visitorTeamName"] == sortBy) ? -1 :
                         (a["localTeamName"] == sortBy) ? -1 : 
-                        (b["localTeamName"] == sortBy) ? 1 : 0);
+                        (b["localTeamName"] == sortBy) ? 1 :
+                        (b["visitorTeamName"] == sortBy) ? 1 : 0);
   } else{
     return matchesToAdd;
   }
