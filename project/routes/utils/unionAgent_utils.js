@@ -187,3 +187,26 @@ async function GetAllMatchesWithoutReferee(){
 exports.GetAllMatchesWithoutReferee = GetAllMatchesWithoutReferee;
 
 
+//* ------------------------------ Get Past Matches Without Result ------------------------------ *//
+
+
+async function GetPastMatchesWithoutResult(){
+
+  
+  var matches = await matches_utils.getLeagueMatches();
+  var matchesWithResult = [];
+
+  matches[0].map((element) => {
+    if(element.visitorTeamScore == null || element.localTeamScore == null){
+      matchesWithResult.push(element);
+    };
+  });
+
+
+  return matchesWithResult;
+  
+}
+
+exports.GetPastMatchesWithoutResult = GetPastMatchesWithoutResult;
+
+

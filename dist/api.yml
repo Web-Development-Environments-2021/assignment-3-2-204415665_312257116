@@ -293,6 +293,24 @@ paths:
           description: Bad request
 
   /unionAgent/addMatchResult:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for add match result
+      responses:
+        "200":
+          description: Data the agent need for add match result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatchesWithoutResult:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+        "401":
+          description: User is not authorized
     put:
       tags: 
         - UnionAgent

@@ -115,6 +115,23 @@ router.post("/addMatch", async (req, res, next) => {
 /**
  * This path gets body with match's result and save matches DB
  */
+
+ router.get("/addMatchResult", async (req, res, next) => {
+  try {
+
+    const pastMatchesWithoutResult = await unionAgent_utils.GetPastMatchesWithoutResult();
+
+    const resultResponse = {
+      pastMatchesWithoutResult : pastMatchesWithoutResult
+    }
+
+    res.status(200).send(resultResponse);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
  router.put("/addMatchResult", async (req, res, next) => {
   try {
     const matchID = req.body.matchID;
@@ -308,7 +325,7 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
 
 
 //* ------------------------------ /addRefereeToMatch ------------------------------ *//
-
+//TODO: Started but not finished
 
 router.get("/referees", async (req, res, next) => {
   try {
