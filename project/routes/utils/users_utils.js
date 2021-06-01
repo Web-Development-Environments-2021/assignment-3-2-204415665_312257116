@@ -32,11 +32,11 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
 
       if(Sort_Teams_Alphabetical=="yes"){
         //Sort the teams in alphabetical order by teamName
-        resultQ = Qsearch.sort((a, b) => 
+        Qsearch.sort((a, b) => 
         (('' + a["teamName"]).localeCompare(b["teamName"])));
       }
-
-      return { teams: resultQ };
+      resultQ = Qsearch;    
+      return { teams: Qsearch };
     }
 //-------------------------------------- Players --------------------------------------//
 
@@ -46,14 +46,14 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
       // ------ Sort_Players_By players name ------ //
 
         if (Sort_Players_By=="own name"){
-          resultQ = Qsearch.sort((a, b) => 
+          Qsearch.sort((a, b) => 
           ((''+a["name"]).localeCompare(b["name"])));
         }
 
       // ------ Sort_Players_By team name ------ //
 
         else if (Sort_Players_By=="team name"){
-          resultQ = Qsearch.sort((a, b) => 
+          Qsearch.sort((a, b) => 
           ((''+a["team_name"]).localeCompare(b["team_name"])));
 
         }
@@ -64,14 +64,14 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
       // ------ Filter_Players - position ------ //
 
         if (!isNaN(Filter_Players)){
-           resultQ = resultQ.filter(function (el) {return el.position == Filter_Players});
+          resultQ = Qsearch.filter(function (el) {return el.position == Filter_Players});
         }
 
       // ------ Filter_Players - teams name ------ //
         else{
-
-          }
+          resultQ = Qsearch.filter(function (el) {return el.team_name.includes(Filter_Players)});
         }
+      }
       
     }
     return { players: resultQ };
@@ -139,7 +139,7 @@ function extractRelevantQueryInfo(Query_info, Search_Type) {
  //* ---------------------------- relevant_player_check ---------------------------- *//
  //**Checks if the current player has a team, and checks if he is relevant according to the current league */
 function relevant_player_check(element) {
-  if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
+  if ('team' in element /*&&  element.team.data.current_season_id == CURRENT_SEASON_ID*/){
     return true;
   }
   else{
