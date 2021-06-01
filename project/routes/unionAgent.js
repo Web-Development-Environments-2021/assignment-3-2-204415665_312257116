@@ -30,7 +30,7 @@ router.use(async function (req, res, next) {
 /**
  * This path gets parameter with sort information and Return all matches
  */
- router.get("/leagueManagementPage", async (req, res, next) => {
+router.get("/leagueManagementPage", async (req, res, next) => {
   try {
 
     const sortBy = req.query.sortBy;
@@ -116,7 +116,7 @@ router.post("/addMatch", async (req, res, next) => {
  * This path gets body with match's result and save matches DB
  */
 
- router.get("/addMatchResult", async (req, res, next) => {
+router.get("/addMatchResult", async (req, res, next) => {
   try {
 
     const pastMatchesWithoutResult = await unionAgent_utils.GetPastMatchesWithoutResult();
@@ -132,7 +132,7 @@ router.post("/addMatch", async (req, res, next) => {
 });
 
 
- router.put("/addMatchResult", async (req, res, next) => {
+router.put("/addMatchResult", async (req, res, next) => {
   try {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
@@ -215,6 +215,23 @@ router.post("/addMatch", async (req, res, next) => {
 /**
  * This path gets body with match's Events Log and save matches DB
  */
+router.get("/addMatchEventsLog", async (req, res, next) => {
+  try {
+
+    const leagueMatches = await matches_utils.getLeagueMatches();
+
+    const pastMatchesWithAllInfo = await addRefereeToPastMatches(leagueMatches[0]);
+
+    const resultResponse = {
+      pastMatchesWithAllInfo : pastMatchesWithAllInfo
+    }
+
+    res.status(200).send(resultResponse);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.put("/addMatchEventsLog", async (req, res, next) => {
   try {
 
@@ -323,20 +340,6 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
   }
 });
 
-
-//* ------------------------------ /addRefereeToMatch ------------------------------ *//
-//TODO: Started but not finished
-
-router.get("/referees", async (req, res, next) => {
-  try {
-
-    var referees = await unionAgent_utils.getAllReferees();
-    res.status(200).send(referees);
-    
-  } catch (error) {
-    next(error);
-  }
-});
 
 
 module.exports = router;

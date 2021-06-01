@@ -343,6 +343,24 @@ paths:
           description: Bad request
   
   /unionAgent/addMatchEventsLog:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for add match event log
+      responses:
+        "200":
+          description: Data the agent need for add match match event log
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatchesWithAllInfo:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+        "401":
+          description: User is not authorized
     put:
       tags: 
         - UnionAgent
