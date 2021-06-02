@@ -252,7 +252,7 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
 
         if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ||
             !Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 ||
-            checkEventType(eventsLog[i]["eventType"])){
+            !checkEventType(eventsLog[i]["eventType"])){
           badRequest = true;
           break;
         }
