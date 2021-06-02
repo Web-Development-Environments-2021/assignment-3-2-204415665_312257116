@@ -159,14 +159,20 @@ router.put("/addMatchResult", async (req, res, next) => {
     var badRequest = false;
     var message = "";
 
-    if (visitorTeamScore < 0 || localTeamScore < 0 || !Number.isInteger(matchID) ||
+    if (visitorTeamScore < 0 || localTeamScore < 0 ||
         !Number.isInteger(localTeamScore) || 
         !Number.isInteger(visitorTeamScore)){
       badRequest = true;
+      message += " scores,";
+    }
+    if (!Number.isInteger(matchID)) {
+      badRequest = true;
+      message += " match ID,";
     } else if (Number.isInteger(matchID)){
       var match = await matches_utils.getMatchByID(matchID);
       if (match.length == 0){
         badRequest = true;
+        message += " match ID,";
       }
     }
 
@@ -185,6 +191,7 @@ router.put("/addMatchResult", async (req, res, next) => {
         if (Date.parse(dateTime) < Date.parse(match[0]["matchDateAndTime"])){
           //Match's Date is in the future
           badRequest = true;
+          message += " Date Time,";
 
         } else {
           var matchDate = match[0].matchDateAndTime;
@@ -194,7 +201,6 @@ router.put("/addMatchResult", async (req, res, next) => {
           var refereeID = match[0].refereeID;
           matchDate = getTDateTime(matchDate);
           await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
-          await matches_utils.removeMatchFromFavorite(matchID);
         }
       } else {
 
@@ -204,6 +210,7 @@ router.put("/addMatchResult", async (req, res, next) => {
         if (localTeamScore_DB != null && visitorTeamScore_DB != null){
           //The Match Already as Result
           badRequest = true;
+          message += " match already has score"
         } else {
           await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
         }
@@ -213,7 +220,7 @@ router.put("/addMatchResult", async (req, res, next) => {
     if (!badRequest){
       res.status(200).send("Result added to match successfully");
     } else{
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     }
   } catch (error) {
     next(error);
