@@ -175,7 +175,7 @@ router.put("/addMatchResult", async (req, res, next) => {
       if (whichMatch == "future"){
         var dateTime =  getTodayDatTime();
         
-        if (Date.parse(dateTime) < Date.parse(match["matchDateAndTime"])){
+        if (Date.parse(dateTime) < Date.parse(match[0]["matchDateAndTime"])){
           //Match's Date is in the future
           badRequest = true;
 
@@ -185,18 +185,14 @@ router.put("/addMatchResult", async (req, res, next) => {
           var visitorTeamName = match[0].visitorTeamName;
           var venueName = match[0].venueName;
           var refereeID = match[0].refereeID;
-          //TODO: Stopped Here
+          matchDate = getTDateTime(matchDate);
           await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
-          // TODO: need to remove from favorite
-          var inFavoriteMatches = await matches_utils.isMatchInFavorite(matchID);
-          if (inFavoriteMatches){
-            await matches_utils.removeMatchFromFavorite(matchID);
-          }
+          await matches_utils.removeMatchFromFavorite(matchID);
         }
       } else {
 
-        var localTeamScore_DB = match["localTeamScore"];
-        var visitorTeamScore_DB = match["visitorTeamScore"];
+        var localTeamScore_DB = match[0]["localTeamScore"];
+        var visitorTeamScore_DB = match[0]["visitorTeamScore"];
 
         if (localTeamScore_DB != null && visitorTeamScore_DB != null){
           //The Match Already as Result
@@ -368,6 +364,45 @@ function getTodayDatTime(){
   var dateTime = date+' '+time;
   return dateTime;
 }
+
+//* ------------------------------ Get DataTime ------------------------------ *//
+
+function getTDateTime(dateTime){
+  var dateTime = new Date(dateTime);
+  var month, day, hours, minutes, seconds;
+  if ((dateTime.getMonth()+1) < 10){
+    month = '0' + (dateTime.getMonth()+1);
+  } else{
+    month = (dateTime.getMonth()+1);
+  }
+  if (dateTime.getDate() < 10){
+    day = '0' +  (dateTime.getDate());
+  } else {
+    day = (dateTime.getDate());
+  }
+  if (dateTime.getHours() < 10){
+    hours = '0' + dateTime.getHours();
+  } else{
+    hours = dateTime.getHours();
+  }
+  if (dateTime.getMinutes() < 10){
+    minutes = '0' + dateTime.getMinutes();
+  } else{
+    minutes = dateTime.getMinutes();
+  }
+  if (dateTime.getSeconds() < 10){
+    seconds = '0' + dateTime.getSeconds();
+  } else {
+    seconds = dateTime.getSeconds();
+  }
+
+  var date = dateTime.getFullYear()+'-'+month+'-'+day;
+  var time = hours + ":" + minutes + ":" + seconds;
+  var dateTime = date+' '+time;
+  return dateTime;
+}
+
+
 
 //* ------------------------------ Add Referee To Future Matches ------------------------------ *//
 
