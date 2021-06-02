@@ -1,6 +1,5 @@
 const axios = require("axios");
 const LEAGUE_ID = 271;
-const season_ID = 17328;
 const DButils = require("./DButils");
 
 
@@ -37,6 +36,7 @@ exports.getLeagueDetails = getLeagueDetails;
 //* ------------------------------ checkTeamName ------------------------------ *//
 
 async function checkTeamNames(localTeamName, visitorTeamName) {
+  const season_ID = await getCurrentSeasonID();
   const teams = await axios.get(
     `https://soccer.sportmonks.com/api/v2.0/teams/season/${season_ID}`,
     {
@@ -56,6 +56,7 @@ exports.checkTeamNames = checkTeamNames;
 //* ------------------------------ checkTeamName ------------------------------ *//
 
 async function checkVenueName(venueName) {
+  const season_ID = await getCurrentSeasonID();
   const venues = await axios.get(
     `https://soccer.sportmonks.com/api/v2.0/venues/season/${season_ID}`,
     {
@@ -75,6 +76,7 @@ exports.checkVenueName = checkVenueName;
 //* ------------------------------ get Venues Names ------------------------------ *//
 
 async function getVenuesNames() {
+  const season_ID = await getCurrentSeasonID();
   const venues = await axios.get(
     `https://soccer.sportmonks.com/api/v2.0/venues/season/${season_ID}`,
     {
@@ -97,6 +99,7 @@ exports.getVenuesNames = getVenuesNames;
 
 
 async function getTeamsNames() {
+  const season_ID = await getCurrentSeasonID();
   const teams = await axios.get(
     `https://soccer.sportmonks.com/api/v2.0/teams/season/${season_ID}`,
     {
@@ -114,3 +117,19 @@ async function getTeamsNames() {
 }
 exports.getTeamsNames = getTeamsNames;
 
+
+
+
+async function getCurrentSeasonID() {
+  const league = await axios.get(
+    `https://soccer.sportmonks.com/api/v2.0/leagues/${LEAGUE_ID}`,
+    {
+      params: {
+        api_token: process.env.api_token,
+      },
+    }
+  );
+    return league.data.data.current_season_id;
+}
+
+exports.getCurrentSeasonID = getCurrentSeasonID;
