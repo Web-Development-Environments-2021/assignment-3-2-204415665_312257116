@@ -53,6 +53,25 @@ async function checkTeamNames(localTeamName, visitorTeamName) {
 exports.checkTeamNames = checkTeamNames;
 
 
+//* ------------------------------ checkTeamName ------------------------------ *//
+
+async function checkVenueName(venueName) {
+  const venues = await axios.get(
+    `https://soccer.sportmonks.com/api/v2.0/venues/season/${season_ID}`,
+    {
+      params: {
+        api_token: process.env.api_token,
+      },
+    }
+  );
+  if (venues.data.data.find((x) => x.name == venueName)) {
+    return true;
+  }
+  return false;
+}
+exports.checkVenueName = checkVenueName;
+
+
 //* ------------------------------ get Venues Names ------------------------------ *//
 
 async function getVenuesNames() {

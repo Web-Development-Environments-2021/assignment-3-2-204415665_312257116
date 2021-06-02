@@ -75,10 +75,14 @@ async function getMatchByID(matchID) {
   const futureMatch = await DButils.execQuery(
     `select * from FutureMatches where match_id='${matchID}'`
   );
+  if (futureMatch.length != 0){
+    return futureMatch
+  }
+
   const pastMatches = await DButils.execQuery(
     `select * from PastMatches where match_id='${matchID}'`
   );
-
+  
   return pastMatches;
 }
 exports.getMatchByID = getMatchByID;
@@ -105,7 +109,7 @@ async function getPastMatchByID(matchID) {
     `select * from PastMatches where match_id='${matchID}'`
   );
 
-  return futureMatch;
+  return pastMatch;
 }
 exports.getPastMatchByID = getPastMatchByID;
 
