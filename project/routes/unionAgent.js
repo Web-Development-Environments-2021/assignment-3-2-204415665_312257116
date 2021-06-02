@@ -172,7 +172,7 @@ router.put("/addMatchResult", async (req, res, next) => {
       var match = await matches_utils.getMatchByID(matchID);
       if (match.length == 0){
         badRequest = true;
-        message += " match ID,";
+        message += " match doesn't exist,";
       }
     }
 
@@ -268,7 +268,7 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
 
         if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime)){
           badRequest = true;
-          message += " date time";
+          message += " date time,";
         }
         if (!Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130){
           badRequest = true;
@@ -294,7 +294,7 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
       }
     } else{
       badRequest = true;
-      message += " match ID";
+      message += " match doesn't exist";
     }
 
     if (badRequest){
@@ -335,14 +335,20 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
     const matchID = req.body.matchID;
     const refereeID = req.body.refereeID;
 
-    var match;
-
     var badRequest = false;
-    if (Number.isInteger(matchID) && Number.isInteger(refereeID)){
+    var message = "";
+
+    if ( !Number.isInteger(matchID)){
+      badRequest = true;
+      message += " match ID,"
+    } 
+    if ( !Number.isInteger(refereeID)){
+      badRequest = true;
+      message += " referee ID,";
+    }
+    if (!badRequest) {
       var futureMatch = await matches_utils.getFutureMatchByID(matchID);
       var pastMatch = await matches_utils.getPastMatchByID(matchID);
-    } else {
-      badRequest = true;
     }
     
     if (futureMatch.length != 0 || pastMatch.length !=0 ){
@@ -356,14 +362,20 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
           await unionAgent_utils.addRefereeToPastMatch(matchID, refereeID);
         } else {
           badRequest = true;
+          message += " already has referee";
         }
+      } else{
+        badRequest = true;
+        message += " referee doesn't exist";
       }
+
     } else{
       badRequest = true;
+      message += " match doesn't exist";
     }
 
     if (badRequest){
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     } else {
       res.status(200).send("Referee added to match successfully");
     }
