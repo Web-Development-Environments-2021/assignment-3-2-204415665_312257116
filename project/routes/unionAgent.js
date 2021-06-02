@@ -159,14 +159,20 @@ router.put("/addMatchResult", async (req, res, next) => {
     var badRequest = false;
     var message = "";
 
-    if (visitorTeamScore < 0 || localTeamScore < 0 || !Number.isInteger(matchID) ||
+    if (visitorTeamScore < 0 || localTeamScore < 0 ||
         !Number.isInteger(localTeamScore) || 
         !Number.isInteger(visitorTeamScore)){
       badRequest = true;
+      message += " scores,";
+    }
+    if (!Number.isInteger(matchID)) {
+      badRequest = true;
+      message += " match ID,";
     } else if (Number.isInteger(matchID)){
       var match = await matches_utils.getMatchByID(matchID);
       if (match.length == 0){
         badRequest = true;
+        message += " match doesn't exist,";
       }
     }
 
@@ -185,6 +191,7 @@ router.put("/addMatchResult", async (req, res, next) => {
         if (Date.parse(dateTime) < Date.parse(match[0]["matchDateAndTime"])){
           //Match's Date is in the future
           badRequest = true;
+          message += " Date Time,";
 
         } else {
           var matchDate = match[0].matchDateAndTime;
@@ -194,7 +201,6 @@ router.put("/addMatchResult", async (req, res, next) => {
           var refereeID = match[0].refereeID;
           matchDate = getTDateTime(matchDate);
           await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
-          await matches_utils.removeMatchFromFavorite(matchID);
         }
       } else {
 
@@ -204,6 +210,7 @@ router.put("/addMatchResult", async (req, res, next) => {
         if (localTeamScore_DB != null && visitorTeamScore_DB != null){
           //The Match Already as Result
           badRequest = true;
+          message += " match already has score"
         } else {
           await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
         }
@@ -213,7 +220,7 @@ router.put("/addMatchResult", async (req, res, next) => {
     if (!badRequest){
       res.status(200).send("Result added to match successfully");
     } else{
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     }
   } catch (error) {
     next(error);
@@ -250,6 +257,8 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
     const eventsLog = req.body.eventsLog;
 
     var badRequest = false;
+    var message = "";
+
     const match = await matches_utils.getPastMatchByID(matchID);
     var dateTime =  getTodayDatTime();
 
@@ -257,10 +266,19 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
       
       for (var i = 0 ; i < eventsLog.length ; i++){
 
-        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ||
-            !Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 ||
-            !checkEventType(eventsLog[i]["eventType"])){
+        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime)){
           badRequest = true;
+          message += " date time,";
+        }
+        if (!Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130){
+          badRequest = true;
+          message += " minute in match,"
+        }
+        if (!checkEventType(eventsLog[i]["eventType"])){
+          badRequest = true;
+          message += " event type";
+        }
+        if (badRequest){
           break;
         }
 
@@ -276,10 +294,11 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
       }
     } else{
       badRequest = true;
+      message += " match doesn't exist";
     }
 
     if (badRequest){
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     } else {
       res.status(200).send("Events log added match successfully");
     }
@@ -316,14 +335,20 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
     const matchID = req.body.matchID;
     const refereeID = req.body.refereeID;
 
-    var match;
-
     var badRequest = false;
-    if (Number.isInteger(matchID) && Number.isInteger(refereeID)){
+    var message = "";
+
+    if ( !Number.isInteger(matchID)){
+      badRequest = true;
+      message += " match ID,"
+    } 
+    if ( !Number.isInteger(refereeID)){
+      badRequest = true;
+      message += " referee ID,";
+    }
+    if (!badRequest) {
       var futureMatch = await matches_utils.getFutureMatchByID(matchID);
       var pastMatch = await matches_utils.getPastMatchByID(matchID);
-    } else {
-      badRequest = true;
     }
     
     if (futureMatch.length != 0 || pastMatch.length !=0 ){
@@ -337,14 +362,20 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
           await unionAgent_utils.addRefereeToPastMatch(matchID, refereeID);
         } else {
           badRequest = true;
+          message += " already has referee";
         }
+      } else{
+        badRequest = true;
+        message += " referee doesn't exist";
       }
+
     } else{
       badRequest = true;
+      message += " match doesn't exist";
     }
 
     if (badRequest){
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     } else {
       res.status(200).send("Referee added to match successfully");
     }
@@ -421,7 +452,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchID : element.match_id,
-      matchDate : element.matchDateAndTime,
+      matchDate : getTDateTime(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
@@ -447,7 +478,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchID : element.match_id,
-      matchDateAndTime : element.matchDateAndTime,
+      matchDateAndTime : getTDateTime(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
