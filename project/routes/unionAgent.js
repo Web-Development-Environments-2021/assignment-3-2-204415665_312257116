@@ -180,14 +180,18 @@ router.put("/addMatchResult", async (req, res, next) => {
           badRequest = true;
 
         } else {
-          var matchDate = match["matchDateAndTime"];
-          var localTeamName = match["localTeamName"];
-          var visitorTeamName = match["visitorTeamName"];
-          var venueName = match["venueName"];
-          var refereeID = match["refereeID"];
-
+          var matchDate = match[0].matchDateAndTime;
+          var localTeamName = match[0].localTeamName;
+          var visitorTeamName = match[0].visitorTeamName;
+          var venueName = match[0].venueName;
+          var refereeID = match[0].refereeID;
+          //TODO: Stopped Here
           await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
           // TODO: need to remove from favorite
+          var inFavoriteMatches = await matches_utils.isMatchInFavorite(matchID);
+          if (inFavoriteMatches){
+            await matches_utils.removeMatchFromFavorite(matchID);
+          }
         }
       } else {
 

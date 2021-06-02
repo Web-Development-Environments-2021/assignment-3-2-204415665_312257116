@@ -179,7 +179,8 @@ async function getFirstNextMatch() {
 async function isMatchInFavorite(match_id){
   const userFavoriteMatches = await users_utils.getFavoriteMatches();
   return userFavoriteMatches.find((x) => x.match_id == match_id);
-}exports.isMatchInFavorite = isMatchInFavorite;
+}
+exports.isMatchInFavorite = isMatchInFavorite;
 
 //* ------------------------------ removeMatchFavorite ------------------------------ *//
 async function removeMatchFromFavorite(match_id){
@@ -188,10 +189,11 @@ async function removeMatchFromFavorite(match_id){
     return true;
   }
   return false;
-}exports.removeMatchFromFavorite = removeMatchFromFavorite;
+}
+exports.removeMatchFromFavorite = removeMatchFromFavorite;
 
 //* ------------------------------ MatchFromFuture2Past ------------------------------ *//
-async function MatchFromFuture2Past(match_id){
+async function moveMatchFromFuture2Past(match_id){
   const status = await removeMatchFromFavorite(match_id);
   await DButils.execQuery(
   `INSERT INTO PastMatches (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
@@ -202,5 +204,6 @@ async function MatchFromFuture2Past(match_id){
   DELETE FROM FutureMatches
   WHERE match_id=(${match_id});`
   );
-}exports.MatchFromFuture2Past = MatchFromFuture2Past;
+}
+exports.moveMatchFromFuture2Past = moveMatchFromFuture2Past;
 
