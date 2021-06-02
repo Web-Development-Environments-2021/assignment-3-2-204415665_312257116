@@ -1,6 +1,7 @@
 const axios = require("axios");
 const LEAGUE_ID = 271;
 const season_ID = 17328;
+const DButils = require("./DButils");
 
 
 //* ------------------------------ getLeagueDetails ------------------------------ *//
@@ -15,20 +16,20 @@ async function getLeagueDetails() {
       },
     }
   );
-  const stage = await axios.get(
-    `https://soccer.sportmonks.com/api/v2.0/stages/${league.data.data.current_stage_id}`,
-    {
-      params: {
-        api_token: process.env.api_token,
-      },
-    }
-  );
+  // const stage = await axios.get(
+  //   `https://soccer.sportmonks.com/api/v2.0/stages/${league.data.data.current_stage_id}`,
+  //   {
+  //     params: {
+  //       api_token: process.env.api_token,
+  //     },
+  //   }
+  // );
   return {
     league_name: league.data.data.name,
     current_season_name: league.data.data.season.data.name,
-    current_stage_name: stage.data.data.name,
-    // next game details should come from DB
-  };
+    // current_stage_name: stage.data.data.name,
+    first_next_match: null
+    };
 }
 exports.getLeagueDetails = getLeagueDetails;
 
@@ -112,3 +113,4 @@ async function getTeamsNames() {
   
 }
 exports.getTeamsNames = getTeamsNames;
+
