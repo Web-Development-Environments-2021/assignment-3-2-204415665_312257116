@@ -313,8 +313,8 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
 
     var badRequest = false;
     if (Number.isInteger(matchID) && Number.isInteger(refereeID)){
-      futureMatch = await matches_utils.getFutureMatchByID(matchID);
-      pastMatch = await matches_utils.getPastMatchByID(matchID);
+      var futureMatch = await matches_utils.getFutureMatchByID(matchID);
+      var pastMatch = await matches_utils.getPastMatchByID(matchID);
     } else {
       badRequest = true;
     }
@@ -324,10 +324,12 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
       var refereeInfo = await unionAgent_utils.getRefereeByID(refereeID);
 
       if ( refereeInfo.length != 0 ){
-        if (futureMatch.length != 0 && futureMatch["refereeID"] == null){
+        if (futureMatch.length != 0 && futureMatch[0]["refereeID"] == null){
           await unionAgent_utils.addRefereeToFutureMatch(matchID, refereeID);
-        } else if (pastMatch.length != 0 && pastMatch["refereeID"] == null){
+        } else if (pastMatch.length != 0 && pastMatch[0]["refereeID"] == null){
           await unionAgent_utils.addRefereeToPastMatch(matchID, refereeID);
+        } else {
+          badRequest = true;
         }
       }
     } else{
