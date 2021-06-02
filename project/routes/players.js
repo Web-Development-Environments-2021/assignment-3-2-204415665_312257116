@@ -26,7 +26,7 @@ router.get("/playerFullDetails/:playerID", async (req, res, next) => {
   try {
     const player_id = req.params.playerID;
 
-    const matches_ids = await players_utils.getPlayerfullinfo(player_id);
+    const matches_ids = await players_utils.getPlayerFullInfo(player_id);
 
     res.status(200).send(matches_ids);
   } catch (error) {

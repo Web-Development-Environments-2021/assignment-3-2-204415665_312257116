@@ -1,6 +1,8 @@
 const axios = require("axios");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
 // const TEAM_ID = "85";
+const matches_utils = require("./matches_utils");
+
 
 
 
@@ -38,8 +40,10 @@ async function getPlayersInfo(players_ids_list) {
   let players_info = await Promise.all(promises);
   return extractRelevantPlayerData(players_info);
 }
-/*-------------------------------------------------------------------------------------*/
-async function getPlayerfullinfo(player_id) {
+
+/*------------------------------- getPlayerFullInfo -----------------------------------*/
+
+async function getPlayerFullInfo(player_id) {
   let promises = [];
     promises.push(
       axios.get(`${api_domain}/players/${player_id}`, {
@@ -83,6 +87,61 @@ async function getPlayersByTeam(team_id) {
   return players_info;
 }
 
+/*------------------------------- getTeamFullInfo -----------------------------------*/
+
+async function getTeamFullInfo(team_id) {
+  let promises = [];
+    promises.push(
+      axios.get(`${api_domain}/teams/${team_id}`, {
+        params: {
+          api_token: process.env.api_token,
+          include: "squad.player",
+        },
+      })
+    );
+  let team_info = await Promise.all(promises);
+  return extractRelevantPlayerData(team_info);
+}
+//* ------------------------------ extractRelevantTeamData ------------------------------ *//
+
+async function extractRelevantTeamData(team) {
+  return await Promise.all(team.map(async (team_info) => {
+    const { id, name, short_code, logo_path, squad} = team_info.data.data;
+    const squad_full_info = await getSquadInfo(squad.data,name);
+    const FutureMatches = await matches_utils.getFutureMatchByTeamName(name);
+    const pastMatches = await matches_utils.getPastMatchByTeamName(name);
+    return {
+      TeamID: id,
+      teamLogo: logo_path,
+      teamName: name,
+      teamShortCode: short_code,
+      teamSquad: squad_full_info,
+      futureMatches: FutureMatches,
+      pastMatches: pastMatches
+    };
+  }));
+}
+exports.getTeamFullInfo = getTeamFullInfo;
+
+//* ------------------------------ getSquadInfo ------------------------------ *//
+
+async function getSquadInfo(squad_info, team_name){
+  return squad_info.map((player_info) => {
+    const { player_id, position_id, fullname, image_path} = player_info.player.data;
+    return {
+      playerID: player_id,
+      name: fullname,
+      image: image_path,
+      position: position_id,
+      team_name: team_name
+    };
+ });
+}
+exports.getSquadInfo = getSquadInfo;
+
+
+
+
 exports.getPlayersByTeam = getPlayersByTeam;
 exports.getPlayersInfo = getPlayersInfo;
-exports.getPlayerfullinfo = getPlayerfullinfo;
+exports.getPlayerFullInfo = getPlayerFullInfo;
