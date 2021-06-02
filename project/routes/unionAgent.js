@@ -89,18 +89,31 @@ router.post("/addMatch", async (req, res, next) => {
 
     var badRequest = false;
 
-    if ( await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
+    if (! await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
       badRequest = true;
-    } //TODO: Continue Sanity Checks
+    } else if(! await league_utils.checkVenueName(venueName)){
+      badRequest = true;
+    } else if(refereeID != undefined){
+      var referee = (await unionAgent_utils.getRefereeByID(refereeID));
+      if (referee.length == 0){
+        badRequest = true;
+      }
+    }
+    //TODO: Continue Sanity Checks
 
-    var dateTime =  getTodayDatTime();
-    if (Date.parse(dateTime) < Date.parse(matchDate)){
-      await unionAgent_utils.addNewFutureMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
-    } else{
-      await unionAgent_utils.addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+    if (!badRequest){
+      var dateTime =  getTodayDatTime();
+      if (Date.parse(dateTime) < Date.parse(matchDate)){
+        await unionAgent_utils.addNewFutureMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+      } else{
+        await unionAgent_utils.addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
+      }
+  
+      res.status(200).send("Match added to league's matches successfully");
+    } else {
+      res.status(400).send("Bad request");
     }
 
-    res.status(200).send("Match added to league's matches successfully");
   } catch (error) {
     next(error);
   }
