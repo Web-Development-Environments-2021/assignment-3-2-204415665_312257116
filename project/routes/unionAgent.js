@@ -452,7 +452,7 @@ async function addRefereeToFutureMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchID : element.match_id,
-      matchDate : element.matchDateAndTime,
+      matchDate : getTDateTime(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
@@ -478,7 +478,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
      {
       matchID : element.match_id,
-      matchDateAndTime : element.matchDateAndTime,
+      matchDateAndTime : getTDateTime(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
