@@ -150,69 +150,60 @@ router.put("/addMatchResult", async (req, res, next) => {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
     const visitorTeamScore = req.body.visitorTeamScore;
-    var foundMatch = false;
     var badRequest = false;
 
-    //TODO: Add Sanity Check
     if (visitorTeamScore < 0 || localTeamScore < 0 || !Number.isInteger(matchID) ||
         !Number.isInteger(localTeamScore) || 
         !Number.isInteger(visitorTeamScore)){
       badRequest = true;
-
-    }
-
-    const leagueMatches = await matches_utils.getLeagueMatches();
-    var futureMatches = leagueMatches[1];
-    var pastMatches = leagueMatches[0];
-
-    for (var i = 0 ; i < futureMatches.length ; i++){
-
-      if (badRequest){
-        break;
-      }
-      if (matchID != futureMatches[i]["match_id"]){
-        continue;
-      }
-      foundMatch = true;
-      
-      var dateTime =  getTodayDatTime();
-      if (Date.parse(dateTime) < Date.parse(futureMatches[i]["matchDateAndTime"])){
-        //Match's Date is in the future
+    } else if (Number.isInteger(matchID)){
+      var match = await matches_utils.getMatchByID(matchID);
+      if (match.length == 0){
         badRequest = true;
-        break;
       }
-
-      var matchDate = futureMatches[i]["matchDateAndTime"];
-      var localTeamName = futureMatches[i]["localTeamName"];
-      var visitorTeamName = futureMatches[i]["visitorTeamName"];
-      var venueName = futureMatches[i]["venueName"];
-      var refereeID = futureMatches[i]["refereeID"];
-
-      await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
     }
 
-    if (!foundMatch && !badRequest){
+    if (! badRequest){
 
-      for (var i = 0 ; i < pastMatches.length ; i++){
+      var match = await matches_utils.getPastMatchByID(matchID);
+      var whichMatch = "past";
 
-        if (matchID != pastMatches[i]["match_id"]){
-          continue;
+      if (match.length == 0){
+        match = await matches_utils.getFutureMatchByID(matchID);
+        whichMatch = "future";
+      }
+      if (whichMatch == "future"){
+        var dateTime =  getTodayDatTime();
+        
+        if (Date.parse(dateTime) < Date.parse(match["matchDateAndTime"])){
+          //Match's Date is in the future
+          badRequest = true;
+
+        } else {
+          var matchDate = match["matchDateAndTime"];
+          var localTeamName = match["localTeamName"];
+          var visitorTeamName = match["visitorTeamName"];
+          var venueName = match["venueName"];
+          var refereeID = match["refereeID"];
+
+          await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore);
+          // TODO: need to remove from favorite
         }
-        foundMatch = true;
+      } else {
 
-        var localTeamScore_DB = pastMatches[i]["localTeamScore"];
-        var visitorTeamScore_DB = pastMatches[i]["visitorTeamScore"];
+        var localTeamScore_DB = match["localTeamScore"];
+        var visitorTeamScore_DB = match["visitorTeamScore"];
+
         if (localTeamScore_DB != null && visitorTeamScore_DB != null){
           //The Match Already as Result
           badRequest = true;
-          break;
+        } else {
+          await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
         }
-        await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
-        break;
       }
     }
 
-    if (foundMatch && !badRequest){
+    if (!badRequest){
       res.status(200).send("Result added to match successfully");
     } else{
       res.status(400).send("Bad request");
