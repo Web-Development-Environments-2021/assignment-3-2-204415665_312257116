@@ -10,7 +10,7 @@ const league_utils = require("./utils/league_utils");
  */
 //TODO: Need To Authenticate UnionAgent
 router.use(async function (req, res, next) {
-  if (req.session && req.session.user_id) {
+  if (req.session && req.session.user_id  == 4) {
     DButils.execQuery("SELECT user_id FROM Users")
       .then((users) => {
         if (users.find((x) => x.user_id === req.session.user_id)) {
@@ -88,18 +88,23 @@ router.post("/addMatch", async (req, res, next) => {
     const refereeID = req.body.refereeID;
 
     var badRequest = false;
+    var message = "";
 
     if (! await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
       badRequest = true;
-    } else if(! await league_utils.checkVenueName(venueName)){
+      message = " teams names,";
+    } 
+    if(! await league_utils.checkVenueName(venueName)){
       badRequest = true;
-    } else if(refereeID != undefined){
+      message += "  venue name,"
+    } 
+    if(refereeID != undefined){
       var referee = (await unionAgent_utils.getRefereeByID(refereeID));
       if (referee.length == 0){
         badRequest = true;
+        message += "  referee ID"
       }
     }
-    //TODO: Continue Sanity Checks
 
     if (!badRequest){
       var dateTime =  getTodayDatTime();
@@ -111,7 +116,7 @@ router.post("/addMatch", async (req, res, next) => {
   
       res.status(200).send("Match added to league's matches successfully");
     } else {
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     }
 
   } catch (error) {
@@ -150,7 +155,9 @@ router.put("/addMatchResult", async (req, res, next) => {
     const matchID = req.body.matchID;
     const localTeamScore = req.body.localTeamScore;
     const visitorTeamScore = req.body.visitorTeamScore;
+    
     var badRequest = false;
+    var message = "";
 
     if (visitorTeamScore < 0 || localTeamScore < 0 || !Number.isInteger(matchID) ||
         !Number.isInteger(localTeamScore) || 
