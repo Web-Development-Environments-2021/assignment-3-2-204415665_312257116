@@ -257,6 +257,8 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
     const eventsLog = req.body.eventsLog;
 
     var badRequest = false;
+    var message = "";
+
     const match = await matches_utils.getPastMatchByID(matchID);
     var dateTime =  getTodayDatTime();
 
@@ -264,10 +266,19 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
       
       for (var i = 0 ; i < eventsLog.length ; i++){
 
-        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ||
-            !Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 ||
-            !checkEventType(eventsLog[i]["eventType"])){
+        if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime)){
           badRequest = true;
+          message += " date time";
+        }
+        if (!Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130){
+          badRequest = true;
+          message += " minute in match,"
+        }
+        if (!checkEventType(eventsLog[i]["eventType"])){
+          badRequest = true;
+          message += " event type";
+        }
+        if (badRequest){
           break;
         }
 
@@ -283,10 +294,11 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
       }
     } else{
       badRequest = true;
+      message += " match ID";
     }
 
     if (badRequest){
-      res.status(400).send("Bad request");
+      res.status(400).send("Bad request - incorrect :  " + message);
     } else {
       res.status(200).send("Events log added match successfully");
     }
