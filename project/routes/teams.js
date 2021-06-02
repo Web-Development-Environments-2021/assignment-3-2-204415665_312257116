@@ -20,4 +20,5 @@ router.get("/teamFullDetails/:teamId", async (req, res, next) => {
   }
 });
 
+
 module.exports = router;
