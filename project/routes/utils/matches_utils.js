@@ -165,7 +165,9 @@ async function extractEventLog(matchID){
 
 exports.extractEventLog = extractEventLog;
 
+
 //* ------------------------------ get Next First Match ------------------------------ *//
+
 async function getFirstNextMatch() {
 
   const firstNextMatch = await DButils.execQuery(`select top 1 * from FutureMatches where matchDateAndTime > GETDATE() order by matchDateAndTime ASC`
@@ -176,6 +178,7 @@ async function getFirstNextMatch() {
 
 
 //* ------------------------------ isMatchInFavorite ------------------------------ *//
+
 async function isMatchInFavorite(user_id, match_id){
   const userFavoriteMatches = await users_utils.getFavoriteMatches(user_id);
   return userFavoriteMatches.find((x) => x.match_id == match_id);
@@ -183,6 +186,7 @@ async function isMatchInFavorite(user_id, match_id){
 exports.isMatchInFavorite = isMatchInFavorite;
 
 //* ------------------------------ removeMatchFavorite ------------------------------ *//
+
 async function removeMatchFromFavorite(match_id){
   if (isMatchInFavorite(match_id)){
     await DButils.execQuery(`DELETE  FROM  FavoriteMatches WHERE match_id=('${match_id}')`);
@@ -192,7 +196,8 @@ async function removeMatchFromFavorite(match_id){
 }
 exports.removeMatchFromFavorite = removeMatchFromFavorite;
 
-//* ------------------------------ MatchFromFuture2Past ------------------------------ *//
+//* ------------------------------ moveMatchFromFuture2Past ------------------------------ *//
+
 async function moveMatchFromFuture2Past(match_id){
   const status = await removeMatchFromFavorite(match_id);
   await DButils.execQuery(
@@ -207,3 +212,28 @@ async function moveMatchFromFuture2Past(match_id){
 }
 exports.moveMatchFromFuture2Past = moveMatchFromFuture2Past;
 
+
+//* ------------------------------ getFutureMatchByTeamsName ------------------------------ *//
+
+async function getFutureMatchByTeamName(TeamName) {
+  
+  var futureMatch = await DButils.execQuery(
+    `select * from FutureMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
+  );
+
+  return futureMatch;
+}
+exports.getFutureMatchByTeamName = getFutureMatchByTeamName;
+
+
+//* ------------------------------ getPastMatchByTeamsName ------------------------------ *//
+
+async function getPastMatchByTeamName(TeamName) {
+  
+  var pastMatch = await DButils.execQuery(
+    `select * from PastMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
+  );
+
+  return pastMatch;
+}
+exports.getPastMatchByTeamName = getPastMatchByTeamName;
