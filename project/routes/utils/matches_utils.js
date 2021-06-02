@@ -2,6 +2,7 @@ const DButils = require("./DButils");
 const axios = require("axios");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
 const unionAgent_utils = require("./unionAgent_utils");
+const users_utils = require("./users_utils");
 
 
 //* ------------------------------ getMatchesInfo ------------------------------ *//
@@ -10,7 +11,7 @@ async function getMatchesInfo(match_ids_array) {
   let promises = [];
   match_ids_array.map((match_id) =>
     promises.push(
-      getMatchByID(match_id)
+      getFutureMatchByID(match_id)
     )
   ); 
   let matches_info = await Promise.all(promises);
@@ -74,7 +75,6 @@ async function getMatchByID(matchID) {
   const futureMatch = await DButils.execQuery(
     `select * from FutureMatches where match_id='${matchID}'`
   );
-
   const pastMatches = await DButils.execQuery(
     `select * from PastMatches where match_id='${matchID}'`
   );
@@ -161,15 +161,42 @@ async function extractEventLog(matchID){
 
 exports.extractEventLog = extractEventLog;
 
+//* ------------------------------ get Next First Match ------------------------------ *//
+async function getFirstNextMatch() {
+
+  const firstNextMatch = await DButils.execQuery(`select top 1 * from FutureMatches where matchDateAndTime > GETDATE() order by matchDateAndTime ASC`
+  );
+  return firstNextMatch[0];
+
+}exports.getFirstNextMatch = getFirstNextMatch;
 
 
+//* ------------------------------ isMatchInFavorite ------------------------------ *//
+async function isMatchInFavorite(match_id){
+  const userFavoriteMatches = await users_utils.getFavoriteMatches();
+  return userFavoriteMatches.find((x) => x.match_id == match_id);
+}exports.isMatchInFavorite = isMatchInFavorite;
 
+//* ------------------------------ removeMatchFavorite ------------------------------ *//
+async function removeMatchFromFavorite(match_id){
+  if (isMatchInFavorite(match_id)){
+    await DButils.execQuery(`DELETE  FROM  FavoriteMatches WHERE match_id=(${match_id})`);
+    return true;
+  }
+  return false;
+}exports.removeMatchFromFavorite = removeMatchFromFavorite;
 
-
-
-
-
-
-
-
+//* ------------------------------ MatchFromFuture2Past ------------------------------ *//
+async function MatchFromFuture2Past(match_id){
+  const status = await removeMatchFromFavorite(match_id);
+  await DButils.execQuery(
+  `INSERT INTO PastMatches (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
+  SELECT (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
+  FROM FutureMatches
+  WHERE match_id=(${match_id});
+  
+  DELETE FROM FutureMatches
+  WHERE match_id=(${match_id});`
+  );
+}exports.MatchFromFuture2Past = MatchFromFuture2Past;
 
