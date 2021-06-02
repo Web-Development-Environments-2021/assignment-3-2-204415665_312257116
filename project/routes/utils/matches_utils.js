@@ -121,7 +121,6 @@ async function extractRefereeInfo(refereeID){
   const refereeInfo = await DButils.execQuery(
     `select firstname, lastname, course from Referee where referee_id='${refereeID}'`
   );
-
   return refereeInfo.map((element) => {
     return {
       firstname : element.firstname,

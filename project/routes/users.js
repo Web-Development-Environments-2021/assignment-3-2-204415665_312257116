@@ -32,12 +32,12 @@ router.post("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const match_id = req.body.matchId;
-
     if (!Number.isInteger(match_id)){    //Checks if the user's input is correct
       res.status(400).send("Bad request");
     }
-
     const flag = await users_utils.markMatchesAsFavorite(user_id, match_id);
+
+    //In case of success/failure - return an appropriate error.
     if (flag){
       res.status(201).send("The match successfully saved as favorite");
     }
@@ -55,7 +55,6 @@ router.post("/favoriteMatches", async (req, res, next) => {
 router.get("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    let favorite_matches = {};
     const matches_ids = await users_utils.getFavoriteMatches(user_id);
     let matches_ids_array = [];
     matches_ids.map((element) => matches_ids_array.push(element.match_id)); //extracting the players ids into array
@@ -72,11 +71,15 @@ router.get("/favoriteMatches", async (req, res, next) => {
   router.get("/search/:Search_Query", async (req, res, next) => {
     try {
       //Extracting the relevant information from the query
-      const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
       const { Search_Query } = req.params;
-      var results = users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
+      const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
+      //Check that all entered values are valid
+      if (/[^a-z]/i.test(Search_Query) || (/[^a-z]/i.test(Filter_Players) && isNaN(Filter_Players))){
+        res.status(400).send("Bad request - Invalid values");
+      }
+      //Submitting the request for an auxiliary function - SQL_searchByQuery
+      const results = await users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
       res.status(200).send(results);
-
       } catch (error) {
         next(error);
       }
