@@ -22,17 +22,17 @@ router.use(async function (req, res, next) {
   }
 });
 
-// router.get("/playerFullDetails/:playerID", async (req, res, next) => {
-//   try {
-//     const player_id = req.params.playerID;
+router.get("/playerFullDetails/:playerID", async (req, res, next) => {
+  try {
+    const player_id = req.params.playerID;
 
-//     const matches_ids = await players_utils.getPlayerfullinfo(player_id);
+    const matches_ids = await players_utils.getPlayerfullinfo(player_id);
 
-//     res.status(200).send(matches_ids);
-//   } catch (error) {
-//     next(error);
-//   }
+    res.status(200).send(matches_ids);
+  } catch (error) {
+    next(error);
+  }
 
-// });
+});
 
 module.exports = router;

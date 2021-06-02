@@ -40,16 +40,15 @@ async function getPlayersInfo(players_ids_list) {
 }
 /*-------------------------------------------------------------------------------------*/
 async function getPlayerfullinfo(player_id) {
-  player_id.map((id) =>
+  let promises = [];
     promises.push(
-      axios.get(`${api_domain}/players/${id}`, {
+      axios.get(`${api_domain}/players/${player_id}`, {
         params: {
           api_token: process.env.api_token,
           include: "team",
         },
       })
-    )
-  );
+    );
   let players_info = await Promise.all(promises);
   return extractRelevantPlayerData(players_info);
 }
@@ -57,14 +56,21 @@ async function getPlayerfullinfo(player_id) {
 
 function extractRelevantPlayerData(players_info) {
   return players_info.map((player_info) => {
-    const { fullname, image_path, position_id } = player_info.data.data;
+    const { fullname, image_path, position_id, common_name, nationality, birthdate, birthcountry, height, weight } = player_info.data.data;
     const { name } = player_info.data.data.team.data;
-    return {
+    return {playerShortInfo: {
       name: fullname,
       image: image_path,
       position: position_id,
       team_name: name,
-    };
+    },
+    commonName: common_name,
+    nationality: nationality,
+    birthDate: birthdate,
+    birthCountry: birthcountry,
+    height: height,
+    weight: weight
+  };
   });
 }
 
@@ -79,3 +85,4 @@ async function getPlayersByTeam(team_id) {
 
 exports.getPlayersByTeam = getPlayersByTeam;
 exports.getPlayersInfo = getPlayersInfo;
+exports.getPlayerfullinfo = getPlayerfullinfo;
