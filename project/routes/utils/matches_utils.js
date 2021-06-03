@@ -221,8 +221,9 @@ async function getFutureMatchByTeamName(TeamName) {
   var futureMatch = await DButils.execQuery(
     `select * from FutureMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
   );
+  var futureMatch_with_info = await extractMatches_with_refereeInfo(futureMatch);
 
-  return futureMatch;
+  return futureMatch_with_info;
 }
 exports.getFutureMatchByTeamName = getFutureMatchByTeamName;
 
@@ -234,7 +235,40 @@ async function getPastMatchByTeamName(TeamName) {
   var pastMatch = await DButils.execQuery(
     `select * from PastMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
   );
+  var pastMatch_with_info = await extractMatches_with_refereeInfo(pastMatch);
+  for (var i = 0 ; i < pastMatch_with_info.length ; i++){
+    var eventDic = await extractEventLog(pastMatch_with_info[i]["matchID"]);
+    pastMatch_with_info[i]["eventsLog"] = eventDic[0];
 
-  return pastMatch;
+  }
+  return pastMatch_with_info;
+
 }
 exports.getPastMatchByTeamName = getPastMatchByTeamName;
+
+async function extractMatches_with_refereeInfo(matches_info) {
+
+  return await Promise.all(matches_info.map(async (element) => {
+    if (element.refereeID){
+      var refereeInfo = await extractRefereeInfo(element.refereeID);
+      return { 
+          matchID: element.match_id,
+          matchDate: element.matchDateAndTime,
+          localTeamName: element.localTeamName,
+          visitorTeamName: element.visitorTeamName,
+          venueName: element.venueName,
+          refereeInformation: refereeInfo 
+        };
+      }
+    else{
+      return {
+        matchID: element.match_id,
+        matchDate: element.matchDateAndTime,
+        localTeamName: element.localTeamName,
+        visitorTeamName: element.visitorTeamName,
+        venueName: element.venueName,
+      };
+    }
+  })
+  );
+}
