@@ -100,16 +100,17 @@ async function getTeamFullInfo(team_id) {
       })
     );
   let team_info = await Promise.all(promises);
-  return extractRelevantPlayerData(team_info);
+  return extractRelevantTeamData(team_info);
 }
+
 //* ------------------------------ extractRelevantTeamData ------------------------------ *//
 
 async function extractRelevantTeamData(team) {
   return await Promise.all(team.map(async (team_info) => {
     const { id, name, short_code, logo_path, squad} = team_info.data.data;
     const squad_full_info = await getSquadInfo(squad.data,name);
-    const FutureMatches = await matches_utils.getFutureMatchByTeamName(name);
     const pastMatches = await matches_utils.getPastMatchByTeamName(name);
+    const FutureMatches = await matches_utils.getFutureMatchByTeamName(name);
     return {
       TeamID: id,
       teamLogo: logo_path,
@@ -121,7 +122,6 @@ async function extractRelevantTeamData(team) {
     };
   }));
 }
-exports.getTeamFullInfo = getTeamFullInfo;
 
 //* ------------------------------ getSquadInfo ------------------------------ *//
 
@@ -137,11 +137,9 @@ async function getSquadInfo(squad_info, team_name){
     };
  });
 }
+
+exports.getTeamFullInfo = getTeamFullInfo;
 exports.getSquadInfo = getSquadInfo;
-
-
-
-
 exports.getPlayersByTeam = getPlayersByTeam;
 exports.getPlayersInfo = getPlayersInfo;
 exports.getPlayerFullInfo = getPlayerFullInfo;
