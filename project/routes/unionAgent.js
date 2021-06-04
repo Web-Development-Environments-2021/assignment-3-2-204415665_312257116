@@ -34,7 +34,10 @@ router.get("/leagueManagementPage", async (req, res, next) => {
 
     const sortBy = req.query.sortBy;
 
-    var futureMatchesWithReferees , pastMatchesWithReferees = await matches_domain.getMatchesToLeagueManagementPage(sortBy);
+    var resultFromDomain = await matches_domain.getMatchesToLeagueManagementPage(sortBy);;
+
+    var futureMatchesWithReferees = resultFromDomain.futureMatchesWithReferees;
+    var pastMatchesWithReferees = resultFromDomain.pastMatchesWithReferees;
 
     var resultResponse ={};
     resultResponse["pastMatches"] = pastMatchesWithReferees;
@@ -75,7 +78,13 @@ router.post("/addMatch", async (req, res, next) => {
     const venueName = req.body.matchInformation.venueName;
     const refereeID = req.body.refereeID;
 
-    var badRequest ,message = await unionAgent_domain.checkInputForAddMatch(localTeamName, visitorTeamName, venueName, refereeID);
+    var badRequest = false;
+    var message = "";
+    
+    var resultFromDomain = await unionAgent_domain.checkInputForAddMatch(localTeamName, visitorTeamName, venueName, refereeID);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
 
     if (!badRequest){
 
@@ -180,8 +189,12 @@ router.put("/addMatchEventsLog", async (req, res, next) => {
     const matchID = req.body.matchID;
     const eventsLog = req.body.eventsLog;
 
-    var badRequest, message =  await unionAgent_domain.InsertMatchEventLog(matchID, eventsLog);
+    var badRequest = false;
+    var message = "";
+    var resultFromDomain =  await unionAgent_domain.InsertMatchEventLog(matchID, eventsLog);
 
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
     
     if (badRequest){
       res.status(400).send("Bad request - incorrect :  " + message);
@@ -213,21 +226,30 @@ router.put("/addRefereeToMatch", async (req, res, next) => {
     const matchID = req.body.matchID;
     const refereeID = req.body.refereeID;
 
-    var badRequest, message = await unionAgent_domain.checkInputForAddReferee(matchID, refereeID);
+    var badRequest = false;
+    var message = "";
+    var resultFromDomain = await unionAgent_domain.checkInputForAddReferee(matchID, refereeID);
 
-
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
  
     if (!badRequest) {
-      var futureMatch, pastMatch = await unionAgent_domain.getMatchForAddReferee(matchID);
-    }
-    
-    if (futureMatch.length != 0 || pastMatch.length !=0 ){
 
-      badRequest, message = await unionAgent_domain.InsertRefereeToMatch(matchID, refereeID, futureMatch, pastMatch);
+      resultFromDomain = await unionAgent_domain.getMatchForAddReferee(matchID);
+      var futureMatch = resultFromDomain.futureMatch;
+      var pastMatch = resultFromDomain.pastMatch;
 
-    } else{
-      badRequest = true;
-      message += " match doesn't exist";
+      if (futureMatch.length != 0 || pastMatch.length !=0 ){
+
+        resultFromDomain = await unionAgent_domain.InsertRefereeToMatch(matchID, refereeID, futureMatch, pastMatch);
+        badRequest = resultFromDomain.badRequest;
+        message = resultFromDomain.message;
+  
+      } else {
+        badRequest = true;
+        message += " match doesn't exist";
+      }
+
     }
 
     if (badRequest){

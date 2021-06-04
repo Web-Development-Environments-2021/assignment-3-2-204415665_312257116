@@ -96,7 +96,7 @@ paths:
               type: object
               properties:
                 matchId:
-                  type: string
+                  type: number
                   description: Match's id which the user saved
                   example: 85
       responses:
@@ -184,12 +184,29 @@ paths:
               type: object
               properties:
                 matchInformation:
-                  $ref: '#/components/schemas/FutureMatchInformation'
-                  required: true
+                  type: object
+                  properties:
+                    matchDate:
+                      type: string
+                      format: date-time
+                      description: Match's date and time of beginning
+                      example: "2021-07-02 12:00:00"
+                    localTeamName:
+                      type: string
+                      description: Local team Name
+                      example: Viborg
+                    visitorTeamName:
+                      type: string
+                      description: Visitor team name
+                      example: Silkeborg
+                    venueName:
+                      type: string
+                      description: Venue name
+                      example: Sydbank Park
                 refereeID:
                   type: number
                   description: The referee's ID
-                  example: 252
+                  example: 1
       responses:
         '200':
           description: Match added to league's matches successfully
