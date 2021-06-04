@@ -42,6 +42,43 @@ async function getNextLeagueMatch(){
 }
 exports.getNextLeagueMatch = getNextLeagueMatch;
 
+
+//* ------------------------------ Get Favorite Matches For Main Page ------------------------------ *//
+    
+async function getFavoriteMatchesForMainPage(user_id){
+  
+    var favoriteMatchedID = await users_domain.getFavoriteMatches_domain(user_id);
+
+    var favoriteMatchesAfterCheck = [];
+    var needChange = false;
+
+    for ( var i=0 ; i < favoriteMatchedID.length ; i++){
+
+        needChange = await matches_domain.checkIfNeedChangeFromFuture(favoriteMatchedID[i]);
+        
+        if ( ! needChange ){
+            favoriteMatchesAfterCheck.push(favoriteMatchedID[i]);
+        }
+    }
+
+    if ( favoriteMatchesAfterCheck.length != 0 ){
+
+        var favoriteMatches = await matches_domain.getMatchesInfo(favoriteMatchesAfterCheck);
+        // favoriteMatches = favoriteMatches.sort( (a, b) => a.matchDate - b.matchDate);
+        favoriteMatches = favoriteMatches.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
+
+    } else{
+        return [];
+    }
+
+    if (favoriteMatches.length > 3){
+        return favoriteMatches.slice(0, 3);
+    }
+    return favoriteMatches;
+    
+}
+exports.getFavoriteMatchesForMainPage = getFavoriteMatchesForMainPage;
+
 //------------------------------------------------------------------------------------ //
 // -----------------------------   SQL_searchByQuery   ------------------------------- //
 //------------------------------------------------------------------------------------ //
@@ -55,7 +92,7 @@ exports.getNextLeagueMatch = getNextLeagueMatch;
  * @param {*} Filter_Players Filter players by team name or player number
  * @returns List of players / teams that meet all of the above criteria
  */
- async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
+async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
 
     const Qsearch = await league_utils.getQueryInfo(Search_Query, Search_Type);
     let resultQ;
