@@ -378,6 +378,12 @@ paths:
                 properties:
                   leagueDetails:
                     $ref: "#/components/schemas/League"
+                  userFavoriteMatches:
+                    type: array
+                    description: For logged in user - maximum 3 Favorite Matches
+                    max items: 3
+                    items:
+                      $ref: "#/components/schemas/FutureMatchInformation"
         "400":
           description: Wrong input parameters
 

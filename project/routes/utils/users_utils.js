@@ -30,7 +30,8 @@ async function markMatchesAsFavorite(user_id, match_id) {
 }
 exports.markMatchesAsFavorite = markMatchesAsFavorite;
 
-// --------------------   get  user Favorites Matches   ---------------------------- //
+
+// --------------------   get user Favorites Matches   ---------------------------- //
 
 async function getFavoriteMatches(user_id) {
   const match_ids = await DButils.execQuery(
@@ -60,3 +61,39 @@ async function removeMatchFromFavorite(match_id){
   return false;
 }
 exports.removeMatchFromFavorite = removeMatchFromFavorite;
+
+
+//TODO: Daniel - up is moshe
+//* ------------------------------ removeMatchFavorite ------------------------------ *//
+
+async function removeFavoriteMatch(match_id){
+
+  if ( await checkFavoriteMatch(match_id) ){
+
+    await DButils.execQuery(
+      `DELETE  FROM  FavoriteMatches WHERE match_id=('${match_id}')`
+    );
+
+    return true;
+  }
+  return false;
+  
+}
+exports.removeFavoriteMatch = removeFavoriteMatch;
+
+
+//* ------------------------------ Check Favorite Match ------------------------------ *//
+
+async function checkFavoriteMatch(match_id){
+
+  const favoriteMatch =  await DButils.execQuery(
+    `Select * from FavoriteMatches WHERE match_id=('${match_id}')`
+  );
+
+  if ( favoriteMatch.length != 0 ){
+    return true;
+  }
+  return false;
+
+}
+exports.checkFavoriteMatch = checkFavoriteMatch;
