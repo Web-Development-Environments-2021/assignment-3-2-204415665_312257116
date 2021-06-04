@@ -800,14 +800,15 @@ components:
           type: number
           description: The number of goals scored by the home team
           example: 1
+        refereeInformation:
+          $ref: '#/components/schemas/Referee'
         eventsLog:
           type: array
           description: Match's event log
           minItems: 3
           items:
             $ref: '#/components/schemas/MatchEvent'
-        refereeInformation:
-          $ref: '#/components/schemas/Referee'
+
           
     MatchEvent:
       type: object

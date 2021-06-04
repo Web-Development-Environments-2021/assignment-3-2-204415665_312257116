@@ -50,10 +50,10 @@ async function getMatchesToCurrentStage(){
 
   const leagueMatches = await matches_utils.getLeagueMatches();
 
-  const futureMatchesWithReferees = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
-  const pastMatchesWithReferees = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
+  const futureMatches = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
+  const pastMatches = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
 
-  return futureMatchesWithReferees, pastMatchesWithReferees;
+  return { futureMatches : futureMatches, pastMatches : pastMatches };
 
 }
 exports.getMatchesToCurrentStage = getMatchesToCurrentStage;
@@ -77,7 +77,12 @@ async function addRefereeToFutureMatches(matchesToAdd){
     for (var i = 0 ; i < matchesWithReferee.length ; i++){
   
       var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-      matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+
+      if ( refereeDic.length != undefined ){
+        matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+      } else{
+        matchesWithReferee[i]["refereeInformation"] = {};
+      }
       delete matchesWithReferee[i]["refereeID"]
     }
     return matchesWithReferee;
@@ -106,7 +111,12 @@ async function addRefereeToPastMatches(matchesToAdd){
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
     var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-    matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+
+    if ( refereeDic.length != undefined ){
+      matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+    } else{
+      matchesWithReferee[i]["refereeInformation"] = {};
+    }
     delete matchesWithReferee[i]["refereeID"]
 
     var eventDic = await matches_utils.extractEventLog(matchesWithReferee[i]["matchID"]);
