@@ -17,7 +17,16 @@ async function GetPastMatchesWithoutResult(){
 
   matches[0].map((element) => {
     if(element.visitorTeamScore == null || element.localTeamScore == null){
-      matchesWithResult.push(element);
+      matchesWithResult.push({
+        matchID : element.match_id,
+        matchDateAndTime : matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime),
+        localTeamName : element.localTeamName,
+        visitorTeamName : element.visitorTeamName,
+        venueName : element.venueName,
+        refereeID : element.refereeID,
+        localTeamScore : element.localTeamScore,
+        visitorTeamScore : element.visitorTeamScore
+      });
     };
   });
 
@@ -74,26 +83,6 @@ async function GetAllMatchesWithoutReferee(){
     
 }
 exports.GetAllMatchesWithoutReferee = GetAllMatchesWithoutReferee;
-  
-  
-//* ------------------------------ Get Past Matches Without Result ------------------------------ *//
-    
-async function GetPastMatchesWithoutResult(){
-    
-  var matches = await matches_utils.getLeagueMatches();
-  var matchesWithResult = [];
-
-  matches[0].map((element) => {
-    if(element.visitorTeamScore == null || element.localTeamScore == null){
-      matchesWithResult.push(element);
-    };
-  });
-
-
-  return matchesWithResult;
-    
-}
-exports.GetPastMatchesWithoutResult = GetPastMatchesWithoutResult;
 
 
 //* ------------------------------ Get All Data For Add Match ------------------------------ *//
@@ -192,16 +181,19 @@ async function checkInputForAddResult(matchID, localTeamScore, visitorTeamScore)
   var badRequest = false;
   var message = "";
 
-  if (visitorTeamScore < 0 || localTeamScore < 0 ||
-      !Number.isInteger(localTeamScore) || 
-      !Number.isInteger(visitorTeamScore)){
+  if ( localTeamScore < 0 || !Number.isInteger(localTeamScore) ){
     badRequest = true;
-    message += " scores,";
+    message += " local team score,";
+  }
+  if ( visitorTeamScore < 0 || !Number.isInteger(visitorTeamScore) ){
+    badRequest = true;
+    message += " visitor team score,";
   }
 
   if (!Number.isInteger(matchID)) {
     badRequest = true;
     message += " match ID,";
+
   } else if (Number.isInteger(matchID)){
     
     var match = await matches_utils.getMatchByID(matchID);
@@ -211,12 +203,7 @@ async function checkInputForAddResult(matchID, localTeamScore, visitorTeamScore)
     }
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
 
 }
 exports.checkInputForAddResult = checkInputForAddResult;
@@ -234,7 +221,7 @@ async function checkIfPastOrFuture(matchID){
     whichMatch = "future";
   }
 
-  return match, whichMatch;
+  return { match : match , whichMatch : whichMatch };
 
 }
 exports.checkIfPastOrFuture = checkIfPastOrFuture;
@@ -250,7 +237,7 @@ async function InsertFutureMatchResult(match, matchID, localTeamScore, visitorTe
   var dateTime = matches_domain.getTodayDateTime();
   if (Date.parse(dateTime) < Date.parse(match[0]["matchDateAndTime"])){
     badRequest = true;
-    message += " Date Time,";
+    message += " future match date ,";
 
   } else {
     
@@ -264,12 +251,7 @@ async function InsertFutureMatchResult(match, matchID, localTeamScore, visitorTe
     await unionAgent_utils.addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore)
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
   
 }
 exports.InsertFutureMatchResult = InsertFutureMatchResult;
@@ -293,12 +275,7 @@ async function InsertPastMatchResult(match, matchID, localTeamScore, visitorTeam
     await unionAgent_utils.addPastMatchResult(matchID, localTeamScore, visitorTeamScore);
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
 }
 exports.InsertPastMatchResult = InsertPastMatchResult;
 
@@ -366,12 +343,7 @@ async function InsertMatchEventLog(matchID, eventsLog){
     message += " match doesn't exist";
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
 
 }
 exports.InsertMatchEventLog = InsertMatchEventLog;
@@ -413,12 +385,7 @@ async function checkInputForAddReferee(matchID, refereeID){
     message += " referee ID,";
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }  
+  return {badRequest : badRequest, message : message};
 
 }
 exports.checkInputForAddReferee = checkInputForAddReferee;
@@ -467,12 +434,7 @@ async function InsertRefereeToMatch(matchID, refereeID, futureMatch, pastMatch){
     message += " referee doesn't exist";
   }
 
-  if (badRequest){
-    return true, message;
-  }
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
 
 }
 exports.InsertRefereeToMatch = InsertRefereeToMatch;

@@ -15,6 +15,7 @@ function getTodayDateTime(){
 }
 exports.getTodayDateTime = getTodayDateTime;
 
+
 //* ------------------------------ Get DataTime ------------------------------ *//
   
 function getDateTimeDisplayFormat(dateTime){
@@ -52,6 +53,26 @@ function getDateTimeDisplayFormat(dateTime){
 return dateTime;
 }
 exports.getDateTimeDisplayFormat = getDateTimeDisplayFormat;
+
+
+//* ------------------------------ Get DataTime ------------------------------ *//
+  
+function getMinuteDisplayFormat(minuteInMatch){
+  var dateTime = minuteInMatch;
+  var  hours, minutes;
+
+  hours = dateTime.getHours();
+  minutes =  dateTime.getMinutes();
+
+  if ( hours == 0){
+    return minutes;
+  }
+  else{
+    return 60 + minutes;
+  }
+}
+exports.getMinuteDisplayFormat = getMinuteDisplayFormat;
+
 
 //* ------------------------------ Get Matches To League Management Page ------------------------------ *//
 

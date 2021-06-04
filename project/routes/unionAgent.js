@@ -116,21 +116,34 @@ router.put("/addMatchResult", async (req, res, next) => {
     const localTeamScore = req.body.localTeamScore;
     const visitorTeamScore = req.body.visitorTeamScore;
     
-    var badRequest, message =  await unionAgent_domain.checkInputForAddResult(matchID, localTeamScore, visitorTeamScore);
+    var badRequest = false;
+    var message = ""; 
+    var resultFromDomain =  await unionAgent_domain.checkInputForAddResult(matchID, localTeamScore, visitorTeamScore);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
 
     
     if (! badRequest){
 
-      var match ,whichMatch = await unionAgent_domain.checkIfPastOrFuture(matchID);
+      resultFromDomain = await unionAgent_domain.checkIfPastOrFuture(matchID);
+
+      var match = resultFromDomain.match;
+      var whichMatch = resultFromDomain.whichMatch;
 
       if (whichMatch == "future"){
         
-        badRequest, message =  await unionAgent_domain.InsertFutureMatchResult(match, matchID, localTeamScore, visitorTeamScore);
+        resultFromDomain =  await unionAgent_domain.InsertFutureMatchResult(match, matchID, localTeamScore, visitorTeamScore);
+
+        badRequest = resultFromDomain.badRequest;
+        message = resultFromDomain.message;
         
       } else {
 
-        badRequest, message = await unionAgent_domain.InsertPastMatchResult(match, matchID, localTeamScore, visitorTeamScore);
+        resultFromDomain= await unionAgent_domain.InsertPastMatchResult(match, matchID, localTeamScore, visitorTeamScore);
 
+        badRequest = resultFromDomain.badRequest;
+        message = resultFromDomain.message;
       }
     }
 
