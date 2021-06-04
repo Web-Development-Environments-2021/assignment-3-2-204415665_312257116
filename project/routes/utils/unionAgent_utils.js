@@ -1,5 +1,4 @@
 const DButils = require("./DButils");
-const matches_utils = require("./matches_utils");
 
 
 //* ------------------------------ Add New Future Match ------------------------------ *//
@@ -89,7 +88,6 @@ async function addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eve
   );
   
 }
-
 exports.addEvent = addEvent;
 
 
@@ -103,7 +101,6 @@ async function getRefereeByID(refereeID){
   );
   
 }
-
 exports.getRefereeByID = getRefereeByID;
 
 
@@ -117,7 +114,6 @@ async function addRefereeToFutureMatch(matchID, refereeID){
   );
   
 }
-
 exports.addRefereeToFutureMatch = addRefereeToFutureMatch;
 
 
@@ -131,80 +127,8 @@ async function addRefereeToPastMatch(matchID, refereeID){
   );
   
 }
-
 exports.addRefereeToPastMatch = addRefereeToPastMatch;
 
 
-//* ------------------------------ Get All Referees ------------------------------ *//
-
-async function getAllReferees(){
-
-
-  var referees = await DButils.execQuery(
-    `select * from Referee`
-  );
-
-  return referees.map((element) => {
-    return {
-      refereeID : element.referee_id,
-      firstname : element.firstname,
-      lastname : element.lastname,
-      course : element.course
-    }
-  });
-
-  
-}
-
-exports.getAllReferees = getAllReferees;
-
-//* ------------------------------ Get All Matches Without Referee ------------------------------ *//
-
-async function GetAllMatchesWithoutReferee(){
-
-  
-  var matches = await matches_utils.getLeagueMatches();
-  var matchesWithReferee = [[],[]];
-
-  matches[0].map((element) => {
-    if(element.refereeID == null){
-      matchesWithReferee[0].push(element);
-    };
-  });
-
-  matches[1].map((element) => {
-    if(element.refereeID == null){
-      matchesWithReferee[1].push(element);
-    };
-  });
-
-  return matchesWithReferee;
-  
-}
-
-exports.GetAllMatchesWithoutReferee = GetAllMatchesWithoutReferee;
-
-
-//* ------------------------------ Get Past Matches Without Result ------------------------------ *//
-
-
-async function GetPastMatchesWithoutResult(){
-
-  
-  var matches = await matches_utils.getLeagueMatches();
-  var matchesWithResult = [];
-
-  matches[0].map((element) => {
-    if(element.visitorTeamScore == null || element.localTeamScore == null){
-      matchesWithResult.push(element);
-    };
-  });
-
-
-  return matchesWithResult;
-  
-}
-
-exports.GetPastMatchesWithoutResult = GetPastMatchesWithoutResult;
 
 

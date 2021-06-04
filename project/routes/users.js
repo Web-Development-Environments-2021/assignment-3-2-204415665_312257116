@@ -65,25 +65,6 @@ router.get("/favoriteMatches", async (req, res, next) => {
   }
 });
 
-
-/*----------------------------- search -----------------------------*/
-//Returns all results according to the user's search query
-  router.get("/search/:Search_Query", async (req, res, next) => {
-    try {
-      //Extracting the relevant information from the query
-      const { Search_Query } = req.params;
-      const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query; 
-      //Check that all entered values are valid
-      if (/[^a-z]/i.test(Search_Query) || (/[^a-z]/i.test(Filter_Players) && isNaN(Filter_Players))){
-        res.status(400).send("Bad request - Invalid values");
-      }
-      //Submitting the request for an auxiliary function - SQL_searchByQuery
-      const results = await users_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-      res.status(200).send(results);
-      } catch (error) {
-        next(error);
-      }
-});
 module.exports = router;
 
 

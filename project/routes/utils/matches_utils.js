@@ -1,53 +1,7 @@
+
+const matches_domain = require("../domains/matches_domain")
 const DButils = require("./DButils");
-const axios = require("axios");
-const api_domain = "https://soccer.sportmonks.com/api/v2.0";
-const unionAgent_utils = require("./unionAgent_utils");
 const users_utils = require("./users_utils");
-
-
-//* ------------------------------ getMatchesInfo ------------------------------ *//
-
-async function getMatchesInfo(match_ids_array) {
-  let promises = [];
-  match_ids_array.map((match_id) =>
-    promises.push(
-      getFutureMatchByID(match_id)
-    )
-  ); 
-  let matches_info = await Promise.all(promises);
-
-  return extractMatchesInfo(matches_info);
-}
-//* ---------------------------- extractRelevantPlayerData ---------------------------- *//
-
-async function extractMatchesInfo(matches_info) {
-
-  return await Promise.all(matches_info.map(async (element) => {
-    if (element[0].refereeID){
-      var refereeInfo = await extractRefereeInfo(element[0].refereeID);
-      return { 
-          matchID: element[0].match_id,
-          matchDate: element[0].matchDateAndTime,
-          localTeamName: element[0].localTeamName,
-          visitorTeamName: element[0].visitorTeamName,
-          venueName: element[0].venueName,
-          refereeInformation: refereeInfo[0]  
-        };
-      }
-    else{
-      return {
-        matchID: element[0].match_id,
-        matchDate: element[0].matchDateAndTime,
-        localTeamName: element[0].localTeamName,
-        visitorTeamName: element[0].visitorTeamName,
-        venueName: element[0].venueName,
-      };
-    }
-  })
-  );
-}
-exports.getMatchesInfo = getMatchesInfo;
-
 
 
 //* ------------------------------ Get League Matches ------------------------------ *//
@@ -64,7 +18,6 @@ async function getLeagueMatches() {
 
   return [pastMatches, futureMatches];
 }
-
 exports.getLeagueMatches = getLeagueMatches;
 
 
@@ -134,7 +87,6 @@ async function extractRefereeInfo(refereeID){
     }
   });
 }
-
 exports.extractRefereeInfo = extractRefereeInfo;
 
 //* ------------------------------ Extract Event Log ------------------------------ *//
@@ -151,7 +103,7 @@ async function extractEventLog(matchID){
   event = event.map((element) => {
     next = element.nextMatchEventID;
     return {
-      eventTimeAndDate : element.eventTimeAndDate,
+      eventTimeAndDate :  matches_domain.getDateTimeDisplayFormat(element.eventTimeAndDate),
       minuteInMatch : element.minuteInMatch,
       eventType : element.eventType,
       eventDescription : element.eventDescription
@@ -163,7 +115,6 @@ async function extractEventLog(matchID){
 
   return eventsLog;
 }
-
 exports.extractEventLog = extractEventLog;
 
 
@@ -173,34 +124,15 @@ async function getFirstNextMatch() {
 
   const firstNextMatch = await DButils.execQuery(`select top 1 * from FutureMatches where matchDateAndTime > GETDATE() order by matchDateAndTime ASC`
   );
-  return firstNextMatch[0];
+  return firstNextMatch;
 
 }exports.getFirstNextMatch = getFirstNextMatch;
 
 
-//* ------------------------------ isMatchInFavorite ------------------------------ *//
-
-async function isMatchInFavorite(user_id, match_id){
-  const userFavoriteMatches = await users_utils.getFavoriteMatches(user_id);
-  return userFavoriteMatches.find((x) => x.match_id == match_id);
-}
-exports.isMatchInFavorite = isMatchInFavorite;
-
-//* ------------------------------ removeMatchFavorite ------------------------------ *//
-
-async function removeMatchFromFavorite(match_id){
-  if (isMatchInFavorite(match_id)){
-    await DButils.execQuery(`DELETE  FROM  FavoriteMatches WHERE match_id=('${match_id}')`);
-    return true;
-  }
-  return false;
-}
-exports.removeMatchFromFavorite = removeMatchFromFavorite;
-
 //* ------------------------------ moveMatchFromFuture2Past ------------------------------ *//
 
 async function moveMatchFromFuture2Past(match_id){
-  const status = await removeMatchFromFavorite(match_id);
+  const status = await users_utils.removeMatchFromFavorite(match_id);
   await DButils.execQuery(
   `INSERT INTO PastMatches (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
   SELECT (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
@@ -221,9 +153,8 @@ async function getFutureMatchByTeamName(TeamName) {
   var futureMatch = await DButils.execQuery(
     `select * from FutureMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
   );
-  var futureMatch_with_info = await extractMatches_with_refereeInfo(futureMatch);
 
-  return futureMatch_with_info;
+  return futureMatch;
 }
 exports.getFutureMatchByTeamName = getFutureMatchByTeamName;
 
@@ -235,40 +166,9 @@ async function getPastMatchByTeamName(TeamName) {
   var pastMatch = await DButils.execQuery(
     `select * from PastMatches where localTeamName='${TeamName}' or visitorTeamName='${TeamName}'`
   );
-  var pastMatch_with_info = await extractMatches_with_refereeInfo(pastMatch);
-  for (var i = 0 ; i < pastMatch_with_info.length ; i++){
-    var eventDic = await extractEventLog(pastMatch_with_info[i]["matchID"]);
-    pastMatch_with_info[i]["eventsLog"] = eventDic[0];
 
-  }
-  return pastMatch_with_info;
+  return pastMatch;
 
 }
 exports.getPastMatchByTeamName = getPastMatchByTeamName;
 
-async function extractMatches_with_refereeInfo(matches_info) {
-
-  return await Promise.all(matches_info.map(async (element) => {
-    if (element.refereeID){
-      var refereeInfo = await extractRefereeInfo(element.refereeID);
-      return { 
-          matchID: element.match_id,
-          matchDate: element.matchDateAndTime,
-          localTeamName: element.localTeamName,
-          visitorTeamName: element.visitorTeamName,
-          venueName: element.venueName,
-          refereeInformation: refereeInfo 
-        };
-      }
-    else{
-      return {
-        matchID: element.match_id,
-        matchDate: element.matchDateAndTime,
-        localTeamName: element.localTeamName,
-        visitorTeamName: element.visitorTeamName,
-        venueName: element.venueName,
-      };
-    }
-  })
-  );
-}

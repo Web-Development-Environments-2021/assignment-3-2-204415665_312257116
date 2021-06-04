@@ -107,102 +107,6 @@ paths:
         '400':
           description: Bad request
           
-  /users/search/{Search_Query}:
-    get:
-      tags: 
-        - Users
-      summary: Return search results
-      description: Returns all results according to the user's search query
-      parameters: 
-        - name: Search_Query
-          in: path
-          description: User's search query
-          required: true
-          schema:
-            type: string
-            example: Beitar Jerusalem
-        - name: Search_Type
-          in: query
-          description: Search on teams or players 
-          required: true
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-              - Players
-              - Teams
-        - name: Sort_Teams_Alphabetical
-          in: query
-          description: Sort the teams by names in alphabetical order 
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-              default: no
-              enum: 
-              - no
-              - yes
-        - name: Sort_Players
-          in: query
-          description: Sort the players
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-              default: no
-              enum: 
-              - no
-              - yes
-        - name: Sort_Players_By
-          in: query
-          description: Sort the players by name or team name
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-              default: own name
-              enum: 
-              - own name
-              - team name
-        - name: Filter_Players
-          in: query
-          description: Filter the players/ by position or team name
-          schema:
-            type: string
-            example: "1"
-      responses:
-        '200':
-          description: Search results returned successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  players:   
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/PlayerPreview'
-                  teams:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        teamName:
-                          type: string
-                        teamLogo:
-                          type: string
-                          format: URL
-                      example:
-                        teamName: Beitar Jerusalem
-                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
-        '400':
-          description: Bad request
-
   /unionAgent/leagueManagementPage:
     get:
       tags:
@@ -249,19 +153,19 @@ paths:
                 type: object
                 properties:
                   teamsNames:
-                    type: object
-                    properties:
+                    type: array
+                    items:
                       teamName:
                         type: string
                         description: Team name in our league
-                        example: "Midtjylland"
+                      example: "Midtjylland"
                   venuesNames:
-                    type: object
-                    properties:
+                    type: array
+                    items:
                       venueName:
                         type: string
                         description: Venue name in out league
-                        example: "MCH Arena"
+                      example: "MCH Arena"
                   referees:
                     type: array
                     items:
@@ -453,11 +357,108 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/League"
+                type: object
+                properties:
+                  leagueDetails:
+                    $ref: "#/components/schemas/League"
         "400":
           description: Wrong input parameters
+
+  /league/search/{Search_Query}:
+    get:
+      tags: 
+        - League
+      summary: Return search results
+      description: Returns all results according to the user's search query
+      parameters: 
+        - name: Search_Query
+          in: path
+          description: User's search query
+          required: true
+          schema:
+            type: string
+            example: Beitar Jerusalem
+        - name: Search_Type
+          in: query
+          description: Search on teams or players 
+          required: true
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+              - Players
+              - Teams
+        - name: Sort_Teams_Alphabetical
+          in: query
+          description: Sort the teams by names in alphabetical order 
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: no
+              enum: 
+              - no
+              - yes
+        - name: Sort_Players
+          in: query
+          description: Sort the players
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: no
+              enum: 
+              - no
+              - yes
+        - name: Sort_Players_By
+          in: query
+          description: Sort the players by name or team name
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              default: own name
+              enum: 
+              - own name
+              - team name
+        - name: Filter_Players
+          in: query
+          description: Filter the players/ by position or team name
+          schema:
+            type: string
+            example: "1"
+      responses:
+        '200':
+          description: Search results returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:   
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlayerPreview'
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamName:
+                          type: string
+                        teamLogo:
+                          type: string
+                          format: URL
+                      example:
+                        teamName: Beitar Jerusalem
+                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        '400':
+          description: Bad request
 
   /players/playerFullDetails/{playerID}:
     get:
@@ -606,6 +607,8 @@ components:
           type: string
           description: current stage name
           example: Championship Round
+        first_next_match:
+          $ref: '#/components/schemas/FutureMatchInformation'
 
     PlayerPreview:
       type: object
