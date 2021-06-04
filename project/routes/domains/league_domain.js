@@ -41,13 +41,74 @@ async function getNextLeagueMatch(){
 }
 exports.getNextLeagueMatch = getNextLeagueMatch;
 
+//------------------------------------------------------------------------------------ //
+// -----------------------------   SQL_searchByQuery   ------------------------------- //
+//------------------------------------------------------------------------------------ //
+/**
+ * --------------------------SQL_searchByQuery--------------------------
+ * @param {*} Search_Query The query the user entered
+ * @param {*} Search_Type According to what the user wanted to search for - a team or a player
+ * @param {*} Sort_Teams_Alphabetical Sort the players in alphabetical order (yes/no)
+ * @param {*} Sort_Players Does the user want to sort the players?
+ * @param {*} Sort_Players_By Sort players by team name\player name 
+ * @param {*} Filter_Players Filter players by team name or player number
+ * @returns List of players / teams that meet all of the above criteria
+ */
+ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
 
-//* ------------------------------ SQL Search Domain ------------------------------ *//
-
-async function SQL_search_domain(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players){
-
-    const results = await league_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-
-    return results
-}
-exports.SQL_search_domain = SQL_search_domain;
+    const Qsearch = await league_utils.getQueryInfo(Search_Query, Search_Type);
+    let resultQ;
+  
+  //-------------------------------------- Teams --------------------------------------//
+    if(Search_Type=="Teams" ){
+  
+      if(Sort_Teams_Alphabetical=="yes"){
+        //Sort the teams in alphabetical order by teamName
+        Qsearch.sort((a, b) => 
+        (('' + a["teamName"]).localeCompare(b["teamName"])));
+      }
+      resultQ = Qsearch;    
+      return { teams: Qsearch };
+    }
+  //-------------------------------------- Players --------------------------------------//
+  
+    else if(Search_Type=="Players"){
+      if(Sort_Players=="yes"){
+  
+      // ------ Sort_Players_By players name ------ //
+  
+        if (Sort_Players_By=="own name"){
+          Qsearch.sort((a, b) => 
+          ((''+a["name"]).localeCompare(b["name"])));
+        }
+  
+      // ------ Sort_Players_By team name ------ //
+  
+        else if (Sort_Players_By=="team name"){
+          Qsearch.sort((a, b) => 
+          ((''+a["team_name"]).localeCompare(b["team_name"])));
+  
+        }
+      }
+      // ------ Filter_Players ------ //
+      if (Filter_Players != undefined || Filter_Players > 0){
+  
+      // ------ Filter_Players - position ------ //
+  
+        if (!isNaN(Filter_Players)){
+          resultQ = Qsearch.filter(function (el) {return el.position == Filter_Players});
+        }
+  
+      // ------ Filter_Players - teams name ------ //
+        else{
+          resultQ = Qsearch.filter(function (el) {return el.team_name.includes(Filter_Players)});
+        }
+      }
+      else{
+        resultQ = Qsearch;
+      }
+      
+    }
+    return { players: resultQ };
+  }
+  exports.SQL_searchByQuery = SQL_searchByQuery;

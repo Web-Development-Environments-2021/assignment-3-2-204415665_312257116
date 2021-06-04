@@ -172,81 +172,6 @@ async function getCurrentSeasonID() {
 }
 exports.getCurrentSeasonID = getCurrentSeasonID;
 
-
-
-//------------------------------------------------------------------------------------ //
-// -----------------------------   SQL_searchByQuery   ------------------------------- //
-//------------------------------------------------------------------------------------ //
-/**
- * --------------------------SQL_searchByQuery--------------------------
- * @param {*} Search_Query The query the user entered
- * @param {*} Search_Type According to what the user wanted to search for - a team or a player
- * @param {*} Sort_Teams_Alphabetical Sort the players in alphabetical order (yes/no)
- * @param {*} Sort_Players Does the user want to sort the players?
- * @param {*} Sort_Players_By Sort players by team name\player name 
- * @param {*} Filter_Players Filter players by team name or player number
- * @returns List of players / teams that meet all of the above criteria
- */
- async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
-
-  const Qsearch = await getQueryInfo(Search_Query, Search_Type);
-  let resultQ;
-
-//-------------------------------------- Teams --------------------------------------//
-  if(Search_Type=="Teams" ){
-
-    if(Sort_Teams_Alphabetical=="yes"){
-      //Sort the teams in alphabetical order by teamName
-      Qsearch.sort((a, b) => 
-      (('' + a["teamName"]).localeCompare(b["teamName"])));
-    }
-    resultQ = Qsearch;    
-    return { teams: Qsearch };
-  }
-//-------------------------------------- Players --------------------------------------//
-
-  else if(Search_Type=="Players"){
-    if(Sort_Players=="yes"){
-
-    // ------ Sort_Players_By players name ------ //
-
-      if (Sort_Players_By=="own name"){
-        Qsearch.sort((a, b) => 
-        ((''+a["name"]).localeCompare(b["name"])));
-      }
-
-    // ------ Sort_Players_By team name ------ //
-
-      else if (Sort_Players_By=="team name"){
-        Qsearch.sort((a, b) => 
-        ((''+a["team_name"]).localeCompare(b["team_name"])));
-
-      }
-    }
-    // ------ Filter_Players ------ //
-    if (Filter_Players != undefined || Filter_Players > 0){
-
-    // ------ Filter_Players - position ------ //
-
-      if (!isNaN(Filter_Players)){
-        resultQ = Qsearch.filter(function (el) {return el.position == Filter_Players});
-      }
-
-    // ------ Filter_Players - teams name ------ //
-      else{
-        resultQ = Qsearch.filter(function (el) {return el.team_name.includes(Filter_Players)});
-      }
-    }
-    else{
-      resultQ = Qsearch;
-    }
-    
-  }
-  return { players: resultQ };
-}
-exports.SQL_searchByQuery = SQL_searchByQuery;
-
-
 /**
  * --------------------------getQueryInfo--------------------------
  * @param {*} Search_Query The query the user entered
@@ -254,73 +179,220 @@ exports.SQL_searchByQuery = SQL_searchByQuery;
  * @returns List of objects by the selected search method
  */
 async function getQueryInfo(Search_Query, Search_Type) {
+  var CURRENT_SEASON_ID = await getCurrentSeasonID();
   var include_params;
+  var QueryRelevantInfo;
   let promises = [];
+
   if (Search_Type =="Players"){  //A switch that differentiates between teams and players
-    include_params = `team`;
+    include_params = "squad.player";
   }
-  Search_Type =Search_Type.toLowerCase();
-  promises.push(
-    axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
+  promises.push(axios.get(`${api_domain}/teams/season/${CURRENT_SEASON_ID}`, {
       params: {
         api_token: process.env.api_token,
         include: `${include_params}`,
       },
-    })
-  ) 
+  }))
   let Query_info = await Promise.all(promises);
-  var QueryRelevantInfo = await extractRelevantQueryInfo(Query_info[0].data.data, Search_Type);
-  return (QueryRelevantInfo).filter(function (el) {return el != null});
+  if (Search_Type =="Players"){
+     QueryRelevantInfo = await getAllRelevantPlayers(Search_Query, Query_info[0].data.data);
+  }
+  else{
+     QueryRelevantInfo = await getAllRelevantTeams(Search_Query, Query_info[0].data.data);
+  }
+
+  return QueryRelevantInfo;
 }
+exports.getQueryInfo = getQueryInfo;
+
 
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 
-async function extractRelevantQueryInfo(Query_info, Search_Type) {
+async function getAllRelevantTeams(Search_Query,Query_info) {
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
-  var CURRENT_SEASON_ID = await getCurrentSeasonID();
-  return Query_info.map((element) => {
-    
-    if (Search_Type == "teams" && relevant_team_check(element, CURRENT_SEASON_ID)){
+  teams_arr = Query_info.map((element) => {
+    if (element.name.includes(Search_Query)){
       return {
-
         teamName: element.name,
         teamLogo: element.logo_path
-        
-      };
-    }
-    else if (Search_Type == "players" && relevant_player_check(element, CURRENT_SEASON_ID)){
-      return {
-
-        playerID:element.player_id,
-        name: element.fullname,
-        image: element.image_path,
-        position: element.position_id,
-        team_name: element.team.data.name
-
       };
     }
   });
- }
- 
- exports.getQueryInfo = getQueryInfo;
+  teams_arr=teams_arr.filter(function (el) {return el != null});
+  return teams_arr;
+}
+exports.getAllRelevantTeams = getAllRelevantTeams;
 
- //* ---------------------------- relevant_player_check ---------------------------- *//
- //**Checks if the current player has a team, and checks if he is relevant according to the current league */
-function relevant_player_check(element, CURRENT_SEASON_ID) {
-  if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
-    return true;
-  }
-  else{
-    return false;
-  }
+//* ---------------------------- getAllRelevantPlayers ---------------------------- *//
+
+async function getAllRelevantPlayers(Search_Query, Query_info) {
+
+  var player_arr =  (await Promise.all(Query_info.map(async (team_info) => {
+    squad_info=team_info.squad.data;
+    return squad_info.map((player_info) => {
+      const { player_id, position_id, fullname, image_path} = player_info.player.data;
+
+      if(fullname!=null && fullname.includes(Search_Query)){
+        return {
+          playerID: player_id,
+          name: fullname,
+          image: image_path,
+          position: position_id,
+          team_name: team_info.name
+        };
+      }
+    });
+  })));
+  var last_players_standing=[];
+  player_arr.map((element) => {
+    element.map((item) => {
+      if (item != undefined){
+        last_players_standing.push(item)
+      }
+    })});
+  return last_players_standing;
 }
-//* ---------------------------- relevant_team_check ---------------------------- *//
- //**Checks if the current team is relevant according to the current league*/
-function relevant_team_check(element, CURRENT_SEASON_ID) {
-  if (element.current_season_id == CURRENT_SEASON_ID){
-    return true;
-  }
-  else{
-    return false;
-  }
-}
+exports.getAllRelevantPlayers = getAllRelevantPlayers;
+
+
+
+
+//  //* ---------------------------- relevant_player_check ---------------------------- *//
+//  //**Checks if the current player has a team, and checks if he is relevant according to the current league */
+// function relevant_player_check(element, CURRENT_SEASON_ID) {
+//   if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
+//     return true;
+//   }
+//   else{
+//     return false;
+//   }
+// }
+// //* ---------------------------- relevant_team_check ---------------------------- *//
+//  //**Checks if the current team is relevant according to the current league*/
+// function relevant_team_check(element, CURRENT_SEASON_ID) {
+//   if (element.current_season_id == CURRENT_SEASON_ID){
+//     return true;
+//   }
+//   else{
+//     return false;
+//   }
+// }
+
+
+// /**
+//  * --------------------------getQueryInfo--------------------------
+//  * @param {*} Search_Query The query the user entered
+//  * @param {*} Search_Type According to what the user wanted to search for - a team or a player 
+//  * @returns List of objects by the selected search method
+//  */
+// async function getQueryInfo(Search_Query, Search_Type) {
+//   var include_params;
+//   let promises = [];
+//   if (Search_Type =="Players"){  //A switch that differentiates between teams and players
+//     include_params = `team`;
+//   }
+//   Search_Type =Search_Type.toLowerCase();
+//   promises.push(
+//     axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
+//       params: {
+//         api_token: process.env.api_token,
+//         include: `${include_params}`,
+//       },
+//     })
+//   ) 
+//   let Query_info = await Promise.all(promises);
+//   var QueryRelevantInfo = await extractRelevantQueryInfo(Search_Query, Query_info[0].data.data, Search_Type);
+//   return (QueryRelevantInfo).filter(function (el) {return el != null});
+// }
+
+
+
+// //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+
+// async function extractRelevantQueryInfo(Search_Query,Query_info, Search_Type) {
+// //Auxiliary function - returns the relevant information about the array of elements - teams / players.
+//   var CURRENT_SEASON_ID = await getCurrentSeasonID();
+
+//   var y = (await getAllRelevantPlayers(Search_Query,CURRENT_SEASON_ID));
+//   for ( var i=0 ; i < y.length ; i++ ){
+//     y[i]=y[i].filter(function (el) {return el != null});
+//   }
+//   y=y.filter(function (el) {return el.length > 0});
+  
+//   return Query_info.map((element) => {
+//     if (Search_Type == "teams" && relevant_team_check(element, CURRENT_SEASON_ID)){
+//       return {
+
+//         teamName: element.name,
+//         teamLogo: element.logo_path
+        
+//       };
+//     }
+//     else if (Search_Type == "players" && relevant_player_check(element, CURRENT_SEASON_ID)){
+//       return {
+
+//         playerID:element.player_id,
+//         name: element.fullname,
+//         image: element.image_path,
+//         position: element.position_id,
+//         team_name: element.team.data.name
+
+//       };
+//     }
+//   });
+//  }
+ 
+//  exports.getQueryInfo = getQueryInfo;
+
+//  //* ---------------------------- relevant_player_check ---------------------------- *//
+//  //**Checks if the current player has a team, and checks if he is relevant according to the current league */
+// function relevant_player_check(element, CURRENT_SEASON_ID) {
+//   if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
+//     return true;
+//   }
+//   else{
+//     return false;
+//   }
+// }
+// //* ---------------------------- relevant_team_check ---------------------------- *//
+//  //**Checks if the current team is relevant according to the current league*/
+// function relevant_team_check(element, CURRENT_SEASON_ID) {
+//   if (element.current_season_id == CURRENT_SEASON_ID){
+//     return true;
+//   }
+//   else{
+//     return false;
+//   }
+// }
+// async function getAllRelevantPlayers(Search_Query,CURRENT_SEASON_ID) {
+//   let promises = [];
+//   var CURRENT_SEASON_ID = await getCurrentSeasonID();
+//   promises.push(
+//     axios.get(`${api_domain}/teams/season/${CURRENT_SEASON_ID}`, {
+//       params: {
+//         api_token: process.env.api_token,
+//         include:"squad.player",
+//       },
+//   }));
+
+//   let season_Team_info = await Promise.all(promises);
+//   season_Team_info= season_Team_info[0].data.data;
+//   return (await Promise.all(season_Team_info.map(async (team_info) => {
+//     const {  name, squad } = team_info;
+//     squad_info=squad.data;
+//     return squad_info.map((player_info) => {
+//       const { player_id, position_id, fullname, image_path} = player_info.player.data;
+//       if(fullname!=null && fullname.includes(Search_Query)){
+//         return {
+//           playerID: player_id,
+//           name: fullname,
+//           image: image_path,
+//           position: position_id,
+//           team_name: name
+  
+//         };
+//       }
+
+//     });
+//   })));
+// } exports.getAllRelevantPlayers = getAllRelevantPlayers;
