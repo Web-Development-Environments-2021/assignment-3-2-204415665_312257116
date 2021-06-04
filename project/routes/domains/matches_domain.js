@@ -149,9 +149,9 @@ async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
   
   if (sortBy == "Date"){
     if (futureOrPast == "future"){
-      var SortedMatches = matchesToAdd.sort((a, b) => a["matchDate"] - b["matchDate"]);
+      var SortedMatches = matchesToAdd.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
     } else{
-      var SortedMatches = matchesToAdd.sort((a, b) => a["matchDateAndTime"] - b["matchDateAndTime"]);
+      var SortedMatches = matchesToAdd.sort((a, b) =>  (('' + a.matchDateAndTime).localeCompare(b.matchDateAndTime)));
     }
   } else if (sortBy != undefined){
     var SortedMatches = matchesToAdd.sort((a, b) => 
