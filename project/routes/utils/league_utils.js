@@ -207,11 +207,11 @@ exports.getQueryInfo = getQueryInfo;
 
 
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
+//Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
 async function getAllRelevantTeams(Search_Query,Query_info) {
-//Auxiliary function - returns the relevant information about the array of elements - teams / players.
   teams_arr = Query_info.map((element) => {
-    if (element.name.includes(Search_Query)){
+    if (element.name.toLowerCase().includes(Search_Query.toLowerCase())){
       return {
         teamName: element.name,
         teamLogo: element.logo_path
@@ -224,6 +224,7 @@ async function getAllRelevantTeams(Search_Query,Query_info) {
 exports.getAllRelevantTeams = getAllRelevantTeams;
 
 //* ---------------------------- getAllRelevantPlayers ---------------------------- *//
+//Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
 async function getAllRelevantPlayers(Search_Query, Query_info) {
 
@@ -232,7 +233,7 @@ async function getAllRelevantPlayers(Search_Query, Query_info) {
     return squad_info.map((player_info) => {
       const { player_id, position_id, fullname, image_path} = player_info.player.data;
 
-      if(fullname!=null && fullname.includes(Search_Query)){
+      if(fullname!=null && fullname.toLowerCase().includes(Search_Query.toLowerCase())){
         return {
           playerID: player_id,
           name: fullname,
