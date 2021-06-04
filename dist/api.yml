@@ -96,7 +96,7 @@ paths:
               type: object
               properties:
                 matchId:
-                  type: string
+                  type: number
                   description: Match's id which the user saved
                   example: 85
       responses:
