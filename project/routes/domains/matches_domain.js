@@ -1,5 +1,6 @@
 
 const matches_utils = require("../utils/matches_utils");
+const users_utils = require("../utils/users_utils");
 
 //* ------------------------------ Help Functions ------------------------------ *//
 
@@ -239,7 +240,7 @@ async function getMatchesInfo(match_ids_array) {
     let promises = [];
     match_ids_array.map((match_id) =>
       promises.push(
-        getFutureMatchByID(match_id)
+        matches_utils.getFutureMatchByID(match_id)
       )
     ); 
     let matches_info = await Promise.all(promises);
@@ -278,3 +279,4 @@ async function extractMatchesInfo(matches_info) {
     );
 }
 exports.extractMatchesInfo = extractMatchesInfo;
+

@@ -3,6 +3,7 @@ var router = express.Router();
 const DButils = require("./utils/DButils");
 const users_utils = require("./utils/users_utils");
 const matches_utils = require("./utils/matches_utils");
+const matches_domain = require("./domains/matches_domain");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -35,14 +36,16 @@ router.post("/favoriteMatches", async (req, res, next) => {
     if (!Number.isInteger(match_id)){    //Checks if the user's input is correct
       res.status(400).send("Bad request");
     }
-    const flag = await users_utils.markMatchesAsFavorite(user_id, match_id);
-
-    //In case of success/failure - return an appropriate error.
-    if (flag){
-      res.status(201).send("The match successfully saved as favorite");
-    }
     else{
-      res.status(400).send("Bad request");
+      const flag = await users_utils.markMatchesAsFavorite(user_id, match_id);
+
+      //In case of success/failure - return an appropriate error.
+      if (flag){
+        res.status(201).send("The match successfully saved as favorite");
+      }
+      else{
+        res.status(400).send("Bad request");
+      }
     }
   } catch (error) {
     next(error);
@@ -58,7 +61,7 @@ router.get("/favoriteMatches", async (req, res, next) => {
     const matches_ids = await users_utils.getFavoriteMatches(user_id);
     let matches_ids_array = [];
     matches_ids.map((element) => matches_ids_array.push(element.match_id)); //extracting the players ids into array
-    const results = await matches_utils.getMatchesInfo(matches_ids_array);
+    const results = await matches_domain.getMatchesInfo(matches_ids_array);
     res.status(200).send(results);
   } catch (error) {
     next(error);
