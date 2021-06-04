@@ -4,16 +4,6 @@ const matches_utils = require("./matches_utils");
 
 
 
-// --------------------   get  user Favorites Matches   ---------------------------- //
-
-async function getFavoriteMatches(user_id) {
-  const match_ids = await DButils.execQuery(
-    `select match_id from FavoriteMatches where user_id='${user_id}'`
-  );
-  return match_ids;
-}
-exports.getFavoriteMatches = getFavoriteMatches;
-
 
 // --------------------   Favorites Matched insert   ----------------------------//
 
@@ -34,6 +24,16 @@ async function markMatchesAsFavorite(user_id, match_id) {
   return flag;
 }
 exports.markMatchesAsFavorite = markMatchesAsFavorite;
+
+// --------------------   get  user Favorites Matches   ---------------------------- //
+
+async function getFavoriteMatches(user_id) {
+  const match_ids = await DButils.execQuery(
+    `Select match_id from FavoriteMatches WHERE user_id=('${user_id}')`
+  );
+  return match_ids;
+}
+exports.getFavoriteMatches = getFavoriteMatches;
 
 
 //* ------------------------------ isMatchInFavorite ------------------------------ *//

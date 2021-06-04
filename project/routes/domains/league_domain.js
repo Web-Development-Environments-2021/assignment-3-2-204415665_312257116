@@ -41,3 +41,10 @@ async function getNextLeagueMatch(){
     
 }
 exports.getNextLeagueMatch = getNextLeagueMatch;
+
+async function SQL_search_domain(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players){
+
+    const results = await league_utils.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
+
+    return results
+}exports.SQL_search_domain = SQL_search_domain;
