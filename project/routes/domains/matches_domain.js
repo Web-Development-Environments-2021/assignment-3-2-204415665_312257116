@@ -1,8 +1,6 @@
 
 const matches_utils = require("../utils/matches_utils");
-const users_utils = require("../utils/users_utils");
 
-//* ------------------------------ Help Functions ------------------------------ *//
 
 
 //* ------------------------------ Get Today DataTime ------------------------------ *//
@@ -260,6 +258,26 @@ async function extractMatchesInfo(matches_info) {
     );
 }
 exports.extractMatchesInfo = extractMatchesInfo;
+
+
+//* ---------------------------- Check Favorite Matches ---------------------------- *//
+
+async function checkFavoriteMatches(matches_ids_array) {
+  
+  var favoriteMatchesAfterCheck = [];
+
+  for ( var i=0 ; i < matches_ids_array.length ; i++){
+    needChange = await checkIfNeedChangeFromFuture(matches_ids_array[i]);
+    
+    if ( ! needChange ){
+      favoriteMatchesAfterCheck.push(matches_ids_array[i]);
+    }
+  }
+
+  return favoriteMatchesAfterCheck;
+  
+}
+exports.checkFavoriteMatches = checkFavoriteMatches;
 
 
 //* ---------------------------- Check If Need Change From Future ---------------------------- *//

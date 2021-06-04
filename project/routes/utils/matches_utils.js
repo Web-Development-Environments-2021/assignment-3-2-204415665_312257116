@@ -130,23 +130,6 @@ async function getFirstNextMatch() {
 exports.getFirstNextMatch = getFirstNextMatch;
 
 
-//* ------------------------------ moveMatchFromFuture2Past ------------------------------ *//
-
-async function moveMatchFromFuture2Past(match_id){
-  const status = await users_utils.removeMatchFromFavorite(match_id);
-  await DButils.execQuery(
-  `INSERT INTO PastMatches (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
-  SELECT (match_id, matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
-  FROM FutureMatches
-  WHERE match_id=(${match_id});
-  
-  DELETE FROM FutureMatches
-  WHERE match_id=(${match_id});`
-  );
-}
-exports.moveMatchFromFuture2Past = moveMatchFromFuture2Past;
-
-
 //* ------------------------------ getFutureMatchByTeamsName ------------------------------ *//
 
 async function getFutureMatchByTeamName(TeamName) {
@@ -175,7 +158,6 @@ exports.getPastMatchByTeamName = getPastMatchByTeamName;
 
 
 //* ------------------------------ Match From Future To Past ------------------------------ *//
-//TODO: Daniel - up is moshe
 
 async function matchFromFutureToPast(match_id){
 
@@ -188,7 +170,6 @@ async function matchFromFutureToPast(match_id){
     DELETE FROM FutureMatches
     WHERE match_id=(${match_id});`
   );
-    
 
   await users_utils.removeFavoriteMatch(match_id);
 

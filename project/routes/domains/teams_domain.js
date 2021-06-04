@@ -41,7 +41,7 @@ exports.extractRelevantTeamData = extractRelevantTeamData;
 
 //* ------------------------------ getSquadInfo ------------------------------ *//
   
-  async function getSquadInfo(squad_info, team_name){
+async function getSquadInfo(squad_info, team_name){
     return squad_info.map((player_info) => {
       const { player_id, position_id, fullname, image_path} = player_info.player.data;
       return {

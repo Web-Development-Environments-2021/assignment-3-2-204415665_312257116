@@ -29,12 +29,3 @@ async function extractRelevantPlayerData(player_id) {
 }
 exports.extractRelevantPlayerData = extractRelevantPlayerData; 
   
-  
-// //* ------------------------------ getPlayersByTeam ------------------------------ *//
-// TODO: what with this??
-// async function getPlayersByTeam(team_id) {
-//     let player_ids_list = await getPlayerIdsByTeam(team_id);
-//     let players_info = await getPlayersInfo(player_ids_list);
-//     return players_info;
-// }
-// exports.getPlayersByTeam = getPlayersByTeam;

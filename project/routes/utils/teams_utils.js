@@ -16,6 +16,6 @@ async function getTeamFullInfo(team_id) {
       );
     let team_info = await Promise.all(promises);
     return team_info;
-  }
-  exports.getTeamFullInfo = getTeamFullInfo;
+}
+exports.getTeamFullInfo = getTeamFullInfo;
   

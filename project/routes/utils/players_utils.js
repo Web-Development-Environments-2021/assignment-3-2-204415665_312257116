@@ -19,6 +19,7 @@ async function getPlayerIdsByTeam(team_id) {
 }
 exports.getPlayerIdsByTeam = getPlayerIdsByTeam;
 
+
 //* ------------------------------ getPlayersInfo ------------------------------ *//
 
 async function getPlayersInfo(players_ids_list) {
@@ -37,6 +38,7 @@ async function getPlayersInfo(players_ids_list) {
   return extractRelevantPlayerData(players_info);
 }
 exports.getPlayersInfo = getPlayersInfo;
+
 
 /*------------------------------- getPlayerFullInfo -----------------------------------*/
 

@@ -37,7 +37,6 @@ async function addNewPastMatch(matchDate, localTeamName, visitorTeamName, venueN
 exports.addNewPastMatch = addNewPastMatch;
 
 
-
 //* ------------------------------ Add Past Match Result------------------------------ *//
 
 async function addFutureMatchResult(matchID, matchDate, localTeamName, visitorTeamName, venueName, refereeID, localTeamScore, visitorTeamScore) {
@@ -124,7 +123,4 @@ async function addRefereeToPastMatch(matchID, refereeID){
   
 }
 exports.addRefereeToPastMatch = addRefereeToPastMatch;
-
-
-
 
