@@ -50,16 +50,8 @@ async function getFavoriteMatchesForMainPage(user_id){
     var favoriteMatchedID = await users_domain.getFavoriteMatches_domain(user_id);
 
     var favoriteMatchesAfterCheck = [];
-    var needChange = false;
 
-    for ( var i=0 ; i < favoriteMatchedID.length ; i++){
-
-        needChange = await matches_domain.checkIfNeedChangeFromFuture(favoriteMatchedID[i]);
-        
-        if ( ! needChange ){
-            favoriteMatchesAfterCheck.push(favoriteMatchedID[i]);
-        }
-    }
+    favoriteMatchesAfterCheck = await matches_domain.checkFavoriteMatches(favoriteMatchedID);
 
     if ( favoriteMatchesAfterCheck.length != 0 ){
 

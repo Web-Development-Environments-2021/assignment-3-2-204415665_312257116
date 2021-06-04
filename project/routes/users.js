@@ -59,8 +59,11 @@ router.post("/favoriteMatches", async (req, res, next) => {
 router.get("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+
     let matches_ids_array = await user_domain.getFavoriteMatches_domain(user_id);
-    const results = await matches_domain.getMatchesInfo(matches_ids_array);
+    matchesID_AfterCheck = await matches_domain.checkFavoriteMatches(matches_ids_array);
+    const results = await matches_domain.getMatchesInfo(matchesID_AfterCheck);
+
     res.status(200).send(results);
   } catch (error) {
     next(error);

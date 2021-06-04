@@ -172,6 +172,7 @@ async function getCurrentSeasonID() {
 }
 exports.getCurrentSeasonID = getCurrentSeasonID;
 
+
 /**
  * --------------------------getQueryInfo--------------------------
  * @param {*} Search_Query The query the user entered
@@ -223,6 +224,7 @@ async function getAllRelevantTeams(Search_Query,Query_info) {
 }
 exports.getAllRelevantTeams = getAllRelevantTeams;
 
+
 //* ---------------------------- getAllRelevantPlayers ---------------------------- *//
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
@@ -256,144 +258,3 @@ async function getAllRelevantPlayers(Search_Query, Query_info) {
 exports.getAllRelevantPlayers = getAllRelevantPlayers;
 
 
-
-
-//  //* ---------------------------- relevant_player_check ---------------------------- *//
-//  //**Checks if the current player has a team, and checks if he is relevant according to the current league */
-// function relevant_player_check(element, CURRENT_SEASON_ID) {
-//   if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-// }
-// //* ---------------------------- relevant_team_check ---------------------------- *//
-//  //**Checks if the current team is relevant according to the current league*/
-// function relevant_team_check(element, CURRENT_SEASON_ID) {
-//   if (element.current_season_id == CURRENT_SEASON_ID){
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-// }
-
-
-// /**
-//  * --------------------------getQueryInfo--------------------------
-//  * @param {*} Search_Query The query the user entered
-//  * @param {*} Search_Type According to what the user wanted to search for - a team or a player 
-//  * @returns List of objects by the selected search method
-//  */
-// async function getQueryInfo(Search_Query, Search_Type) {
-//   var include_params;
-//   let promises = [];
-//   if (Search_Type =="Players"){  //A switch that differentiates between teams and players
-//     include_params = `team`;
-//   }
-//   Search_Type =Search_Type.toLowerCase();
-//   promises.push(
-//     axios.get(`${api_domain}/${Search_Type}/search/${Search_Query}`, {
-//       params: {
-//         api_token: process.env.api_token,
-//         include: `${include_params}`,
-//       },
-//     })
-//   ) 
-//   let Query_info = await Promise.all(promises);
-//   var QueryRelevantInfo = await extractRelevantQueryInfo(Search_Query, Query_info[0].data.data, Search_Type);
-//   return (QueryRelevantInfo).filter(function (el) {return el != null});
-// }
-
-
-
-// //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
-
-// async function extractRelevantQueryInfo(Search_Query,Query_info, Search_Type) {
-// //Auxiliary function - returns the relevant information about the array of elements - teams / players.
-//   var CURRENT_SEASON_ID = await getCurrentSeasonID();
-
-//   var y = (await getAllRelevantPlayers(Search_Query,CURRENT_SEASON_ID));
-//   for ( var i=0 ; i < y.length ; i++ ){
-//     y[i]=y[i].filter(function (el) {return el != null});
-//   }
-//   y=y.filter(function (el) {return el.length > 0});
-  
-//   return Query_info.map((element) => {
-//     if (Search_Type == "teams" && relevant_team_check(element, CURRENT_SEASON_ID)){
-//       return {
-
-//         teamName: element.name,
-//         teamLogo: element.logo_path
-        
-//       };
-//     }
-//     else if (Search_Type == "players" && relevant_player_check(element, CURRENT_SEASON_ID)){
-//       return {
-
-//         playerID:element.player_id,
-//         name: element.fullname,
-//         image: element.image_path,
-//         position: element.position_id,
-//         team_name: element.team.data.name
-
-//       };
-//     }
-//   });
-//  }
- 
-//  exports.getQueryInfo = getQueryInfo;
-
-//  //* ---------------------------- relevant_player_check ---------------------------- *//
-//  //**Checks if the current player has a team, and checks if he is relevant according to the current league */
-// function relevant_player_check(element, CURRENT_SEASON_ID) {
-//   if ('team' in element &&  element.team.data.current_season_id == CURRENT_SEASON_ID){
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-// }
-// //* ---------------------------- relevant_team_check ---------------------------- *//
-//  //**Checks if the current team is relevant according to the current league*/
-// function relevant_team_check(element, CURRENT_SEASON_ID) {
-//   if (element.current_season_id == CURRENT_SEASON_ID){
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-// }
-// async function getAllRelevantPlayers(Search_Query,CURRENT_SEASON_ID) {
-//   let promises = [];
-//   var CURRENT_SEASON_ID = await getCurrentSeasonID();
-//   promises.push(
-//     axios.get(`${api_domain}/teams/season/${CURRENT_SEASON_ID}`, {
-//       params: {
-//         api_token: process.env.api_token,
-//         include:"squad.player",
-//       },
-//   }));
-
-//   let season_Team_info = await Promise.all(promises);
-//   season_Team_info= season_Team_info[0].data.data;
-//   return (await Promise.all(season_Team_info.map(async (team_info) => {
-//     const {  name, squad } = team_info;
-//     squad_info=squad.data;
-//     return squad_info.map((player_info) => {
-//       const { player_id, position_id, fullname, image_path} = player_info.player.data;
-//       if(fullname!=null && fullname.includes(Search_Query)){
-//         return {
-//           playerID: player_id,
-//           name: fullname,
-//           image: image_path,
-//           position: position_id,
-//           team_name: name
-  
-//         };
-//       }
-
-//     });
-//   })));
-// } exports.getAllRelevantPlayers = getAllRelevantPlayers;
