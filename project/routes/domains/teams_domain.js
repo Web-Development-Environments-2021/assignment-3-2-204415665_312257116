@@ -18,7 +18,7 @@ async function extractRelevantTeamData(TeamID) {
       var pastMatches = await matches_domain.extractMatches_with_refereeInfo( await matches_utils.getPastMatchByTeamName(name) );
 
       for (var i = 0 ; i < pastMatches.length ; i++){
-        var eventDic = await extractEventLog(pastMatches[i]["matchID"]);
+        var eventDic = await matches_utils.extractEventLog(pastMatches[i]["matchID"]);
         pastMatches[i]["eventsLog"] = eventDic[0];
 
       }

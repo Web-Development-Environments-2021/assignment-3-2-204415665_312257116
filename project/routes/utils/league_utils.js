@@ -209,6 +209,9 @@ exports.getCurrentSeasonID = getCurrentSeasonID;
         resultQ = Qsearch.filter(function (el) {return el.team_name.includes(Filter_Players)});
       }
     }
+    else{
+      resultQ = Qsearch;
+    }
     
   }
   return { players: resultQ };
@@ -238,7 +241,8 @@ async function getQueryInfo(Search_Query, Search_Type) {
     })
   ) 
   let Query_info = await Promise.all(promises);
-  return extractRelevantQueryInfo(Query_info[0].data.data, Search_Type).filter(function (el) {return el != null});
+  var QueryRelevantInfo = await extractRelevantQueryInfo(Query_info[0].data.data, Search_Type);
+  return (QueryRelevantInfo).filter(function (el) {return el != null});
 }
 
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
