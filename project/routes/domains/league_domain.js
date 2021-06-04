@@ -64,7 +64,6 @@ async function getFavoriteMatchesForMainPage(user_id){
     if ( favoriteMatchesAfterCheck.length != 0 ){
 
         var favoriteMatches = await matches_domain.getMatchesInfo(favoriteMatchesAfterCheck);
-        // favoriteMatches = favoriteMatches.sort( (a, b) => a.matchDate - b.matchDate);
         favoriteMatches = favoriteMatches.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
 
     } else{

@@ -188,7 +188,6 @@ async function matchFromFutureToPast(match_id){
     DELETE FROM FutureMatches
     WHERE match_id=(${match_id});`
   );
-    
 
   await users_utils.removeFavoriteMatch(match_id);
 
