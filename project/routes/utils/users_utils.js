@@ -10,18 +10,23 @@ const matches_utils = require("./matches_utils");
 // add a Matched to User Favorites Matches
 
 async function markMatchesAsFavorite(user_id, match_id) {
+  let massage= null; 
   if (user_id && match_id)
-   {            
-      const userFavoriteMatches = await getFavoriteMatches(user_id);
-      var flag = false;
-      const checkMatch_exist = await matches_utils.getMatchByID(match_id);
-      if (!userFavoriteMatches.find((x) => x.match_id == match_id) && checkMatch_exist.length > 0) {
-            DButils.execQuery(`insert into FavoriteMatches values ('${user_id}',${match_id})`);
-            flag = true;
-      }
-    }  
-  
-  return flag;
+   {   
+    const userFavoriteMatches = await getFavoriteMatches(user_id);
+    let checkMatch_exist = await matches_utils.getFutureMatchByID(match_id);
+    if (checkMatch_exist.length==0){
+      massage = `match id: ${match_id} not exist in future matches table`;
+    }
+    else if (!userFavoriteMatches.find((x) => x.match_id == match_id) && checkMatch_exist.length > 0) {
+          DButils.execQuery(`insert into FavoriteMatches values ('${user_id}',${match_id})`);
+          return null;
+    }
+    else{
+      massage = `match id: ${match_id} is already exist in this user favorite matches table`;
+    }
+  }
+  return massage;
 }
 exports.markMatchesAsFavorite = markMatchesAsFavorite;
 
