@@ -20,59 +20,13 @@ exports.getTodayDateTime = getTodayDateTime;
 //* ------------------------------ Get DataTime ------------------------------ *//
   
 function getDateTimeDisplayFormat(dateTime){
-    var dateTime = new Date(dateTime);
-    var month, day, hours, minutes, seconds;
-    if ((dateTime.getMonth()+1) < 10){
-      month = '0' + (dateTime.getMonth()+1);
-    } else{
-      month = (dateTime.getMonth()+1);
-    }
-    if (dateTime.getDate() < 10){
-      day = '0' +  (dateTime.getDate());
-    } else {
-      day = (dateTime.getDate());
-    }
-    if (dateTime.getHours() < 10){
-      hours = '0' + dateTime.getHours();
-    } else{
-      hours = dateTime.getHours();
-    }
-    if (dateTime.getMinutes() < 10){
-      minutes = '0' + dateTime.getMinutes();
-    } else{
-      minutes = dateTime.getMinutes();
-    }
-    if (dateTime.getSeconds() < 10){
-      seconds = '0' + dateTime.getSeconds();
-    } else {
-      seconds = dateTime.getSeconds();
-    }
+
+  var dateTime = new Date(dateTime).toISOString().slice(0, 19).replace('T', ' ');
+
+  return dateTime;
   
-    var date = dateTime.getFullYear()+'-'+month+'-'+day;
-    var time = hours + ":" + minutes + ":" + seconds;
-    var dateTime = date+' '+time;
-return dateTime;
 }
 exports.getDateTimeDisplayFormat = getDateTimeDisplayFormat;
-
-
-//* ------------------------------ Get DataTime ------------------------------ *//
-  
-function getMinuteDisplayFormat(minuteInMatch){
-  var dateTime = minuteInMatch;
-  var  hours, minutes;
-
-  hours = dateTime.getHours();
-  minutes =  dateTime.getMinutes();
-
-  if ( hours == 0){
-    return minutes;
-  }
-  else{
-    return 60 + minutes;
-  }
-}
-exports.getMinuteDisplayFormat = getMinuteDisplayFormat;
 
 
 //* ------------------------------ Get Matches To League Management Page ------------------------------ *//
@@ -84,7 +38,7 @@ async function getMatchesToLeagueManagementPage(sortBy){
   const futureMatchesWithReferees = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), sortBy, "future");
   const pastMatchesWithReferees = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), sortBy, "past");
 
-  return futureMatchesWithReferees, pastMatchesWithReferees;
+  return { futureMatchesWithReferees : futureMatchesWithReferees, pastMatchesWithReferees : pastMatchesWithReferees };
 
 }
 exports.getMatchesToLeagueManagementPage = getMatchesToLeagueManagementPage;
@@ -96,10 +50,10 @@ async function getMatchesToCurrentStage(){
 
   const leagueMatches = await matches_utils.getLeagueMatches();
 
-  const futureMatchesWithReferees = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
-  const pastMatchesWithReferees = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
+  const futureMatches = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
+  const pastMatches = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
 
-  return futureMatchesWithReferees, pastMatchesWithReferees;
+  return { futureMatches : futureMatches, pastMatches : pastMatches };
 
 }
 exports.getMatchesToCurrentStage = getMatchesToCurrentStage;
@@ -123,7 +77,12 @@ async function addRefereeToFutureMatches(matchesToAdd){
     for (var i = 0 ; i < matchesWithReferee.length ; i++){
   
       var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-      matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+
+      if ( refereeDic.length != undefined ){
+        matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+      } else{
+        matchesWithReferee[i]["refereeInformation"] = {};
+      }
       delete matchesWithReferee[i]["refereeID"]
     }
     return matchesWithReferee;
@@ -152,17 +111,39 @@ async function addRefereeToPastMatches(matchesToAdd){
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
     var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
-    matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+
+    if ( refereeDic.length != undefined ){
+      matchesWithReferee[i]["refereeInformation"] = refereeDic[0];
+    } else{
+      matchesWithReferee[i]["refereeInformation"] = {};
+    }
     delete matchesWithReferee[i]["refereeID"]
 
     var eventDic = await matches_utils.extractEventLog(matchesWithReferee[i]["matchID"]);
-    matchesWithReferee[i]["eventsLog"] = eventDic;
-
+    if (eventDic.length != 0 ){
+      matchesWithReferee[i]["eventsLog"] = await SortMatchesEventsByMinute(eventDic[0]);
+    } else{
+      matchesWithReferee[i]["eventsLog"] = eventDic;
+    }
+    
   }
+  
   return matchesWithReferee;
 }
 exports.addRefereeToPastMatches = addRefereeToPastMatches;
   
+
+//* ------------------------------ Sort Match Events By Minute ------------------------------ *//
+  
+async function SortMatchesEventsByMinute(eventDic){
+  
+  var SortedEventDic= eventDic.sort((a, b) => a.minuteInMatch - b.minuteInMatch);
+    
+  
+  return SortedEventDic;
+}
+exports.SortMatchesEventsByMinute = SortMatchesEventsByMinute;
+
 
 //* ------------------------------ Sort Matches By Date ------------------------------ *//
   

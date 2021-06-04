@@ -112,30 +112,39 @@ async function checkInputForAddMatch(localTeamName, visitorTeamName, venueName, 
   
   var badRequest = false;
   var message = "";
-    
-  if (! await league_utils.checkTeamNames(localTeamName, visitorTeamName)){
+
+  var resultFromUtils = await league_utils.checkTeamNames(localTeamName, visitorTeamName);
+
+  badRequest = resultFromUtils.badRequest;
+  message = resultFromUtils.message;
+  
+  if ( localTeamName == visitorTeamName ){
     badRequest = true;
-    message = " teams names,";
-  } 
+    message += " visitor and local teams are the same,"
+  }
+
   if(! await league_utils.checkVenueName(venueName)){
     badRequest = true;
-    message += "  venue name,"
+    message += "  venue doesn't exist,"
   } 
   if(refereeID != undefined){
-    var referee = (await unionAgent_utils.getRefereeByID(refereeID));
-    if (referee.length == 0){
+
+    if (Number.isInteger(refereeID)){
+
+      var referee = (await unionAgent_utils.getRefereeByID(refereeID));
+      if (referee.length == 0){
+        badRequest = true;
+        message += "  referee doesn't exist,"
+      }
+
+    } else{
       badRequest = true;
-      message += "  referee ID"
+      message += " refereeID is no int,"
     }
+    
   }
 
-  if (badRequest){
-    return true, message;
-
-  } 
-  else{
-    return false, "";
-  }
+  return {badRequest : badRequest, message : message};
   
 }
 exports.checkInputForAddMatch = checkInputForAddMatch;
@@ -192,7 +201,7 @@ async function checkInputForAddResult(matchID, localTeamScore, visitorTeamScore)
 
   if (!Number.isInteger(matchID)) {
     badRequest = true;
-    message += " match ID,";
+    message += " match ID not int,";
 
   } else if (Number.isInteger(matchID)){
     
@@ -312,17 +321,24 @@ async function InsertMatchEventLog(matchID, eventsLog){
     
     for (var i = 0 ; i < eventsLog.length ; i++){
 
-      if (Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime)){
+      if ( Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ){
         badRequest = true;
-        message += " date time,";
+        message += " date time in the future,";
       }
-      if (!Number.isInteger(eventsLog[i]["minuteInMatch"]) || eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130){
+
+      if ( !Number.isInteger(eventsLog[i]["minuteInMatch"]) ){
         badRequest = true;
-        message += " minute in match,"
+        message += " minute in match not int,"
       }
+
+      if ( !badRequest && ( eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 )){
+        badRequest = true;
+        message += " minute in match not in the range of 0-130,"
+      }
+
       if (! matches_domain.checkEventType(eventsLog[i]["eventType"])){
         badRequest = true;
-        message += " event type";
+        message += " wrong event type";
       }
       if (badRequest){
         break;
@@ -343,7 +359,7 @@ async function InsertMatchEventLog(matchID, eventsLog){
     message += " match doesn't exist";
   }
 
-  return {badRequest : badRequest, message : message};
+  return { badRequest : badRequest, message : message };
 
 }
 exports.InsertMatchEventLog = InsertMatchEventLog;
@@ -378,14 +394,14 @@ async function checkInputForAddReferee(matchID, refereeID){
 
   if ( !Number.isInteger(matchID)){
     badRequest = true;
-    message += " match ID,"
+    message += " match ID in not int,"
   } 
   if ( !Number.isInteger(refereeID)){
     badRequest = true;
-    message += " referee ID,";
+    message += " referee ID is not int,";
   }
 
-  return {badRequest : badRequest, message : message};
+  return { badRequest : badRequest, message : message };
 
 }
 exports.checkInputForAddReferee = checkInputForAddReferee;
@@ -398,7 +414,7 @@ async function getMatchForAddReferee(matchID){
   var futureMatch = await matches_utils.getFutureMatchByID(matchID);
   var pastMatch = await matches_utils.getPastMatchByID(matchID);
 
-  return futureMatch, pastMatch;
+  return { futureMatch : futureMatch, pastMatch : pastMatch };
 
 }
 exports.getMatchForAddReferee = getMatchForAddReferee;
@@ -434,7 +450,7 @@ async function InsertRefereeToMatch(matchID, refereeID, futureMatch, pastMatch){
     message += " referee doesn't exist";
   }
 
-  return {badRequest : badRequest, message : message};
+  return { badRequest : badRequest, message : message };
 
 }
 exports.InsertRefereeToMatch = InsertRefereeToMatch;

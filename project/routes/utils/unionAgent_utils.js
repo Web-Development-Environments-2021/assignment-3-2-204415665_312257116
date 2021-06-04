@@ -79,10 +79,6 @@ exports.addPastMatchResult = addPastMatchResult;
 
 async function addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription){
 
-  var hours = Math.floor(minuteInMatch/60);
-  var minutes = minuteInMatch % 60;
-  minuteInMatch = hours + ":" + minutes + ":00"
-
   await DButils.execQuery(
     `insert into MatchEvents values ('${matchID}', '${eventTimeAndDate}', '${minuteInMatch}', '${eventType}', '${eventDescription}')`
   );

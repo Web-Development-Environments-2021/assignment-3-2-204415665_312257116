@@ -60,10 +60,38 @@ async function checkTeamNames(localTeamName, visitorTeamName) {
       },
     }
   );
-  if (teams.data.data.find((x) => x.name == localTeamName) && teams.data.data.find((y) => y.name == visitorTeamName)) {
-    return true;
+  
+  var badRequest = false;
+  var message = "";
+
+  var foundLocalTeam = false;
+  var foundVisitorTeam = false;
+  if (teams.data.data.find((x) => x.name == localTeamName)){
+    foundLocalTeam = true;
+  } 
+  if( teams.data.data.find((y) => y.name == visitorTeamName )) {
+    foundVisitorTeam = true;
   }
-  return false;
+
+  if ( foundLocalTeam && foundVisitorTeam ){
+    badRequest = false;
+    message = "";
+
+  } else if( foundLocalTeam ){
+    badRequest = true;
+    message += " visitor team not exist,";
+     
+  } else if( foundVisitorTeam ){
+    badRequest = true;
+    message += " local team not exist,";
+     
+  } else{
+    badRequest = true;
+    message += " local and visitor team not exist,";
+  }
+
+  return { badRequest : badRequest, message : message };
+
 }
 exports.checkTeamNames = checkTeamNames;
 
