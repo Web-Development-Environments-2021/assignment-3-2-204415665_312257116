@@ -17,9 +17,10 @@ async function GetPastMatchesWithoutResult(){
 
   matches[0].map((element) => {
     if(element.visitorTeamScore == null || element.localTeamScore == null){
+      var matchDateAndTime = matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime);
       matchesWithResult.push({
         matchID : element.match_id,
-        matchDateAndTime : matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime),
+        matchDateAndTime : matchDateAndTime,
         localTeamName : element.localTeamName,
         visitorTeamName : element.visitorTeamName,
         venueName : element.venueName,
@@ -29,6 +30,18 @@ async function GetPastMatchesWithoutResult(){
       });
     };
   });
+
+  for ( var i=0 ; i < matchesWithResult.length ; i++ ){
+
+    var refereeDic = await matches_utils.extractRefereeInfo(matchesWithResult[i]["refereeID"]);
+
+    if ( refereeDic.length != undefined ){
+      matchesWithResult[i]["refereeInformation"] = refereeDic[0];
+    } else{
+      matchesWithResult[i]["refereeInformation"] = {};
+    }
+    delete matchesWithResult[i].refereeID;
+  }
 
 
   return matchesWithResult;
@@ -69,13 +82,31 @@ async function GetAllMatchesWithoutReferee(){
 
   matches[0].map((element) => {
     if(element.refereeID == null){
-      matchesWithReferee[0].push(element);
+      var matchDate = matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime);
+      matchesWithReferee[0].push({
+        matchID : element.match_id,
+        matchDate : matchDate,
+        localTeamName : element.localTeamName,
+        visitorTeamName : element.visitorTeamName,
+        venueName : element.venueName,
+        refereeInformation : {}
+      });
     };
   });
 
   matches[1].map((element) => {
     if(element.refereeID == null){
-      matchesWithReferee[1].push(element);
+      var matchDateAndTime = matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime);
+      matchesWithReferee[1].push({
+        matchID : element.matchID,
+        matchDateAndTime : matchDateAndTime,
+        localTeamName : element.localTeamName,
+        visitorTeamName : element.visitorTeamName,
+        venueName : element.venueName,
+        localTeamScore : element.localTeamScore,
+        visitorTeamScore : element.visitorTeamScore,
+        refereeInformation : {}
+      });
     };
   });
 

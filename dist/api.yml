@@ -805,10 +805,8 @@ components:
         eventsLog:
           type: array
           description: Match's event log
-          minItems: 3
           items:
             $ref: '#/components/schemas/MatchEvent'
-
           
     MatchEvent:
       type: object
