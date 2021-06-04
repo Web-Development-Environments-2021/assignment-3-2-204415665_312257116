@@ -2,6 +2,7 @@
 const league_utils = require("../utils/league_utils");
 const matches_utils = require("../utils/matches_utils");
 const matches_domain = require("../domains/matches_domain");
+const users_domain = require("../domains/user_domain");
 
 //* ------------------------------ Get League Info For Main Page ------------------------------ *//
     
@@ -51,3 +52,40 @@ async function SQL_search_domain(Search_Query, Search_Type, Sort_Teams_Alphabeti
     return results
 }
 exports.SQL_search_domain = SQL_search_domain;
+
+
+//* ------------------------------ Get Favorite Matches For Main Page ------------------------------ *//
+    
+async function getFavoriteMatchesForMainPage(user_id){
+  
+    var favoriteMatchedID = await users_domain.getFavoriteMatches_domain(user_id);
+
+    var favoriteMatchesAfterCheck = [];
+    var needChange = false;
+
+    for ( var i=0 ; i < favoriteMatchedID.length ; i++){
+
+        needChange = await matches_domain.checkIfNeedChangeFromFuture(favoriteMatchedID[i]);
+        
+        if ( ! needChange ){
+            favoriteMatchesAfterCheck.push(favoriteMatchedID[i]);
+        }
+    }
+
+    if ( favoriteMatchesAfterCheck.length != 0 ){
+
+        var favoriteMatches = await matches_domain.getMatchesInfo(favoriteMatchesAfterCheck);
+        // favoriteMatches = favoriteMatches.sort( (a, b) => a.matchDate - b.matchDate);
+        favoriteMatches = favoriteMatches.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
+
+    } else{
+        return [];
+    }
+
+    if (favoriteMatches.length > 3){
+        return favoriteMatches.slice(0, 3);
+    }
+    return favoriteMatches;
+    
+}
+exports.getFavoriteMatchesForMainPage = getFavoriteMatchesForMainPage;

@@ -126,7 +126,8 @@ async function getFirstNextMatch() {
   );
   return firstNextMatch;
 
-}exports.getFirstNextMatch = getFirstNextMatch;
+}
+exports.getFirstNextMatch = getFirstNextMatch;
 
 
 //* ------------------------------ moveMatchFromFuture2Past ------------------------------ *//
@@ -172,3 +173,24 @@ async function getPastMatchByTeamName(TeamName) {
 }
 exports.getPastMatchByTeamName = getPastMatchByTeamName;
 
+
+//* ------------------------------ Match From Future To Past ------------------------------ *//
+//TODO: Daniel - up is moshe
+
+async function matchFromFutureToPast(match_id){
+
+  await DButils.execQuery(
+    `INSERT INTO PastMatches ( matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID)
+    SELECT  matchDateAndTime, localTeamName, visitorTeamName, venueName, refereeID
+    FROM FutureMatches
+    WHERE match_id=(${match_id});
+    
+    DELETE FROM FutureMatches
+    WHERE match_id=(${match_id});`
+  );
+    
+
+  await users_utils.removeFavoriteMatch(match_id);
+
+}
+exports.matchFromFutureToPast = matchFromFutureToPast;

@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-
+const DButils = require("./utils/DButils");
 const league_domain = require("./domains/league_domain");
 
 
@@ -13,9 +13,29 @@ router.get("/getDetails", async (req, res, next) => {
 
     league_details.first_next_match = await league_domain.getNextLeagueMatch();
 
-    //TODO: Add 3 Favorite Matches
+    
+    var userLoggedIn = false;
 
-    res.send(league_details);
+    if (req.session && req.session.user_id) {
+      await DButils.execQuery("SELECT user_id FROM Users")
+        .then((users) => {
+          if (users.find((x) => x.user_id == req.session.user_id)) {
+            req.user_id = req.session.user_id;
+            userLoggedIn = true;
+          }
+        })
+        .catch((err) => next(err));
+    }
+
+    if ( userLoggedIn ){
+      var userFavoriteMatches = await league_domain.getFavoriteMatchesForMainPage(req.user_id);
+      res.status(200).send( { leagueDetails : league_details, userFavoriteMatches : userFavoriteMatches} );
+
+    } else {
+
+      res.status(200).send( { leagueDetails : league_details, userFavoriteMatches : [] } );
+    }
+
   } catch (error) {
     next(error);
   }

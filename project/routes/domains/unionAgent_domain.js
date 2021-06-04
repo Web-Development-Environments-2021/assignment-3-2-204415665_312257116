@@ -353,21 +353,25 @@ async function InsertMatchEventLog(matchID, eventsLog){
     for (var i = 0 ; i < eventsLog.length ; i++){
 
       if ( Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ){
+        message = message + " error in event " + (i+1) + " -";
         badRequest = true;
         message += " date time in the future,";
       }
 
       if ( !Number.isInteger(eventsLog[i]["minuteInMatch"]) ){
         badRequest = true;
-        message += " minute in match not int,"
+        message = message + " error in event " + (i+1) + " -";
+        message += " minute in match not int,";
       }
 
       if ( !badRequest && ( eventsLog[i]["minuteInMatch"] < 0 || eventsLog[i]["minuteInMatch"] > 130 )){
+        message = message + " error in event " + (i+1) + " -";
         badRequest = true;
         message += " minute in match not in the range of 0-130,"
       }
 
       if (! matches_domain.checkEventType(eventsLog[i]["eventType"])){
+        message = message + " error in event " + (i+1) + " -";
         badRequest = true;
         message += " wrong event type";
       }

@@ -261,3 +261,23 @@ async function extractMatchesInfo(matches_info) {
 }
 exports.extractMatchesInfo = extractMatchesInfo;
 
+
+//* ---------------------------- Check If Need Change From Future ---------------------------- *//
+  
+async function checkIfNeedChangeFromFuture(match_id) {
+  
+  var todayDateTime = getTodayDateTime();
+
+  var match = await matches_utils.getMatchByID(match_id);
+
+  if ( Date.parse(todayDateTime) > Date.parse(match[0].matchDateAndTime) ){
+
+    await matches_utils.matchFromFutureToPast(match[0].match_id);
+    return true;
+
+  }
+  return false;
+  
+}
+exports.checkIfNeedChangeFromFuture = checkIfNeedChangeFromFuture;
+
