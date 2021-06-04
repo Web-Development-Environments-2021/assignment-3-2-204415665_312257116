@@ -34,14 +34,14 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query;
 
     //Check that  The query contain only English characters 
-    if (/[^a-z]/i.test(Search_Query) || (/[^a-z]/i.test(Filter_Players) && isNaN(Filter_Players))){
-      message="Invalid value - The query must contain English characters only";
+    if (/[^a-z]/i.test(Search_Query)){
+      message="The query must contain English characters only";
       badRequest=true;
     }
 
     //Check that if the user search for a players the filter field contain only numbers/characters in English
     if (Search_Type=="Players" && (/[^a-z]/i.test(Filter_Players) && isNaN(Filter_Players))){
-      message="Invalid value - The filter field must contain either numbers or characters in English";
+      message="The filter field must contain either numbers or characters in English";
       badRequest=true;
     }
 
@@ -53,11 +53,14 @@ router.get("/search/:Search_Query", async (req, res, next) => {
 
     //if one of the entered values are not valid - if not raises error
     if (badRequest){
-      res.status(400).send("Bad request - incorrect :  " + message);
+      res.status(400).send("Bad request - Invalid value - :  " + message);
     }
-    //Submitting the request for an auxiliary function - SQL_searchByQuery
-    const results = await league_domain.SQL_search_domain(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-    res.status(200).send(results);
+    else{
+          //Submitting the request for an auxiliary function - SQL_searchByQuery
+          const results = await league_domain.SQL_search_domain(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
+          res.status(200).send(results);
+    }
+
     } catch (error) {
       next(error);
     }
