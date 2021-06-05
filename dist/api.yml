@@ -334,7 +334,7 @@ paths:
           description: No Content
         "401":
           description: User is not authorized
-    put:
+    post:
       tags: 
         - UnionAgent
       summary: Add events log to match
@@ -354,8 +354,7 @@ paths:
                   type: array
                   description: Match's event log
                   items:
-                    $ref: '#/components/schemas/MatchEvent'
-                  
+                    $ref: '#/components/schemas/MatchEventInsertion'
       responses:
         '200':
           description: Events log added match successfully
@@ -366,7 +365,7 @@ paths:
     get:
       tags:
         - UnionAgent
-      summary: Return all the data the agent need for add referee
+      summary: Return all referees and matches without referee
       responses:
         "200":
           description: Data the agent need for add referee returned
@@ -412,6 +411,31 @@ paths:
       responses:
         '200':
           description: Referee added to match successfully
+        '400':
+          description: Bad request
+    put:
+      tags: 
+        - UnionAgent
+      summary: Update referee in match
+      description: Update referee in match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add referee
+                  example: 939
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 252
+      responses:
+        '200':
+          description: Referee updated in match successfully
         '400':
           description: Bad request
 
@@ -1005,6 +1029,33 @@ components:
           description: More information about the event
           example: Yellow card to Messi
           
+    MatchEventInsertion:
+      type: object
+      description: Match Event Insertion Template
+      required:
+        - minuteInMatch
+        - eventType
+      properties:
+        minuteInMatch:
+          type: number
+          description: The minute in match the event occurred
+          example: 10
+        eventType:
+          type: string
+          description: Type of the match event
+          example: Goal
+          enum: 
+          - Goal
+          - Offside
+          - Red Card
+          - Yellow Card
+          - Injury
+          - Subsitute
+        eventDescription:
+          type: string
+          description: More information about the event
+          example: Yellow card to Messi
+
     Referee:
       type: object
       description: Referee information

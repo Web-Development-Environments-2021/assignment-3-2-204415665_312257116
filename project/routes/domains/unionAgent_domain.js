@@ -9,7 +9,6 @@ const matches_domain = require("../domains/matches_domain");
 
 //* ------------------------------ Get Past Matches Without Result ------------------------------ *//
 
-
 async function GetPastMatchesWithoutResult(){
 
   var matches = await matches_utils.getLeagueMatches();
@@ -97,7 +96,7 @@ async function GetAllMatchesWithoutReferee(){
     if(element.refereeID == null){
       var matchDateAndTime = matches_domain.getDateTimeDisplayFormat(element.matchDateAndTime);
       matchesWithReferee[1].push({
-        matchID : element.matchID,
+        matchID : element.match_id,
         matchDateAndTime : matchDateAndTime,
         localTeamName : element.localTeamName,
         visitorTeamName : element.visitorTeamName,
@@ -410,17 +409,11 @@ async function InsertMatchEventLog(matchID, eventsLog){
   var message = "";
 
   const match = await matches_utils.getPastMatchByID(matchID);
-  var dateTime = matches_domain.getTodayDateTime();
 
   if (match.length != 0){
     
     for (var i = 0 ; i < eventsLog.length ; i++){
 
-      if ( Date.parse(eventsLog[i]["eventTimeAndDate"]) >= Date.parse(dateTime) ){
-        message = message + " error in event " + (i+1) + " -";
-        badRequest = true;
-        message += " date time in the future,";
-      }
 
       if ( !Number.isInteger(eventsLog[i]["minuteInMatch"]) ){
         badRequest = true;
@@ -443,7 +436,8 @@ async function InsertMatchEventLog(matchID, eventsLog){
         break;
       }
 
-      var eventTimeAndDate = matches_domain.getDateTimeDisplayFormat(eventsLog[i]["eventTimeAndDate"]);
+      var eventTimeAndDate = calculateEventDateTime( match[0].matchDateAndTime, eventsLog[i].minuteInMatch );
+
       var minuteInMatch = eventsLog[i]["minuteInMatch"];
       var eventType = eventsLog[i]["eventType"];
       var eventDescription = eventsLog[i]["eventDescription"];
@@ -462,6 +456,23 @@ async function InsertMatchEventLog(matchID, eventsLog){
 
 }
 exports.InsertMatchEventLog = InsertMatchEventLog;
+
+
+//* ------------------------------ Get Past Matches Without Result ------------------------------ *//
+
+function calculateEventDateTime(matchDateAndTime, minuteInMatch){
+
+  var eventDateTime = new Date(matchDateAndTime);
+
+  eventDateTime = eventDateTime.setTime(eventDateTime.getTime() + (minuteInMatch*60*1000));
+
+  eventDateTime = matches_domain.getDateTimeDisplayFormat(eventDateTime);
+
+  return eventDateTime;
+
+    
+}
+exports.calculateEventDateTime = calculateEventDateTime;
 
 
 //* ------------------------------ Get Past Matches To Add Referee ------------------------------ *//
@@ -553,3 +564,39 @@ async function InsertRefereeToMatch(matchID, refereeID, futureMatch, pastMatch){
 
 }
 exports.InsertRefereeToMatch = InsertRefereeToMatch;
+
+
+//* ------------------------------ Insert Referee To Match ------------------------------ *//
+    
+async function updateRefereeInMatch(matchID, refereeID, futureMatch, pastMatch){
+    
+  var badRequest = false;
+  var message = "";
+
+  var refereeInfo = await unionAgent_utils.getRefereeByID(refereeID);
+
+  if ( refereeInfo.length != 0 ){
+
+    if (futureMatch.length != 0 && futureMatch[0]["refereeID"] != null){
+
+      await unionAgent_utils.addRefereeToFutureMatch(matchID, refereeID);
+
+    } else if (pastMatch.length != 0 && pastMatch[0]["refereeID"] != null ){
+
+      await unionAgent_utils.addRefereeToPastMatch(matchID, refereeID);
+
+    } else {
+
+      badRequest = true;
+      message += " doesn't have referee to change,";
+    }
+
+  } else{
+    badRequest = true;
+    message += " referee doesn't exist";
+  }
+
+  return { badRequest : badRequest, message : message };
+
+}
+exports.updateRefereeInMatch = updateRefereeInMatch;

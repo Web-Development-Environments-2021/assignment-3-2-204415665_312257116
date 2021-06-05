@@ -239,7 +239,7 @@ router.get("/addMatchEventsLog", async (req, res, next) => {
   }
 });
 
-router.put("/addMatchEventsLog", async (req, res, next) => {
+router.post("/addMatchEventsLog", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;
@@ -318,6 +318,47 @@ router.post("/addRefereeToMatch", async (req, res, next) => {
   }
 });
 
+router.put("/addRefereeToMatch", async (req, res, next) => {
+  try {
+
+    const matchID = req.body.matchID;
+    const refereeID = req.body.refereeID;
+
+    var badRequest = false;
+    var message = "";
+    var resultFromDomain = await unionAgent_domain.checkInputForAddReferee(matchID, refereeID);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
+ 
+    if (!badRequest) {
+
+      resultFromDomain = await unionAgent_domain.getMatchForAddReferee(matchID);
+      var futureMatch = resultFromDomain.futureMatch;
+      var pastMatch = resultFromDomain.pastMatch;
+
+      if (futureMatch.length != 0 || pastMatch.length !=0 ){
+
+        resultFromDomain = await unionAgent_domain.updateRefereeInMatch(matchID, refereeID, futureMatch, pastMatch);
+        badRequest = resultFromDomain.badRequest;
+        message = resultFromDomain.message;
+  
+      } else {
+        badRequest = true;
+        message += " match doesn't exist";
+      }
+
+    }
+
+    if (badRequest){
+      res.status(400).send("Bad request - incorrect :  " + message);
+    } else {
+      res.status(200).send("Referee updated in match successfully");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 module.exports = router;
