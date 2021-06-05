@@ -33,7 +33,12 @@ async function getNextLeagueMatch(){
         }
     });
     var refereeDic = await matches_utils.extractRefereeInfo(first_next_match[0].refereeID);
-    first_next_match[0]["refereeInformation"] = refereeDic[0];
+
+    if ( refereeDic.length != undefined ){
+      first_next_match[0]["refereeInformation"] = refereeDic[0];
+    } else{
+      first_next_match[0]["refereeInformation"] = {};
+    }
 
     delete first_next_match[0]["refereeID"];
  
