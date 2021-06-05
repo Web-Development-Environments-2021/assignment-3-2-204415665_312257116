@@ -2,18 +2,23 @@
 const teams_utils = require("../utils/teams_utils");
 const matches_utils = require("../utils/matches_utils");
 const matches_domain = require("./matches_domain");
+const league_utils = require("../utils/league_utils");
 
 
 
 //* ------------------------------ extractRelevantTeamData ------------------------------ *//
   
 async function extractRelevantTeamData(TeamID) {
-
+  var CURRENT_SEASON_ID = await league_utils.getCurrentSeasonID();
   var team = await teams_utils.getTeamFullInfo(TeamID);
   
     return await Promise.all(team.map(async (team_info) => {
 
-      const { id, name, short_code, logo_path, squad} = team_info.data.data;
+      const { id, name, short_code, logo_path, squad , current_season_id} = team_info?.data.data;
+
+      if (CURRENT_SEASON_ID != current_season_id){
+        return undefined; 
+      }
       const squad_full_info = await getSquadInfo(squad.data,name);
       var pastMatches = await matches_domain.extractMatches_with_refereeInfo( await matches_utils.getPastMatchByTeamName(name) );
 
@@ -23,7 +28,7 @@ async function extractRelevantTeamData(TeamID) {
 
       }
       
-      var FutureMatches = await matches_domain.extractMatches_with_refereeInfo( await matches_utils.getFutureMatchByTeamName(name) );
+      var FutureMatches = await matches_domain.extractMatches_with_refereeInfo( await matches_utils.getFutureMatchByTeamName(name));
       return {
         TeamID: id,
         teamLogo: logo_path,
@@ -60,13 +65,14 @@ exports.getSquadInfo = getSquadInfo;
 //* ------------------------------ get Team Details ByN ame ------------------------------ *//
   
 async function getTeamDetailsByName(teamName){
+    const teamID = await teams_utils.getTeamIDByName(teamName);
+    if(!teamID){
+      return undefined;
+    }
   
-  const teamID = await teams_utils.getTeamIDByName(teamName);
-
-  const team_details = await extractRelevantTeamData(teamID);
-
-  return team_details;
-
+    const team_details = await extractRelevantTeamData(teamID);
+  
+    return team_details;
 }
 
 exports.getTeamDetailsByName = getTeamDetailsByName;
