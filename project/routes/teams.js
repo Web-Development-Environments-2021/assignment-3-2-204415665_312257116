@@ -19,7 +19,7 @@ router.get("/teamFullDetailsByID/:teamId", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});W
+});
 
 
 //* ------------------------------ /teamFullDetails/:teamName ------------------------------ *//
