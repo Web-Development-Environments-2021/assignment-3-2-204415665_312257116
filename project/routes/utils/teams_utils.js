@@ -1,11 +1,13 @@
 const axios = require("axios");
+const { NText } = require("mssql");
 const api_domain = "https://soccer.sportmonks.com/api/v2.0";
 
 
 /*------------------------------- getTeamFullInfo -----------------------------------*/
 
 async function getTeamFullInfo(team_id) {
-    let promises = [];
+  try{
+      let promises = [];
       promises.push(
         axios.get(`${api_domain}/teams/${team_id}`, {
           params: {
@@ -16,6 +18,10 @@ async function getTeamFullInfo(team_id) {
       );
     let team_info = await Promise.all(promises);
     return team_info;
+  }catch (error) {
+    throw { status: 404, message: "teamId is not exists" };
+  }
+
 }
 exports.getTeamFullInfo = getTeamFullInfo;
   
@@ -31,10 +37,12 @@ async function getTeamIDByName(teamName) {
       },
     }
   );
-  if (team.data.data.length == 0){
-    return undefined;
+  const teamID = team.data.data[0]?.id;
+  if (!teamID){
+    throw { status: 404, message: "team name is not exists" };
   }
-  const teamID = team.data.data[0].id;
   return teamID;
+  
+  
 }
 exports.getTeamIDByName = getTeamIDByName;

@@ -8,12 +8,7 @@ const league_utils = require("../utils/league_utils");
 
 async function extractRelevantPlayerData(player_id) {
   var CURRENT_SEASON_ID = await league_utils.getCurrentSeasonID();
-  var players_info = await players_utils.getPlayerFullInfo(player_id);
-  if (!players_info){
-    return [undefined];
-  }
-  let player_arr = [] ;
-  
+  var players_info = await players_utils.getPlayerFullInfo(player_id);  
   return players_info.map((player_info) => {
     const { player_id, fullname, image_path, position_id, common_name, nationality, birthdate, birthcountry, height, weight } = player_info.data.data;
     const { name, current_season_id } = player_info.data.data?.team.data;
