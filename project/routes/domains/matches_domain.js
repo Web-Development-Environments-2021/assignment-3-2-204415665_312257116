@@ -48,8 +48,10 @@ async function getMatchesToCurrentStage(){
 
   const leagueMatches = await matches_utils.getLeagueMatches();
 
-  const futureMatches = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
-  const pastMatches = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
+  var futureMatches = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
+  var pastMatches = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
+
+  pastMatches = pastMatches.filter(function (match) { return match.eventsLog.length >= 3 } );
 
   return { futureMatches : futureMatches, pastMatches : pastMatches };
 
@@ -173,7 +175,7 @@ exports.SortMatchesBy = SortMatchesBy;
 //* ------------------------------ Check EventType ------------------------------ *//
   
 function checkEventType(eventType){
-  var types = ['Goal', 'Red Card', 'Yellow Card', 'Injury', 'Subsitute'];
+  var types = ['Goal', 'Red card', 'Yellow card', 'Injury', 'Subsitute'];
   if (types.includes(eventType)){
     return true;
   }
