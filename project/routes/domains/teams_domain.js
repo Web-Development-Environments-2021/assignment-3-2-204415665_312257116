@@ -55,3 +55,18 @@ async function getSquadInfo(squad_info, team_name){
 }
   
 exports.getSquadInfo = getSquadInfo;
+
+
+//* ------------------------------ get Team Details ByN ame ------------------------------ *//
+  
+async function getTeamDetailsByName(teamName){
+  
+  const teamID = await teams_utils.getTeamIDByName(teamName);
+
+  const team_details = await extractRelevantTeamData(teamID);
+
+  return team_details;
+
+}
+
+exports.getTeamDetailsByName = getTeamDetailsByName;

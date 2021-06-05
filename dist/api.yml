@@ -550,19 +550,68 @@ paths:
         "404":
           description: playerID is not exists
 
-  /teams/teamFullDetails/{teamId}:
+  /teams/teamFullDetailsByID/{teamId}:
     get:
-      summary: Get full details about a team
+      summary: Get team's full details - By ID
       description: Useful for team page
       tags:
         - Teams
       parameters:
         - in: path
           name: teamId
-          description: team's id
+          description: Team's id
           required: true
           schema:
             type: integer
+          example: 85
+      responses:
+        "200":
+          description: Data about the team
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        "404":
+          description: teamId is not exists
+
+  # /teams/teamFullDetailsByName/{teamName}:
+  #   get:
+  #     summary: Get team's full details - By name
+  #     description: Useful for team page
+  #     tags:
+  #       - Teams
+  #     parameters:
+  #       - in: path
+  #         name: teamName
+  #         description: Team's Name
+  #         required: true
+  #         schema:
+  #           type: string
+  #         example: "Randers"
+  #     responses:
+  #       "200":
+  #         description: Data about the team
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/Team"
+  #       "404":
+  #         description: teamId is not exists
+
+  /teams/teamFullDetailsByName:
+    get:
+      summary: Get team's full details - By name
+      description: Useful for team page
+      tags:
+        - Teams
+      parameters:
+        - in: query
+          name: teamName
+          description: Team's Name
+          required: true
+          schema:
+            type: string
+          example: "Randers"
       responses:
         "200":
           description: Data about the team
