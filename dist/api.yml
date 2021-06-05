@@ -389,7 +389,7 @@ paths:
                       $ref: '#/components/schemas/PastMatchWithoutReferee'
         "401":
           description: User is not authorized
-    put:
+    post:
       tags: 
         - UnionAgent
       summary: Add referee to match

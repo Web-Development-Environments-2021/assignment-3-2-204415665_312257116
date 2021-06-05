@@ -276,7 +276,7 @@ router.get("/addRefereeToMatch", async (req, res, next) => {
   }
 });
 
-router.put("/addRefereeToMatch", async (req, res, next) => {
+router.post("/addRefereeToMatch", async (req, res, next) => {
   try {
 
     const matchID = req.body.matchID;
