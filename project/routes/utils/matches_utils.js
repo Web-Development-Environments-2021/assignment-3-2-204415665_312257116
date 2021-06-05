@@ -195,3 +195,29 @@ async function deleteMatchByIDAndWhich(match_id, whichMatch){
 
 }
 exports.deleteMatchByIDAndWhich = deleteMatchByIDAndWhich;
+
+
+//* ------------------------------ Check If Match In DB ------------------------------ *//
+
+async function checkIfMatchInDB(matchDate, localTeamName, visitorTeamName, venueName){
+
+  var match = await DButils.execQuery(
+    `select * from FutureMatches where 
+    matchDateAndTime='${matchDate}' and localTeamName='${localTeamName}' and visitorTeamName='${visitorTeamName}' and venueName='${venueName}'`
+  );
+  if (match.length != 0){
+    return true;
+  }
+
+  var match = await DButils.execQuery(
+    `select * from PastMatches where 
+    matchDateAndTime='${matchDate}' and localTeamName='${localTeamName}' and visitorTeamName='${visitorTeamName}' and venueName='${venueName}'`
+  );
+  if (match.length != 0){
+    return true;
+  }
+  
+  return false;
+
+}
+exports.checkIfMatchInDB = checkIfMatchInDB;

@@ -90,6 +90,14 @@ router.post("/match", async (req, res, next) => {
     badRequest = resultFromDomain.badRequest;
     message = resultFromDomain.message;
 
+    if ( !badRequest ){
+      
+      resultFromDomain = await unionAgent_domain.checkIfMatchExist(matchDate, localTeamName, visitorTeamName, venueName);
+
+      badRequest = resultFromDomain.badRequest;
+      message = resultFromDomain.message;
+    }
+
     if (!badRequest){
 
       await unionAgent_domain.InsertNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);

@@ -181,6 +181,27 @@ async function checkInputForAddMatch(localTeamName, visitorTeamName, venueName, 
 exports.checkInputForAddMatch = checkInputForAddMatch;
 
 
+//* ------------------------------ Check If Match Exist ------------------------------ *//
+    
+async function checkIfMatchExist(matchDate, localTeamName, visitorTeamName, venueName){
+  
+  var badRequest = false;
+  var message = "";
+
+  var resultFromUtils = await matches_utils.checkIfMatchInDB(matchDate, localTeamName, visitorTeamName, venueName);
+
+  if ( resultFromUtils ){
+    badRequest = true;
+    message = "match already exist,";
+  }
+  
+
+  return {badRequest : badRequest, message : message};
+  
+}
+exports.checkIfMatchExist = checkIfMatchExist;
+
+
 //* ------------------------------ Insert New Match ------------------------------ *//
     
 async function InsertNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID){
