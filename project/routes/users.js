@@ -70,6 +70,40 @@ router.get("/favoriteMatches", async (req, res, next) => {
   }
 });
 
+
+router.delete("/favoriteMatches", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const matchID = req.body.matchID;
+
+    var badRequest = false;
+    var message = "";
+    
+    var resultFromDomain = await user_domain.deleteUserFavoriteMatch(user_id, matchID);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
+
+    if (!badRequest){
+
+      
+      res.status(200).send( "Match deleted from user's favorite matches successfully" ) ;
+
+    } else if ( badRequest && message != "Match not found" ){
+
+      res.status(400).send("Bad request - incorrect :  " + message);
+
+    } else {
+
+      res.status(404).send(message);
+
+    }
+
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
 
 

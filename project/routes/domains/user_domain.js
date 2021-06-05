@@ -18,3 +18,30 @@ async function markMatchesAsFavorite_domain(user_id, match_id){
     return message;
 }
 exports.markMatchesAsFavorite_domain = markMatchesAsFavorite_domain;
+
+
+//* ------------------------------ Check Input Delete Favorite Match ------------------------------ *//
+    
+async function deleteUserFavoriteMatch(user_id, matchID){
+     
+    var badRequest = false;
+    var message = "";
+  
+    if ( Number.isInteger(matchID) && matchID >= 1){
+      
+        var isFavoriteMatch = await users_utils.removeFavoriteMatchByUser(user_id, matchID);
+  
+        if ( ! isFavoriteMatch ){
+            badRequest = true;
+            message = "Match not found";
+        }
+  
+    } else{
+        badRequest = true;
+        message = " match ID in not int,";
+    }
+  
+    return { badRequest : badRequest, message : message };
+  
+}
+exports.deleteUserFavoriteMatch = deleteUserFavoriteMatch;

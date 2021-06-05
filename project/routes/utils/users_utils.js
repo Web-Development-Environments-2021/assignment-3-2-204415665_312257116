@@ -75,3 +75,38 @@ async function checkFavoriteMatch(match_id){
 
 }
 exports.checkFavoriteMatch = checkFavoriteMatch;
+
+
+//* ------------------------------ removeMatchFavoriteByUser ------------------------------ *//
+
+async function removeFavoriteMatchByUser(user_id, match_id){
+
+  if ( await checkFavoriteMatchByUser(user_id, match_id) ){
+
+    await DButils.execQuery(
+      `DELETE  FROM  FavoriteMatches WHERE match_id=('${match_id}') and user_id=('${user_id}')`
+    );
+
+    return true;
+  }
+  return false;
+  
+}
+exports.removeFavoriteMatchByUser = removeFavoriteMatchByUser;
+
+
+//* ------------------------------ Check Favorite Match By User ------------------------------ *//
+
+async function checkFavoriteMatchByUser(user_id, match_id){
+
+  const favoriteMatch =  await DButils.execQuery(
+    `Select * from FavoriteMatches WHERE match_id=('${match_id}') and user_id=('${user_id}')`
+  );
+
+  if ( favoriteMatch.length != 0 ){
+    return true;
+  }
+  return false;
+
+}
+exports.checkFavoriteMatchByUser = checkFavoriteMatchByUser;
