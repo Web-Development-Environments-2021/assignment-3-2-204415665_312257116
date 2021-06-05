@@ -42,8 +42,12 @@ router.get("/leagueManagementPage", async (req, res, next) => {
     var resultResponse ={};
     resultResponse["pastMatches"] = pastMatchesWithReferees;
     resultResponse["featureMatches"] = futureMatchesWithReferees;
-
-    res.status(200).send(resultResponse);
+    
+    if ( pastMatchesWithReferees.length == 0 &&  futureMatchesWithReferees == 0){
+      res.status(204).send(resultResponse);
+    } else{
+      res.status(200).send(resultResponse);
+    }
   } catch (error) {
     next(error);
   }
@@ -89,7 +93,7 @@ router.post("/match", async (req, res, next) => {
     if (!badRequest){
 
       await unionAgent_domain.InsertNewMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
-      res.status(200).send("Match added to league's matches successfully");
+      res.status(201).send("Match added to league's matches successfully");
 
     } else {
       res.status(400).send("Bad request - incorrect :  " + message);
@@ -146,7 +150,12 @@ router.get("/addMatchResult", async (req, res, next) => {
 
     const pastMatchesWithoutResult = await unionAgent_domain.getPastMatchesToAddResult();
 
-    res.status(200).send(pastMatchesWithoutResult);
+    if ( pastMatchesWithoutResult.length == 0 ){
+      res.status(204).send(pastMatchesWithoutResult);
+    } else{
+      res.status(200).send(pastMatchesWithoutResult);
+    }
+    
   } catch (error) {
     next(error);
   }
@@ -211,7 +220,12 @@ router.get("/addMatchEventsLog", async (req, res, next) => {
 
     const pastMatchesWithAllInfo = await unionAgent_domain.getPastMatchesToAddEventLog();
 
-    res.status(200).send(pastMatchesWithAllInfo);
+    if ( pastMatchesWithAllInfo.length == 0 ){
+      res.status(204).send(pastMatchesWithAllInfo);
+    } else {
+      res.status(200).send(pastMatchesWithAllInfo);
+    }
+    
   } catch (error) {
     next(error);
   }

@@ -158,6 +158,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FutureMatchInformation'
+        "204":
+          description: No Content
         '400':
           description: Bad request
 
@@ -230,7 +232,7 @@ paths:
                   description: The referee's ID
                   example: 1
       responses:
-        '200':
+        '201':
           description: Match added to league's matches successfully
         '400':
           description: Bad request
@@ -274,6 +276,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
         "401":
           description: User is not authorized
     put:
@@ -324,6 +328,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
         "401":
           description: User is not authorized
     put:
@@ -540,6 +546,7 @@ paths:
           required: true
           schema:
             type: integer
+          example: 26722
       responses:
         '200':
           description: Data about the player returned
@@ -620,8 +627,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FutureMatchInformation'
-        '400':
-          description: Bad request
+        "204":
+          description: No Content
 
 components:
   schemas:
