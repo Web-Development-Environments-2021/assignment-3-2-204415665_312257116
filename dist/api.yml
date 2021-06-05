@@ -560,8 +560,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlayerFullInformation'
+        "204":
+          description: No Content
         "404":
           description: playerID is not exists
+
 
   /teams/teamFullDetailsByID/{teamId}:
     get:

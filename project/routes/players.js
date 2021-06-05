@@ -9,8 +9,12 @@ router.get("/playerFullDetails/:playerID", async (req, res, next) => {
     const player_id = req.params.playerID;
 
     const playerFullDetails = await players_domain.extractRelevantPlayerData(player_id);
-
-    res.status(200).send(playerFullDetails);
+    if (!playerFullDetails[0]){
+      res.sendStatus(204);
+    }
+    else{
+      res.status(200).send(playerFullDetails);
+    }
   } catch (error) {
     next(error);
   }
