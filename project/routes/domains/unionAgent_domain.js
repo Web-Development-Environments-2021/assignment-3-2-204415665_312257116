@@ -197,6 +197,51 @@ async function InsertNewMatch(matchDate, localTeamName, visitorTeamName, venueNa
 exports.InsertNewMatch = InsertNewMatch;
 
 
+//* ------------------------------ Check Input For Delete Match ------------------------------ *//
+    
+async function checkInputForDeleteMatch(matchID){
+     
+  var badRequest = false;
+  var message = "";
+
+  if ( Number.isInteger(matchID) && matchID >= 1){
+    
+    var match = await matches_utils.getMatchByID(matchID);
+
+    if ( match.length == 0 ){
+      badRequest = true;
+      message = "Match not found";
+    }
+
+  } else{
+    badRequest = true;
+    message = " match ID in not int,";
+  }
+
+  return { badRequest : badRequest, message : message };
+
+}
+exports.checkInputForDeleteMatch = checkInputForDeleteMatch;
+
+
+//* ------------------------------ DeleteMatch ------------------------------ *//
+    
+async function deleteMatch(matchID){
+     
+  var resultFromWhichMatch = await checkIfPastOrFuture(matchID);
+
+  var match = resultFromWhichMatch.match;
+  var whichMatch = resultFromWhichMatch.whichMatch;
+
+  if (match.length != 0 ){
+    await matches_utils.deleteMatchByIDAndWhich(matchID, whichMatch);
+  }
+  
+
+}
+exports.deleteMatch = deleteMatch;
+
+
 //* ------------------------------ Get Past Matches To Add Result ------------------------------ *//
     
 async function getPastMatchesToAddResult(){

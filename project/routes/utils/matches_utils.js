@@ -175,3 +175,23 @@ async function matchFromFutureToPast(match_id){
 
 }
 exports.matchFromFutureToPast = matchFromFutureToPast;
+
+
+//* ------------------------------ Delete Match By ID And Which------------------------------ *//
+
+async function deleteMatchByIDAndWhich(match_id, whichMatch){
+
+  if ( whichMatch == "future"){
+    await DButils.execQuery(
+      `delete from FutureMatches where match_id='${match_id}'`
+    );
+  } else if ( whichMatch == "past" ){
+    await DButils.execQuery(
+      `delete from PastMatches where match_id='${match_id}'`
+    );
+  }
+
+  await users_utils.removeFavoriteMatch(match_id);
+
+}
+exports.deleteMatchByIDAndWhich = deleteMatchByIDAndWhich;
