@@ -63,8 +63,12 @@ router.get("/favoriteMatches", async (req, res, next) => {
     let matches_ids_array = await user_domain.getFavoriteMatches_domain(user_id);
     matchesID_AfterCheck = await matches_domain.checkFavoriteMatches(matches_ids_array);
     const results = await matches_domain.getMatchesInfo(matchesID_AfterCheck);
-
-    res.status(200).send(results);
+    if (results.length==0){
+      res.status(204).send("No Content: this user does not have 'favorite matches'");
+    }
+    else{
+      res.status(200).send(results);
+    }
   } catch (error) {
     next(error);
   }

@@ -85,6 +85,8 @@ paths:
                   $ref: "#/components/schemas/FutureMatchInformation"
         "401":
           description: User is not authorized
+        '204':
+          description: No Content
     post:
       summary: Save match in the favorites list of a user
       tags:
@@ -526,6 +528,7 @@ paths:
                         teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
         '400':
           description: Bad request
+
 
   /players/playerFullDetails/{playerID}:
     get:
