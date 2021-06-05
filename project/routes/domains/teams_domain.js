@@ -63,6 +63,10 @@ async function getTeamDetailsByName(teamName){
   
   const teamID = await teams_utils.getTeamIDByName(teamName);
 
+  if ( teamID == undefined ){
+    return undefined;
+  }
+
   const team_details = await extractRelevantTeamData(teamID);
 
   return team_details;
