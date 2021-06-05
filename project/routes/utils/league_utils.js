@@ -229,32 +229,57 @@ exports.getAllRelevantTeams = getAllRelevantTeams;
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
 async function getAllRelevantPlayers(Search_Query, Query_info) {
-
-  var player_arr =  (await Promise.all(Query_info.map(async (team_info) => {
-    squad_info=team_info.squad.data;
-    return squad_info.map((player_info) => {
-      const { player_id, position_id, fullname, image_path} = player_info.player.data;
-
-      if(fullname!=null && fullname.toLowerCase().includes(Search_Query.toLowerCase())){
-        return {
-          playerID: player_id,
-          name: fullname,
-          image: image_path,
-          position: position_id,
-          team_name: team_info.name
-        };
-      }
-    });
-  })));
   var last_players_standing=[];
-  player_arr.map((element) => {
-    element.map((item) => {
-      if (item != undefined){
-        last_players_standing.push(item)
-      }
-    })});
+  Query_info.forEach(team_info => {
+    team_info.squad.data.forEach((player_info) => {
+      const { player_id, position_id, fullname, image_path} = player_info.player.data;
+      if(fullname?.toLowerCase().includes(Search_Query.toLowerCase())){
+        last_players_standing.push({
+            playerID: player_id,
+            name: fullname,
+            image: image_path,
+            position: position_id,
+            team_name: team_info.name
+        
+      });
+    }});
+  });
+
   return last_players_standing;
 }
 exports.getAllRelevantPlayers = getAllRelevantPlayers;
 
 
+// //* ---------------------------- getAllRelevantPlayers ---------------------------- *//
+// //Auxiliary function - returns the relevant information about the array of elements - teams / players.
+
+// async function getAllRelevantPlayers(Search_Query, Query_info) {
+//   var player_arr =  Query_info.map((team_info) => {
+//     squad_info=team_info.squad.data;
+//     return squad_info.map((player_info) => {
+
+//       const { player_id, position_id, fullname, image_path} = player_info.player.data;
+
+//       // if(fullname!=null && fullname.toLowerCase().includes(Search_Query.toLowerCase())){
+//       if(fullname?.toLowerCase().includes(Search_Query.toLowerCase())){
+
+//         return {
+//           playerID: player_id,
+//           name: fullname,
+//           image: image_path,
+//           position: position_id,
+//           team_name: team_info.name
+//         };
+//       }
+//     });
+//   });
+//   var last_players_standing=[];
+//   player_arr.map((element) => {
+//     element.map((item) => {
+//       if (item != undefined){
+//         last_players_standing.push(item)
+//       }
+//     })});
+//   return last_players_standing;
+// }
+// exports.getAllRelevantPlayers = getAllRelevantPlayers;
