@@ -536,8 +536,6 @@ paths:
           description: Bad request
         '204':
           description: No Content
-          
-
 
   /players/playerFullDetails/{playerID}:
     get:
@@ -564,7 +562,6 @@ paths:
           description: No Content
         "404":
           description: playerID is not exists
-
 
   /teams/teamFullDetailsByID/{teamId}:
     get:
@@ -611,8 +608,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Team"
-        "404":
-          description: team name is not exists
+        "204":
+          description: No Content
   
   /matches/currentStageMatches:
     get:

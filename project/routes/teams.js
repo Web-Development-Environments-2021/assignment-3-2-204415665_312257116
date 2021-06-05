@@ -25,7 +25,13 @@ router.get("/teamFullDetailsByName/:teamName", async (req, res, next) => {
 
     const team_details = await teams_domain.getTeamDetailsByName(teamName);
     //we should keep implementing team page.....
-    res.send(team_details);
+    if (team_details == undefined){
+      res.sendStatus(204);
+    } else{
+      res.status(200).send(team_details);
+    }
+
+    
   } catch (error) {
     next(error);
   }

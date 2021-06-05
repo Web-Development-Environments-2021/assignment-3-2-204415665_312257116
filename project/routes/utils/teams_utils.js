@@ -31,6 +31,9 @@ async function getTeamIDByName(teamName) {
       },
     }
   );
+  if (team.data.data.length == 0){
+    return undefined;
+  }
   const teamID = team.data.data[0].id;
   return teamID;
 }
