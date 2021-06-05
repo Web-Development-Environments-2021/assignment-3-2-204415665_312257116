@@ -233,7 +233,7 @@ async function getAllRelevantPlayers(Search_Query, Query_info) {
   Query_info.forEach(team_info => {
     team_info.squad.data.forEach((player_info) => {
       const { player_id, position_id, fullname, image_path} = player_info.player.data;
-      if(fullname?.toLowerCase().includes(Search_Query.toLowerCase())){
+      if(fullname?.toLowerCase()?.includes(Search_Query?.toLowerCase())){
         last_players_standing.push({
             playerID: player_id,
             name: fullname,
