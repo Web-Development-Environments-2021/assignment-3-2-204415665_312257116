@@ -23,8 +23,9 @@ exports.getTeamFullInfo = getTeamFullInfo;
 /*------------------------------- getTeamIDByName -----------------------------------*/
 
 async function getTeamIDByName(teamName) {
-  const team = await axios.get(
-    `https://soccer.sportmonks.com/api/v2.0/teams/search/${teamName}`,
+  let url = encodeURI(`https://soccer.sportmonks.com/api/v2.0/teams/search/${teamName}`);
+
+  const team = await axios.get(url,
     {
       params: {
         api_token: process.env.api_token,
