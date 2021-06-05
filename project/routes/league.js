@@ -49,7 +49,10 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     //Extracting the relevant information from the query
     var badRequest = false;
     let Search_Query_arr=[];
-    const English_characters = (currentValue) => /^[a-zA-Z]+$/.test(currentValue);
+    // const EngCharactersTest = (currentValue) => /^[a-zA-Z]+$/.test(currentValue);
+
+    var format =  /[\d/`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
+    const charactersTest = (currentValue) => format.test(currentValue);
 
     const { Search_Query } = req.params;
     const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query;
@@ -57,8 +60,8 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     //Check that  The query contain only English characters
     Search_Query_arr = Search_Query.includes(' ') ? Search_Query.split(' ') : [Search_Query];
     
-    if (!Search_Query_arr.every(English_characters)){
-      message="The query must contain English characters only";
+    if (Search_Query_arr.every(charactersTest)){
+      message="The query must contain letters only";
       badRequest=true;
     }
 
@@ -81,7 +84,12 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     else{
           //Submitting the request for an auxiliary function - SQL_searchByQuery
           const results = await league_domain.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-          res.status(200).send(results);
+          if(results[Search_Type.toLowerCase()].length==0){
+            res.status(204).send("No Content: "+ Search_Type + " " + Search_Query + " Does not exist in the database.");
+          }
+          else{
+            res.status(200).send(results);
+          }
     }
 
     } catch (error) {
