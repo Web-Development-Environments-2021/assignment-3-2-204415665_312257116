@@ -44,7 +44,7 @@ router.get("/leagueManagementPage", async (req, res, next) => {
     resultResponse["featureMatches"] = futureMatchesWithReferees;
     
     if ( pastMatchesWithReferees.length == 0 &&  futureMatchesWithReferees == 0){
-      res.status(204).send(resultResponse);
+      res.sendStatus(204);
     } else{
       res.status(200).send(resultResponse);
     }
@@ -151,7 +151,7 @@ router.get("/addMatchResult", async (req, res, next) => {
     const pastMatchesWithoutResult = await unionAgent_domain.getPastMatchesToAddResult();
 
     if ( pastMatchesWithoutResult.length == 0 ){
-      res.status(204).send(pastMatchesWithoutResult);
+      res.sendStatus(204);
     } else{
       res.status(200).send(pastMatchesWithoutResult);
     }
@@ -221,7 +221,7 @@ router.get("/addMatchEventsLog", async (req, res, next) => {
     const pastMatchesWithAllInfo = await unionAgent_domain.getPastMatchesToAddEventLog();
 
     if ( pastMatchesWithAllInfo.length == 0 ){
-      res.status(204).send(pastMatchesWithAllInfo);
+      res.sendStatus(204);
     } else {
       res.status(200).send(pastMatchesWithAllInfo);
     }

@@ -1,6 +1,5 @@
 var express = require("express");
 var router = express.Router();
-const DButils = require("./utils/DButils");
 const matches_domain = require("./domains/matches_domain");
 
 
@@ -20,7 +19,7 @@ router.get("/currentStageMatches", async (req, res, next) => {
     resultResponse["futureMatches"] = futureMatches;
 
     if ( pastMatches.length == 0 && futureMatches.length == 0 ){
-      res.status(204).send(resultResponse);
+      res.sendStatus(204);
     } else {
       res.status(200).send(resultResponse);
     }
