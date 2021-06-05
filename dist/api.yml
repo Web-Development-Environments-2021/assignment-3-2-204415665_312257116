@@ -139,7 +139,7 @@ paths:
         '400':
           description: Bad request
 
-  /unionAgent/addMatch:
+  /unionAgent/match:
     get:
       tags:
         - UnionAgent
@@ -212,6 +212,28 @@ paths:
           description: Match added to league's matches successfully
         '400':
           description: Bad request
+    delete:
+      tags: 
+        - UnionAgent
+      summary: Delete from the league
+      description: Delete match from the league by union agent user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: Match's id needed to delete
+                  example: 20
+      responses:
+        '200':
+          description: Match deleted from league's matches successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Match not found
 
   /unionAgent/addMatchResult:
     get:

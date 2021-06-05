@@ -57,7 +57,7 @@ router.get("/leagueManagementPage", async (req, res, next) => {
  * This path gets body with match information and save new match in the matches DB
  */
 
- router.get("/addMatch", async (req, res, next) => {
+ router.get("/match", async (req, res, next) => {
   try {
 
     const dataForUnionAgent = await unionAgent_domain.getAllDataForAddMatch();
@@ -70,7 +70,7 @@ router.get("/leagueManagementPage", async (req, res, next) => {
 
 
 
-router.post("/addMatch", async (req, res, next) => {
+router.post("/match", async (req, res, next) => {
   try {
     const matchDate = req.body.matchInformation.matchDate;
     const localTeamName = req.body.matchInformation.localTeamName;
@@ -100,6 +100,40 @@ router.post("/addMatch", async (req, res, next) => {
   }
 });
 
+
+
+router.delete("/match", async (req, res, next) => {
+  try {
+    
+    const matchID = req.body.matchID;
+
+    var badRequest = false;
+    var message = "";
+    
+    var resultFromDomain = await unionAgent_domain.checkInputForDeleteMatch(matchID);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
+
+    if (!badRequest){
+
+      await unionAgent_domain.deleteMatch(matchID);
+      res.status(200).send( "Match deleted from league's matches successfully") ;
+
+    } else if ( badRequest && message != "Match not found" ){
+
+      res.status(400).send("Bad request - incorrect :  " + message);
+
+    } else {
+
+      res.status(404).send(message);
+
+    }
+
+  } catch (error) {
+    next(error);
+  }
+});
 
 //* ------------------------------ /addMatchResult ------------------------------ *//
 
