@@ -382,11 +382,11 @@ paths:
                   futureMatchesWithoutReferee:
                     type: array
                     items:
-                      $ref: '#/components/schemas/FutureMatchInformation'
+                      $ref: '#/components/schemas/FutureMatchWithoutReferee'
                   pastMatchesWithoutReferee:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PastMatchInformation'
+                      $ref: '#/components/schemas/PastMatchWithoutReferee'
         "401":
           description: User is not authorized
     put:
@@ -893,7 +893,85 @@ components:
           description: Match's event log
           items:
             $ref: '#/components/schemas/MatchEvent'
+
+    FutureMatchWithoutReferee:
+      type: object
+      description: The information about future match
+      required:
+        - matchDate
+        - localTeamName
+        - visitorTeamName
+        - venueName
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDate:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2021-07-02 12:00:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Viborg
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: Silkeborg
+        venueName:
+          type: string
+          description: The match stadium name
+          example: Sydbank Park
           
+    PastMatchWithoutReferee:
+      type: object
+      description: The information about past match
+      required:
+        - matchDateAndTime
+        - localTeamName
+        - visitorTeamName
+        - venueName
+        - localTeamScore
+        - visitorTeamScore
+        - eventsLog
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDateAndTime:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2020-08-02 15:30:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Midtjylland
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: AaB
+        venueName:
+          type: string
+          description: The match field's name
+          example: MCH Arena 
+        localTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 5
+        visitorTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 1
+        eventsLog:
+          type: array
+          description: Match's event log
+          items:
+            $ref: '#/components/schemas/MatchEvent'
+
     MatchEvent:
       type: object
       description: Match Event

@@ -158,7 +158,7 @@ router.get("/addMatchResult", async (req, res, next) => {
 
     const pastMatchesWithoutResult = await unionAgent_domain.getPastMatchesToAddResult();
 
-    if ( pastMatchesWithoutResult.length == 0 ){
+    if ( pastMatchesWithoutResult.pastMatchesWithoutResult.length == 0 ){
       res.sendStatus(204);
     } else{
       res.status(200).send(pastMatchesWithoutResult);
