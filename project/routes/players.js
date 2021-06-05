@@ -10,7 +10,7 @@ router.get("/playerFullDetails/:playerID", async (req, res, next) => {
 
     const playerFullDetails = await players_domain.extractRelevantPlayerData(player_id);
     if (!playerFullDetails[0]){
-      res.sendStatus(204);
+      res.status(404).send("player id is not exists");
     }
     else{
       res.status(200).send(playerFullDetails);

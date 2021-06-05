@@ -558,8 +558,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlayerFullInformation'
-        "204":
-          description: No Content
         "404":
           description: playerID is not exists
 
@@ -583,9 +581,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Team"
-        "204":
-          description: No Content       
+                $ref: "#/components/schemas/Team"  
         "404":
           description: teamId is not exists
 
@@ -610,8 +606,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Team"
-        "204":
-          description: No Content 
         "404":
           description: team name is not exists
   

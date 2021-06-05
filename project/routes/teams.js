@@ -11,7 +11,7 @@ router.get("/teamFullDetailsByID/:teamId", async (req, res, next) => {
     const team_details = await teams_domain.extractRelevantTeamData(req.params.teamId);
     //we should keep implementing team page.....
     if (!team_details[0]){
-      res.sendStatus(204);
+      res.status(404).send("team name is not exists");
     }
     else{
       res.status(200).send(team_details);
@@ -29,8 +29,8 @@ router.get("/teamFullDetailsByName/:teamName", async (req, res, next) => {
     const teamName = decodeURI(req.params.teamName);
 
     const team_details = await teams_domain.getTeamDetailsByName(teamName);
-    if(!team_details){
-      res.sendStatus(204);
+    if(!team_details[0]){
+      res.status(404).send("team name is not exists");
     }
     else{
       res.status(200).send(team_details);
