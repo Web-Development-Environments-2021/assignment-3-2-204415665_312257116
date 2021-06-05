@@ -88,8 +88,7 @@ async function GetAllMatchesWithoutReferee(){
         matchDate : matchDate,
         localTeamName : element.localTeamName,
         visitorTeamName : element.visitorTeamName,
-        venueName : element.venueName,
-        refereeInformation : {}
+        venueName : element.venueName
       });
     };
   });
@@ -104,8 +103,7 @@ async function GetAllMatchesWithoutReferee(){
         visitorTeamName : element.visitorTeamName,
         venueName : element.venueName,
         localTeamScore : element.localTeamScore,
-        visitorTeamScore : element.visitorTeamScore,
-        refereeInformation : {}
+        visitorTeamScore : element.visitorTeamScore
       });
     };
   });
