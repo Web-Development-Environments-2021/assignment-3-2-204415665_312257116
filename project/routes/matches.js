@@ -19,7 +19,12 @@ router.get("/currentStageMatches", async (req, res, next) => {
     resultResponse["pastMatches"] = pastMatches;
     resultResponse["futureMatches"] = futureMatches;
 
-    res.status(200).send(resultResponse);
+    if ( pastMatches.length == 0 && futureMatches.length == 0 ){
+      res.status(204).send(resultResponse);
+    } else {
+      res.status(200).send(resultResponse);
+    }
+    
   } catch (error) {
     next(error);
   }

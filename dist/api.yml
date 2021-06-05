@@ -160,6 +160,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FutureMatchInformation'
+        "204":
+          description: No Content
         '400':
           description: Bad request
 
@@ -232,7 +234,7 @@ paths:
                   description: The referee's ID
                   example: 1
       responses:
-        '200':
+        '201':
           description: Match added to league's matches successfully
         '400':
           description: Bad request
@@ -276,6 +278,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
         "401":
           description: User is not authorized
     put:
@@ -326,6 +330,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
         "401":
           description: User is not authorized
     put:
@@ -543,6 +549,7 @@ paths:
           required: true
           schema:
             type: integer
+          example: 26722
       responses:
         '200':
           description: Data about the player returned
@@ -623,8 +630,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FutureMatchInformation'
-        '400':
-          description: Bad request
+        "204":
+          description: No Content
 
 components:
   schemas:
@@ -746,27 +753,27 @@ components:
         commonName:
           type: string
           description: Player's common name
-          example: I. Israeli
+          example: S. Andersen
         nationality:
           type: string
           description: Player's nationality
-          example: Israeli
+          example: Denmark
         birthDate:
           type: string
           description: Player's birth date
-          example: "01/01/2020"
+          example: "26/11/1981"
         birthCountry:
           type: string
           description: Player's birth country
-          example: Israel
+          example: Denmark
         height:
           type: string
           description: Player's height
-          example: 175 cm
+          example: 190 cm
         weight:
           type: string
           description: Player's weight
-          example: 84 kg
+          example: 80 kg
 
     Team:
       type: object
@@ -821,19 +828,19 @@ components:
           type: string
           format: date-time
           description: Match's date and time of beginning
-          example: "2020-08-02 15:30:00"
+          example: "2021-07-02 12:00:00"
         localTeamName:
           type: string
           description: The local team name
-          example: Beitar Jerusalem
+          example: Viborg
         visitorTeamName:
           type: string
           description: The visitor team name
-          example: Hapoel Jerusalem
+          example: Silkeborg
         venueName:
           type: string
           description: The match stadium name
-          example: Teddy stadium
+          example: Sydbank Park
         refereeInformation:
           $ref: '#/components/schemas/Referee'
           
@@ -861,15 +868,15 @@ components:
         localTeamName:
           type: string
           description: The local team name
-          example: Beitar Jerusalem
+          example: Midtjylland
         visitorTeamName:
           type: string
           description: The visitor team name
-          example: Hapoel Jerusalem
+          example: AaB
         venueName:
           type: string
           description: The match field's name
-          example: Teddy stadium 
+          example: MCH Arena 
         localTeamScore:
           type: number
           description: The number of goals scored by the home team
