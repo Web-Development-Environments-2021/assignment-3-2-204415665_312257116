@@ -19,9 +19,9 @@ router.get("/teamFullDetailsByID/:teamId", async (req, res, next) => {
 
 //* ------------------------------ /teamFullDetails/:teamName ------------------------------ *//
 
-router.get("/teamFullDetailsByName", async (req, res, next) => {
+router.get("/teamFullDetailsByName/:teamName", async (req, res, next) => {
   try {
-    const teamName = decodeURI(req.query.teamName);
+    const teamName = decodeURI(req.params.teamName);
 
     const team_details = await teams_domain.getTeamDetailsByName(teamName);
     //we should keep implementing team page.....

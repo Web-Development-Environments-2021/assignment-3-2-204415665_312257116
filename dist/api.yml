@@ -574,38 +574,14 @@ paths:
         "404":
           description: teamId is not exists
 
-  # /teams/teamFullDetailsByName/{teamName}:
-  #   get:
-  #     summary: Get team's full details - By name
-  #     description: Useful for team page
-  #     tags:
-  #       - Teams
-  #     parameters:
-  #       - in: path
-  #         name: teamName
-  #         description: Team's Name
-  #         required: true
-  #         schema:
-  #           type: string
-  #         example: "Randers"
-  #     responses:
-  #       "200":
-  #         description: Data about the team
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/Team"
-  #       "404":
-  #         description: teamId is not exists
-
-  /teams/teamFullDetailsByName:
+  /teams/teamFullDetailsByName/{teamName}:
     get:
       summary: Get team's full details - By name
       description: Useful for team page
       tags:
         - Teams
       parameters:
-        - in: query
+        - in: path
           name: teamName
           description: Team's Name
           required: true
@@ -620,7 +596,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Team"
         "404":
-          description: teamId is not exists
+          description: team name is not exists
   
   /matches/currentStageMatches:
     get:
