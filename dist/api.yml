@@ -534,6 +534,9 @@ paths:
                         teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
         '400':
           description: Bad request
+        '204':
+          description: No Content
+          
 
 
   /players/playerFullDetails/{playerID}:

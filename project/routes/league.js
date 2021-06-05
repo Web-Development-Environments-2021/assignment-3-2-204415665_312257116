@@ -50,7 +50,7 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     var badRequest = false;
     let Search_Query_arr=[];
     // const EngCharactersTest = (currentValue) => /^[a-zA-Z]+$/.test(currentValue);
-
+    var message = null;
     var format =  /[\d/`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
     const charactersTest = (currentValue) => format.test(currentValue);
 
@@ -85,7 +85,8 @@ router.get("/search/:Search_Query", async (req, res, next) => {
           //Submitting the request for an auxiliary function - SQL_searchByQuery
           const results = await league_domain.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
           if(results[Search_Type.toLowerCase()].length==0){
-            res.status(204).send("No Content: "+ Search_Type + " " + Search_Query + " Does not exist in the database.");
+            message =Search_Type + " " + Search_Query + " Does not exist in the database.";
+            res.status(200).send(message);
           }
           else{
             res.status(200).send(results);
