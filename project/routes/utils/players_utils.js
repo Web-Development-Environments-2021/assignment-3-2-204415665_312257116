@@ -44,6 +44,7 @@ exports.getPlayersInfo = getPlayersInfo;
 
 async function getPlayerFullInfo(player_id) {
   let promises = [];
+  try{
     promises.push(
       axios.get(`${api_domain}/players/${player_id}`, {
         params: {
@@ -54,6 +55,11 @@ async function getPlayerFullInfo(player_id) {
     );
   let players_info = await Promise.all(promises);
   return players_info;
+
+  }catch (error) {
+    return undefined;
+  }
+
 }
 exports.getPlayerFullInfo = getPlayerFullInfo;
 
