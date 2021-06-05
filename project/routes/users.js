@@ -47,7 +47,6 @@ router.post("/favoriteMatches", async (req, res, next) => {
     else{
       res.status(400).send("Bad request - incorrect :  " + message);
     }
-    
   } catch (error) {
     next(error);
   }
