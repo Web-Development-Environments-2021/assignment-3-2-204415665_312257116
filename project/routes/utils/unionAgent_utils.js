@@ -86,6 +86,43 @@ async function addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eve
 exports.addEvent = addEvent;
 
 
+//* ------------------------------ Remove Event ------------------------------ *//
+
+async function removeEvent(matchID, eventID){
+
+  if ( await checkIfEventExist(matchID, eventID)){
+
+    await DButils.execQuery(
+      `delete from MatchEvents where matchID='${matchID}' and eventID='${eventID}' `
+    );
+
+    return true;
+
+  }
+  return false;
+  
+}
+exports.removeEvent = removeEvent;
+
+
+//* ------------------------------ check If Event Exist------------------------------ *//
+
+async function checkIfEventExist(matchID, eventID){
+
+  const event = await DButils.execQuery(
+    `select * from MatchEvents where matchID='${matchID}' and eventID='${eventID}' `
+  );
+
+  if (event.length == 0){
+    return false;
+  }
+
+  return true;
+  
+}
+exports.checkIfEventExist = checkIfEventExist;
+
+
 //* ------------------------------ Get Referee By ID ------------------------------ *//
 
 async function getRefereeByID(refereeID){

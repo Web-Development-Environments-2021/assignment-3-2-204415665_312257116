@@ -262,6 +262,29 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
   }
 });
 
+router.delete("/addMatchEventsLog", async (req, res, next) => {
+  try {
+
+    const matchID = req.body.matchID;
+    const eventID = req.body.eventID;
+
+    var badRequest = false;
+    var message = "";
+    var resultFromDomain =  await unionAgent_domain.removeMatch(matchID, eventID);
+
+    badRequest = resultFromDomain.badRequest;
+    message = resultFromDomain.message;
+    
+    if (badRequest){
+      res.status(400).send("Bad request - incorrect :  " + message);
+    } else {
+      res.status(200).send("Event deleted from match's events log successfully");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 //* ------------------------------ /addRefereeToMatch ------------------------------ *//
 

@@ -408,6 +408,15 @@ async function InsertMatchEventLog(matchID, eventsLog){
   var badRequest = false;
   var message = "";
 
+  if ( !Number.isInteger(matchID) ){
+    badRequest = true;
+    message += "matchID not int,";
+  }
+  
+  if ( badRequest ){
+    return { badRequest : badRequest, message : message };
+  }
+
   const match = await matches_utils.getPastMatchByID(matchID);
 
   if (match.length != 0){
@@ -458,7 +467,7 @@ async function InsertMatchEventLog(matchID, eventsLog){
 exports.InsertMatchEventLog = InsertMatchEventLog;
 
 
-//* ------------------------------ Get Past Matches Without Result ------------------------------ *//
+//* ------------------------------ Calculate Event Date Time ------------------------------ *//
 
 function calculateEventDateTime(matchDateAndTime, minuteInMatch){
 
@@ -473,6 +482,48 @@ function calculateEventDateTime(matchDateAndTime, minuteInMatch){
     
 }
 exports.calculateEventDateTime = calculateEventDateTime;
+
+
+//* ------------------------------ remove Match Event  ------------------------------ *//
+    
+async function removeMatch(matchID, eventID){
+    
+  var badRequest = false;
+  var message = "";
+
+  if ( ! Number.isInteger(matchID) ){
+    badRequest = true;
+    message += "matchID not int,";
+  }
+
+  if ( ! Number.isInteger(eventID) ){
+    badRequest = true;
+    message += "eventID not int,";
+  }
+
+  if ( badRequest ){
+    return { badRequest : badRequest, message : message };
+  }
+  const match = await matches_utils.getPastMatchByID(matchID);
+
+  if (match.length != 0){
+
+    var resultFromUtils = await unionAgent_utils.removeEvent(matchID, eventID);
+
+    if ( ! resultFromUtils ){
+      badRequest = true;
+      message += "match event doesn't exist"
+    }
+    
+  } else{
+    badRequest = true;
+    message += " match doesn't exist";
+  }
+
+  return { badRequest : badRequest, message : message };
+
+}
+exports.removeMatch = removeMatch;
 
 
 //* ------------------------------ Get Past Matches To Add Referee ------------------------------ *//

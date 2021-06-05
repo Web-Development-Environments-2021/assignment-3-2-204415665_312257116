@@ -8,7 +8,7 @@ tags:
   - name: Users
   - name: UnionAgent
   - name: League
-  - name: PlayersW
+  - name: Players
   - name: Teams
   - name: Matches
   
@@ -348,7 +348,7 @@ paths:
               properties:
                 matchID:
                   type: number
-                  description: The match's ID to add result
+                  description: The match's ID to add events log
                   example: 939
                 eventsLog:
                   type: array
@@ -358,6 +358,31 @@ paths:
       responses:
         '200':
           description: Events log added match successfully
+        '400':
+          description: Bad request
+    delete:
+      tags: 
+        - UnionAgent
+      summary: Delete match event 
+      description: Delete event from match's events log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID
+                  example: 20
+                eventID:
+                  type: number
+                  description: Event's ID to delete
+                  example: 10
+      responses:
+        '200':
+          description: Event deleted from match's events log successfully
         '400':
           description: Bad request
   
@@ -1004,6 +1029,10 @@ components:
         - minuteInMatch
         - eventType
       properties:
+        eventID:
+          type: number
+          description: event's ID number
+          example: 10
         eventTimeAndDate:
           type: string
           format: date-time

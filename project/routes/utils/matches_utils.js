@@ -103,6 +103,7 @@ async function extractEventLog(matchID){
   event = event.map((element) => {
     next = element.nextMatchEventID;
     return {
+      eventID : element.eventID,
       eventTimeAndDate :  matches_domain.getDateTimeDisplayFormat(element.eventTimeAndDate),
       minuteInMatch : element.minuteInMatch,
       eventType : element.eventType,
