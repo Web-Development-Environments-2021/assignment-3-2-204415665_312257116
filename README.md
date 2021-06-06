@@ -27,12 +27,12 @@ Put :
 - Add result to match.
 
 # /addMatchEventsLog :
-Get :
-- Return all the data the union agent need for add match events log.
-Post : 
-- Add events log to match.
-Delete :
-- Delete event from match's events log.
+- Get :
+    - Return all the data the union agent need for add match events log.
+- Post : 
+    - Add events log to match.
+- Delete :
+    - Delete event from match's events log.
 
 # /addRefereeToMatch :
 Get :
