@@ -3,13 +3,17 @@ var router = express.Router();
 const DButils = require("../routes/utils/DButils");
 const bcrypt = require("bcryptjs");
 
+
+
+//* ------------------------------ /Register ------------------------------ *//
+
 router.post("/Register", async (req, res, next) => {
   try {
     // parameters exists
     // valid parameters
     // username exists
     const users = await DButils.execQuery(
-      "SELECT username FROM dbo.users_tirgul"
+      "SELECT username FROM dbo.Users"
     );
 
     if (users.find((x) => x.username === req.body.username))
@@ -24,7 +28,8 @@ router.post("/Register", async (req, res, next) => {
 
     // add the new username
     await DButils.execQuery(
-      `INSERT INTO dbo.users_tirgul (username, password) VALUES ('${req.body.username}', '${hash_password}')`
+      `INSERT INTO dbo.Users (username, password, firstname, lastname, country, email, image_url) 
+      VALUES ('${req.body.username}', '${hash_password}', '${req.body.firstname}', '${req.body.lastname}', '${req.body.country}', '${req.body.email}', '${req.body.image_url}')`
     );
     res.status(201).send("user created");
   } catch (error) {
@@ -32,11 +37,14 @@ router.post("/Register", async (req, res, next) => {
   }
 });
 
+
+//* ------------------------------ /Login ------------------------------ *//
+
 router.post("/Login", async (req, res, next) => {
   try {
     const user = (
       await DButils.execQuery(
-        `SELECT * FROM dbo.users_tirgul WHERE username = '${req.body.username}'`
+        `SELECT * FROM dbo.Users WHERE username = '${req.body.username}'`
       )
     )[0];
     // user = user[0];
@@ -57,9 +65,14 @@ router.post("/Login", async (req, res, next) => {
   }
 });
 
+
+//* ------------------------------ /Logout ------------------------------ *//
+
 router.post("/Logout", function (req, res) {
   req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
   res.send({ success: true, message: "logout succeeded" });
 });
+
+
 
 module.exports = router;

@@ -1,10 +1,16 @@
-//#region global imports
+/*
+Server=tcp:daniel-moshe.database.windows.net,1433;Initial Catalog=Web_Dev_Ass_3;Persist Security Info=False;User ID=Dini_Moses;Password=Mo204415665;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30; 
+*/
+//* ------------------------------ Global Imports ------------------------------ *//
+
 const DButils = require("./routes/utils/DButils");
 const axios = require("axios");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
-//#endregion
-//#region express configures
+
+
+//* ------------------------------ express Configures ------------------------------ *//
+ 
 var express = require("express");
 var path = require("path");
 const session = require("client-sessions");
@@ -47,17 +53,24 @@ app.options("*", cors(corsConfig));
 
 const port = process.env.PORT || "3000";
 
+
+//* ------------------------------ Require ------------------------------ *//
+
 const auth = require("./routes/auth");
 const users = require("./routes/users");
 const league = require("./routes/league");
 const teams = require("./routes/teams");
 
-//#endregion
+const unionAgent = require("./routes/unionAgent");
+const players = require("./routes/players");
+const matches = require("./routes/matches");
 
-//#region cookie middleware
+
+//* ------------------------------ Cookie middleware ------------------------------ *//
+
 app.use(function (req, res, next) {
   if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT user_id FROM users")
+    DButils.execQuery("SELECT user_id FROM Users")
       .then((users) => {
         if (users.find((x) => x.user_id === req.session.user_id)) {
           req.user_id = req.session.user_id;
@@ -69,16 +82,26 @@ app.use(function (req, res, next) {
     next();
   }
 });
-//#endregion
 
-// ----> For cheking that our server is alive
+
+//* ------------------ For checking that our server is alive ------------------------ *//
+
 app.get("/alive", (req, res) => res.send("I'm alive"));
 
-// Routings
+
+//* ------------------------------ Routings ------------------------------ *//
+
 app.use("/users", users);
 app.use("/league", league);
 app.use("/teams", teams);
+
+app.use("/unionAgent", unionAgent);
+app.use("/players", players);
+app.use("/matches", matches);
+
 app.use(auth);
+
+
 
 app.use(function (err, req, res, next) {
   console.error(err);

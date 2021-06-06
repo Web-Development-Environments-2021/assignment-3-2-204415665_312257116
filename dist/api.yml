@@ -4,12 +4,15 @@ info:
   description: API for  project
   version: 1.0.0
 tags:
-  - name: Users
   - name: Auth
+  - name: Users
+  - name: UnionAgent
   - name: League
   - name: Players
   - name: Teams
-  - name: Games
+  - name: Matches
+  
+
 paths:
   /Register:
     post:
@@ -27,7 +30,8 @@ paths:
         "201":
           description: A new user has been added
         "400":
-          description: wrong input parameters
+          description: Wrong input parameters
+
   /Login:
     post:
       tags:
@@ -43,7 +47,7 @@ paths:
       responses:
         "200":
           description: >
-            User was found in the DB and authenitcated successfully.
+            User was found in the DB and authenticated successfully.
             The session ID is returned in a cookie named `session`. 
             You should include this cookie in subsequent requests
           # headers:
@@ -54,90 +58,617 @@ paths:
             # Note that the Set-Cookie header and securitySchemes are not connected in any way, and the Set-Header definition is for documentation purposes only.
         "401":
           description: Authentication failed
+
   /logout:
     post:
       tags:
         - Auth
-      summary: logout a user from the system and delete his cookie
+      summary: Logout a user from the system and delete his cookie
       responses:
         "200":
-          description: "the user has ben successfully logged out"
-  /league/getDetails:
-    get:
-      tags:
-        - league
-      summary: Return the details about the current league
-      responses:
-        "200":
-          description: data about the current league returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/League"
+          description: "The user has ben successfully logged out"
         "400":
-          description: wrong input parameters
-  /users/favoritePlayers:
+          description: Bad request
+
+  /users/favoriteMatches:
     get:
       tags:
         - Users
-        - Players
-      summary: Return the favorite players that were saved by user
-      parameters:
+      summary: Return the favorite matches that were saved by user
       responses:
         "200":
-          description: data about the user's favorites players returned
+          description: Data about the user's favorites matches returned
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PlayerPreview"
+                  $ref: "#/components/schemas/FutureMatchInformation"
         "401":
-          description: user is not authorized
+          description: User is not authorized
+        '204':
+          description: No Content
     post:
-      summary: save player in the favorites list of a user
+      summary: Save match in the favorites list of a user
       tags:
         - Users
-        - Players
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                playerId:
-                  type: string
-                  description: player's id which the user saved
+                matchId:
+                  type: integer
+                  description: Match's id which the user saved
                   example: 85
       responses:
         "201":
-          description: The player successfully saved as favorite
+          description: The match successfully saved as favorite
         "401":
-          description: user is not authorized
-  /teams/teamFullDetails/{teamId}:
+          description: User is not authorized
+        '400':
+          description: Bad request
+    delete:
+      tags: 
+        - Users
+      summary: Delete favorite match
+      description: Delete favorite match from user's favorite matches
+      parameters:
+      - in: query
+        name: matchID
+        description:  Match's id needed to delete
+        schema:
+          type: integer
+          example: 20
+      responses:
+        '200':
+          description: Match deleted from user's favorite matches successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Match not found
+          
+  /unionAgent/leagueManagementPage:
     get:
-      summary: get full deatils about a team
-      description: useful for team page
+      tags:
+        - UnionAgent
+      summary: Return all league matches
+      description: All league matches that exists in the system
+      parameters: 
+      - in: query
+        name: sortBy
+        description: Sort matches by "Date" or team name or leave empty 
+        schema:
+          type: string
+          example: "Date"
+      responses:
+        '200':
+          description: The league management page uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+                  futureMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FutureMatchInformation'
+        "204":
+          description: No Content
+        '400':
+          description: Bad request
+
+  /unionAgent/match:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for new match
+      responses:
+        "200":
+          description: Data the agent need for new match returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teamsNames:
+                    type: array
+                    items:
+                      type: string
+                      description: Team name in our league
+                      example: "Midtjylland"
+                  venuesNames:
+                    type: array
+                    items:
+                      type: string
+                      description: Venue name in out league
+                      example: "MCH Arena"
+                  referees:
+                    type: array
+                    items:
+                     $ref: '#/components/schemas/Referee'
+        "401":
+          description: User is not authorized
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add match to the league
+      description: Add match to the league by union agent user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchInformation:
+                  type: object
+                  properties:
+                    matchDate:
+                      type: string
+                      format: date-time
+                      description: Match's date and time of beginning
+                      example: "2021-07-02 12:00:00"
+                    localTeamName:
+                      type: string
+                      description: Local team Name
+                      example: Viborg
+                    visitorTeamName:
+                      type: string
+                      description: Visitor team name
+                      example: Silkeborg
+                    venueName:
+                      type: string
+                      description: Venue name
+                      example: Sydbank Park
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 1
+      responses:
+        '201':
+          description: Match added to league's matches successfully
+        '400':
+          description: Bad request
+    delete:
+      tags: 
+        - UnionAgent
+      summary: Delete match from the league
+      description: Delete match from the league by union agent user
+      parameters:
+      - in: query
+        name: matchID
+        description:  Match's id needed to delete
+        schema:
+          type: integer
+          example: 20
+      responses:
+        '200':
+          description: Match deleted from league's matches successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Match not found
+
+  /unionAgent/addMatchResult:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for add match result
+      responses:
+        "200":
+          description: Data the agent need for add match result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatchesWithoutResult:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
+        "401":
+          description: User is not authorized
+    put:
+      tags: 
+        - UnionAgent
+      summary: Add result to match
+      description: Add result to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add result
+                localTeamScore:
+                  type: number
+                  description: The number of goals scored by the home team
+                visitorTeamScore:
+                  type: number
+                  description: The number of goals scored by the home team
+              example: 
+                matchID: 939
+                localTeamScore: 5
+                visitorTeamScore: 1
+      responses:
+        '200':
+          description: Result added to match successfully
+        '400':
+          description: Bad request
+  
+  /unionAgent/addMatchEventsLog:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all the data the agent need for add match event log
+      responses:
+        "200":
+          description: Data the agent need for add match match event log
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatchesWithAllInfo:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+        "204":
+          description: No Content
+        "401":
+          description: User is not authorized
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add events log to match
+      description: Add events log to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add events log
+                  example: 939
+                eventsLog:
+                  type: array
+                  description: Match's event log
+                  items:
+                    $ref: '#/components/schemas/MatchEventInsertion'
+      responses:
+        '200':
+          description: Events log added match successfully
+        '400':
+          description: Bad request
+    delete:
+      tags: 
+        - UnionAgent
+      summary: Delete match event 
+      description: Delete event from match's events log
+      parameters:
+      - in: query
+        name: matchID
+        description:  The match's ID
+        schema:
+          type: integer
+          example: 20
+      - in: query
+        name: eventID
+        description:  Event's ID to delete
+        schema:
+          type: integer
+          example: 10
+      responses:
+        '200':
+          description: Event deleted from match's events log successfully
+        '400':
+          description: Bad request
+  
+  /unionAgent/addRefereeToMatch:
+    get:
+      tags:
+        - UnionAgent
+      summary: Return all referees and matches without referee
+      responses:
+        "200":
+          description: Data the agent need for add referee returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referees:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Referee'
+                  futureMatchesWithoutReferee:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FutureMatchWithoutReferee'
+                  pastMatchesWithoutReferee:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchWithoutReferee'
+        "401":
+          description: User is not authorized
+    post:
+      tags: 
+        - UnionAgent
+      summary: Add referee to match
+      description: Add referee to match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add referee
+                  example: 939
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 252
+      responses:
+        '200':
+          description: Referee added to match successfully
+        '400':
+          description: Bad request
+    put:
+      tags: 
+        - UnionAgent
+      summary: Update referee in match
+      description: Update referee in match in the league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchID:
+                  type: number
+                  description: The match's ID to add referee
+                  example: 939
+                refereeID:
+                  type: number
+                  description: The referee's ID
+                  example: 252
+      responses:
+        '200':
+          description: Referee updated in match successfully
+        '400':
+          description: Bad request
+
+  /league/getDetails:
+    get:
+      tags:
+        - League
+      summary: Return the details about the current league
+      responses:
+        "200":
+          description: Data about the current league returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leagueDetails:
+                    $ref: "#/components/schemas/League"
+                  userFavoriteMatches:
+                    type: array
+                    description: For logged in user - maximum 3 Favorite Matches
+                    items:
+                      $ref: "#/components/schemas/FutureMatchInformation"
+        "400":
+          description: Wrong input parameters
+
+  /league/search/{Search_Query}:
+    get:
+      tags: 
+        - League
+      summary: Return search results
+      description: Returns all results according to the user's search query - from partial or full query 
+      parameters: 
+        - name: Search_Query
+          in: path
+          description: User's search query
+          required: true
+          schema:
+            type: string
+            example: vic
+        - name: Search_Type
+          in: query
+          description: Search on teams or players 
+          required: true
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+              - Players
+              - Teams
+        - name: Sort_Teams_Alphabetical
+          in: query
+          description: Sort the teams by names in alphabetical order 
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum: 
+              - no
+              - yes
+        - name: Sort_Players
+          in: query
+          description: Sort the players
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum: 
+              - no
+              - yes
+        - name: Sort_Players_By
+          in: query
+          description: Sort the players by name or team name
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              enum: 
+              - own name
+              - team name
+        - name: Filter_Players
+          in: query
+          description: Filter the players/ by position or team name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:   
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlayerPreview'
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamName:
+                          type: string
+                        teamLogo:
+                          type: string
+                          format: URL
+                      example:
+                        teamName: Beitar Jerusalem
+                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        '400':
+          description: Bad request
+        '204':
+          description: No Content
+
+  /players/playerFullDetails/{playerID}:
+    get:
+      summary: Get full details about a player
+      description: Useful for player page
+      tags:
+        - Players
+      parameters:
+        - in: path
+          name: playerID
+          description: Player's id
+          required: true
+          schema:
+            type: integer
+          example: 26722
+      responses:
+        '200':
+          description: Data about the player returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerFullInformation'
+        "404":
+          description: playerID is not exists
+
+  /teams/teamFullDetailsByID/{teamId}:
+    get:
+      summary: Get team's full details - By ID
+      description: Useful for team page
       tags:
         - Teams
       parameters:
         - in: path
           name: teamId
-          description: team's id
+          description: Team's id
           required: true
           schema:
             type: integer
+          example: 85
       responses:
         "200":
-          description: data about the team
+          description: Data about the team
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"  
+        "404":
+          description: teamId is not exists
+
+  /teams/teamFullDetailsByName/{teamName}:
+    get:
+      summary: Get team's full details - By name
+      description: Useful for team page
+      tags:
+        - Teams
+      parameters:
+        - in: path
+          name: teamName
+          description: Team's Name
+          required: true
+          schema:
+            type: string
+          example: "Randers"
+      responses:
+        "200":
+          description: Data about the team
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Team"
         "404":
-          description: teamId is not exists
+          description: team name is not exists
+  
+  /matches/currentStageMatches:
+    get:
+      tags:
+        - Matches
+      summary: Return current stage matches information
+      description: The current stage page with all relevant information
+      responses:
+        "200":
+          description: Data about the current stage matches returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pastMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PastMatchInformation'
+                  futureMatches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FutureMatchInformation'
+        "204":
+          description: No Content
+
 components:
   schemas:
     User:
@@ -147,7 +678,7 @@ components:
           maxLength: 8
           minLength: 3
           type: string
-          description: username conatins between 3 to 8 letters only
+          description: username contains between 3 to 8 letters only
           example: ladygaga
         firstname:
           type: string
@@ -166,7 +697,7 @@ components:
           minLength: 5
           type: string
           description:
-            password conatins between 5 to 10 chars, at least one of them
+            password contains between 5 to 10 chars, at least one of them
             is a number and a special char
           format: password
           example: lady@56
@@ -175,12 +706,13 @@ components:
           type: string
           description: user's email
           example: ladygaga@gmail.com
-        image-url:
+        image_url:
           pattern: URL
           type: string
           description: URL for the user's image
           example: https://cloudinary.com/
       description: Model containing user info
+
     LoginScheme:
       type: object
       properties:
@@ -188,15 +720,16 @@ components:
           type: string
           minLength: 3
           maxLength: 8
-          description: username conatins letters only
+          description: username contains letters only
           example: naorbe
         password:
           type: string
           minLength: 5
           maxLength: 10
           format: password
-          description: password conatins at least one number and one special char
+          description: password contains at least one number and one special char
           example: naor@55
+
     League:
       type: object
       properties:
@@ -212,9 +745,16 @@ components:
           type: string
           description: current stage name
           example: Championship Round
+        first_next_match:
+          $ref: '#/components/schemas/FutureMatchInformation'
+
     PlayerPreview:
       type: object
       properties:
+        playerID:
+          type: number
+          description: Player's ID
+          example: 1 
         name:
           type: string
           description: player's name
@@ -232,15 +772,325 @@ components:
           type: string
           description: player's team name
           example: København
+
+    PlayerFullInformation:
+      type: object
+      description: Player's full information for personal page
+      required:
+        - playerShortInfo
+        - commonName
+        - nationality
+        - birthDate
+        - birthCountry
+        - height
+      properties:
+        playerShortInfo:
+          $ref: '#/components/schemas/PlayerPreview'
+        commonName:
+          type: string
+          description: Player's common name
+          example: S. Andersen
+        nationality:
+          type: string
+          description: Player's nationality
+          example: Denmark
+        birthDate:
+          type: string
+          description: Player's birth date
+          example: "26/11/1981"
+        birthCountry:
+          type: string
+          description: Player's birth country
+          example: Denmark
+        height:
+          type: string
+          description: Player's height
+          example: 190 cm
+        weight:
+          type: string
+          description: Player's weight
+          example: 80 kg
+
     Team:
       type: object
       properties:
-        name:
+        TeamID:
+          type: number
+          description: Team's ID
+          example: 1 
+        teamLogo:
           type: string
-          description: team name
-          example: København
-        players:
+          format: url
+          description: Link for team's logo
+          example: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        teamName:
+          type: string
+          description: Team's name
+          example: Beitar Jerusalem
+        teamShortCode:
+          type: string
+          description: Team's short name
+          example: BJ
+        teamSquad:
           type: array
+          description: Team's players
           items:
-            type: object
-            $ref: "#/components/schemas/PlayerPreview"
+            $ref: '#/components/schemas/PlayerPreview'
+        futureMatches:
+          type: array
+          description: Team's future matches
+          items:
+            $ref: '#/components/schemas/FutureMatchInformation'
+        pastMatches:
+          type: array
+          description: Team's past matches
+          items:
+            $ref: '#/components/schemas/PastMatchInformation'
+            
+    FutureMatchInformation:
+      type: object
+      description: The information about future match
+      required:
+        - matchDate
+        - localTeamName
+        - visitorTeamName
+        - venueName
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDate:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2021-07-02 12:00:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Viborg
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: Silkeborg
+        venueName:
+          type: string
+          description: The match stadium name
+          example: Sydbank Park
+        refereeInformation:
+          $ref: '#/components/schemas/Referee'
+          
+    PastMatchInformation:
+      type: object
+      description: The information about past match
+      required:
+        - matchDateAndTime
+        - localTeamName
+        - visitorTeamName
+        - venueName
+        - localTeamScore
+        - visitorTeamScore
+        - eventsLog
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDateAndTime:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2020-08-02 15:30:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Midtjylland
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: AaB
+        venueName:
+          type: string
+          description: The match field's name
+          example: MCH Arena 
+        localTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 5
+        visitorTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 1
+        refereeInformation:
+          $ref: '#/components/schemas/Referee'
+        eventsLog:
+          type: array
+          description: Match's event log
+          items:
+            $ref: '#/components/schemas/MatchEvent'
+
+    FutureMatchWithoutReferee:
+      type: object
+      description: The information about future match
+      required:
+        - matchDate
+        - localTeamName
+        - visitorTeamName
+        - venueName
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDate:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2021-07-02 12:00:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Viborg
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: Silkeborg
+        venueName:
+          type: string
+          description: The match stadium name
+          example: Sydbank Park
+          
+    PastMatchWithoutReferee:
+      type: object
+      description: The information about past match
+      required:
+        - matchDateAndTime
+        - localTeamName
+        - visitorTeamName
+        - venueName
+        - localTeamScore
+        - visitorTeamScore
+        - eventsLog
+      properties:
+        matchID:
+          type: number
+          description: Match's ID
+          example: 1 
+        matchDateAndTime:
+          type: string
+          format: date-time
+          description: Match's date and time of beginning
+          example: "2020-08-02 15:30:00"
+        localTeamName:
+          type: string
+          description: The local team name
+          example: Midtjylland
+        visitorTeamName:
+          type: string
+          description: The visitor team name
+          example: AaB
+        venueName:
+          type: string
+          description: The match field's name
+          example: MCH Arena 
+        localTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 5
+        visitorTeamScore:
+          type: number
+          description: The number of goals scored by the home team
+          example: 1
+        eventsLog:
+          type: array
+          description: Match's event log
+          items:
+            $ref: '#/components/schemas/MatchEvent'
+
+    MatchEvent:
+      type: object
+      description: Match Event
+      required:
+        - eventTimeAndDate
+        - minuteInMatch
+        - eventType
+      properties:
+        eventID:
+          type: number
+          description: event's ID number
+          example: 10
+        eventTimeAndDate:
+          type: string
+          format: date-time
+          description: The date and time the event occurred 
+          example: "2020-08-02 15:30:00"
+        minuteInMatch:
+          type: number
+          description: The minute in match the event occurred
+          example: 10
+        eventType:
+          type: string
+          description: Type of the match event
+          example: Goal
+          enum: 
+          - Goal
+          - Offside
+          - Red Card
+          - Yellow Card
+          - Injury
+          - Subsitute
+        eventDescription:
+          type: string
+          description: More information about the event
+          example: Yellow card to Messi
+          
+    MatchEventInsertion:
+      type: object
+      description: Match Event Insertion Template
+      required:
+        - minuteInMatch
+        - eventType
+      properties:
+        minuteInMatch:
+          type: number
+          description: The minute in match the event occurred
+          example: 10
+        eventType:
+          type: string
+          description: Type of the match event
+          example: Goal
+          enum: 
+          - Goal
+          - Offside
+          - Red Card
+          - Yellow Card
+          - Injury
+          - Subsitute
+        eventDescription:
+          type: string
+          description: More information about the event
+          example: Yellow card to Messi
+
+    Referee:
+      type: object
+      description: Referee information
+      properties:
+        refereeID:
+          type: number
+          description: Referee's ID
+          example: 10
+        firstname:
+          type: string
+          description: Referee's first name
+          example: Stefani
+        lastname:
+          type: string
+          description: Referee's last name
+          example: Germanotta
+        course:
+          type: string
+          description: Referee's course
+          example: Regular
+          enum: 
+          - Regular
+          - Main

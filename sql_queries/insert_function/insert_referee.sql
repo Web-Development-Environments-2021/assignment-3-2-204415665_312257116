@@ -1,0 +1,1 @@
+insert into Referee values ('dini','pinchas','Regular')

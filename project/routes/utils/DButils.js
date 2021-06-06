@@ -1,6 +1,9 @@
 require("dotenv").config();
 const sql = require("mssql");
 
+
+//* ------------------------------ Configuration ------------------------------ *//
+
 const config = {
   user: process.env.tedious_userName,
   password: process.env.tedious_password,
@@ -12,8 +15,14 @@ const config = {
   }
 };
 
+
+//* ------------------------------ SQL Connection ------------------------------ *//
+
 const pool = new sql.ConnectionPool(config);
 const poolConnect = pool.connect();
+
+
+//* ------------------------------ execQuery ------------------------------ *//
 
 exports.execQuery = async function (query) {
   await poolConnect;
@@ -25,6 +34,7 @@ exports.execQuery = async function (query) {
     throw err;
   }
 };
+
 
 // process.on("SIGINT", function () {
 //   if (pool) {
