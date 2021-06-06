@@ -12,7 +12,7 @@ tags:
   - name: Teams
   - name: Matches
   
-  
+
 paths:
   /Register:
     post:
@@ -483,7 +483,7 @@ paths:
       tags: 
         - League
       summary: Return search results
-      description: Returns all results according to the user's search query
+      description: Returns all results according to the user's search query - from partial or full query 
       parameters: 
         - name: Search_Query
           in: path
