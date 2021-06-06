@@ -7,15 +7,6 @@ Daniel Dinshtein - 312257116
 username - daniMoshe
 password - danimosh@21
 
-# Azure DataBase Details :
-
-tedious_userName=Dini_Moses
-tedious_password=Mo204415665
-tedious_server=daniel-moshe.database.windows.net
-tedious_database=Web_Dev_Ass_3
-
-api_token=Yq2M5wheg1420CauZ29loA4zfFtxFSFG0WQNfuWpl628KUdjkAYHrEEa9M4b
-bcrypt_saltRounds=13
 
 # Union Agent Bonus :
 

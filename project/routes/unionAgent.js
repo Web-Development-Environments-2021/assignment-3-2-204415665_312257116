@@ -117,7 +117,7 @@ router.post("/match", async (req, res, next) => {
 router.delete("/match", async (req, res, next) => {
   try {
     
-    const matchID = req.body.matchID;
+    const matchID = req.params.matchID;
 
     var badRequest = false;
     var message = "";
@@ -265,8 +265,8 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
 router.delete("/addMatchEventsLog", async (req, res, next) => {
   try {
 
-    const matchID = req.body.matchID;
-    const eventID = req.body.eventID;
+    const matchID = req.params.matchID;
+    const eventID = req.params.eventID;
 
     var badRequest = false;
     var message = "";
