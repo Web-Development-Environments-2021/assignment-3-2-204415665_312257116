@@ -146,7 +146,7 @@ async function checkInputForAddMatch(matchDate, localTeamName, visitorTeamName, 
   badRequest = resultFromUtils.badRequest;
   message = resultFromUtils.message;
 
-  if ( ! matchDate.test(/^(\d{4})\-(\d{2})\-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/) ){
+  if ( ! (/^(\d{4})\-(\d{2})\-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/).test(matchDate) ){
     badRequest = true;
     message += " match's date not in the right format";
   }
