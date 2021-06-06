@@ -118,7 +118,7 @@ paths:
         name: matchID
         description:  Match's id needed to delete
         schema:
-          type: number
+          type: integer
           example: 20
       responses:
         '200':
