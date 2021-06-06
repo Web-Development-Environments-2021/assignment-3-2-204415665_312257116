@@ -77,15 +77,25 @@ router.get("/favoriteMatches", async (req, res, next) => {
 router.delete("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const matchID = req.query.matchID;
+    const match_ID = req.query.matchID;
 
     var badRequest = false;
     var message = "";
     
-    var resultFromDomain = await user_domain.deleteUserFavoriteMatch(user_id, matchID);
+    try{
+      var matchID = parseInt(match_ID);
 
-    badRequest = resultFromDomain.badRequest;
-    message = resultFromDomain.message;
+      var resultFromDomain = await user_domain.deleteUserFavoriteMatch(user_id, matchID);
+
+      badRequest = resultFromDomain.badRequest;
+      message = resultFromDomain.message;
+
+    } catch(error){
+      badRequest = true;
+      message += " matchID is not int,"
+    }
+
+    
 
     if (!badRequest){
 

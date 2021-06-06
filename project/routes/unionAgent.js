@@ -117,15 +117,23 @@ router.post("/match", async (req, res, next) => {
 router.delete("/match", async (req, res, next) => {
   try {
     
-    const matchID = req.query.matchID;
+    const match_ID = req.query.matchID;
 
     var badRequest = false;
-    var message = "";
-    
-    var resultFromDomain = await unionAgent_domain.checkInputForDeleteMatch(matchID);
+    var  message = "";
 
-    badRequest = resultFromDomain.badRequest;
-    message = resultFromDomain.message;
+    try{
+      var matchID = parseInt(match_ID);
+
+      var resultFromDomain = await unionAgent_domain.checkInputForDeleteMatch(matchID);
+
+      badRequest = resultFromDomain.badRequest;
+      message = resultFromDomain.message;
+
+    } catch(error){
+      badRequest = true;
+      message += " matchID is not int,"
+    }
 
     if (!badRequest){
 
@@ -265,15 +273,28 @@ router.post("/addMatchEventsLog", async (req, res, next) => {
 router.delete("/addMatchEventsLog", async (req, res, next) => {
   try {
 
-    const matchID = req.query.matchID;
-    const eventID = req.query.eventID;
+    const match_ID = req.query.matchID;
+    const event_ID = req.query.eventID;
 
+    
     var badRequest = false;
     var message = "";
-    var resultFromDomain =  await unionAgent_domain.removeMatch(matchID, eventID);
 
-    badRequest = resultFromDomain.badRequest;
-    message = resultFromDomain.message;
+
+    try{
+      var matchID = parseInt(match_ID);
+      var eventID = parseInt(event_ID);
+
+      var resultFromDomain =  await unionAgent_domain.removeMatch(matchID, eventID);
+
+      badRequest = resultFromDomain.badRequest;
+      message = resultFromDomain.message;
+
+    } catch(error){
+      badRequest = true;
+      message += " matchID/eventID is not int,"
+    }
+
     
     if (badRequest){
       res.status(400).send("Bad request - incorrect :  " + message);
