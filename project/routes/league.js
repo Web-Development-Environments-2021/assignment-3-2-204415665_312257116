@@ -50,7 +50,7 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     var badRequest = false;
     let Search_Query_arr=[];
     // const EngCharactersTest = (currentValue) => /^[a-zA-Z]+$/.test(currentValue);
-    var message = null;
+    var message = "";
     var format =  /[\d/`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
     const charactersTest = (currentValue) => format.test(currentValue);
 
@@ -61,19 +61,19 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     Search_Query_arr = Search_Query.includes(' ') ? Search_Query.split(' ') : [Search_Query];
     
     if (Search_Query_arr.every(charactersTest)){
-      message="The query must contain letters only";
+      message+=" The query must contain letters only,";
       badRequest=true;
     }
 
     //Check that if the user search for a players the filter field contain only numbers/characters in English
-    else if (Search_Type=="Players" && Filter_Players && (!/^[a-zA-Z]+$/.test(Filter_Players) && !/^\d+$/.test(Filter_Players))){
-      message="The filter field must contain either numbers or characters in English";
+    if (Search_Type=="Players" && Filter_Players && (!/^[a-zA-Z]+$/.test(Filter_Players) && !/^\d+$/.test(Filter_Players))){
+      message+=" The filter field must contain either numbers/characters in English,";
       badRequest=true;
     }
 
     //Check that if the user search for a players and wants to sort he must choose a sort form
-    else if(Sort_Players=="yes" && (Sort_Players_By!="own name" && Sort_Players_By!="team name")){
-      message="Please select a sort form";
+    if(Sort_Players=="yes" && (Sort_Players_By!="own name" && Sort_Players_By!="team name")){
+      message+=" Please select a sort form,";
       badRequest=true;
     }
 
