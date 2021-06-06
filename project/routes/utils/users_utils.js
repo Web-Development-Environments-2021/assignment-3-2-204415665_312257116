@@ -41,7 +41,6 @@ async function getFavoriteMatches(user_id) {
 exports.getFavoriteMatches = getFavoriteMatches;
 
 
-
 //* ------------------------------ removeMatchFavorite ------------------------------ *//
 
 async function removeFavoriteMatch(match_id){

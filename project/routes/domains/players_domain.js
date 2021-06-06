@@ -33,4 +33,3 @@ async function extractRelevantPlayerData(player_id) {
   });
 }
 exports.extractRelevantPlayerData = extractRelevantPlayerData; 
-  

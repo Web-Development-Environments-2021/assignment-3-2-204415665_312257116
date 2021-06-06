@@ -144,5 +144,5 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
       
     }
     return { players: resultQ };
-  }
-  exports.SQL_searchByQuery = SQL_searchByQuery;
+}
+exports.SQL_searchByQuery = SQL_searchByQuery;

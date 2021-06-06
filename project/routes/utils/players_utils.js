@@ -48,7 +48,6 @@ async function getPlayersInfo(players_ids_list) {
     throw { status: 404, message: "playerID is not exists" };
   }
 }
-
 exports.getPlayersInfo = getPlayersInfo;
 
 
@@ -74,6 +73,3 @@ async function getPlayerFullInfo(player_id) {
 
 }
 exports.getPlayerFullInfo = getPlayerFullInfo;
-
-
-
