@@ -85,7 +85,7 @@ router.post("/match", async (req, res, next) => {
     var badRequest = false;
     var message = "";
     
-    var resultFromDomain = await unionAgent_domain.checkInputForAddMatch(localTeamName, visitorTeamName, venueName, refereeID);
+    var resultFromDomain = await unionAgent_domain.checkInputForAddMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID);
 
     badRequest = resultFromDomain.badRequest;
     message = resultFromDomain.message;

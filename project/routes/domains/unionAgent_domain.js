@@ -136,7 +136,7 @@ exports.getAllDataForAddMatch = getAllDataForAddMatch;
 
 //* ------------------------------ Check Input For Add Match ------------------------------ *//
     
-async function checkInputForAddMatch(localTeamName, visitorTeamName, venueName, refereeID){
+async function checkInputForAddMatch(matchDate, localTeamName, visitorTeamName, venueName, refereeID){
   
   var badRequest = false;
   var message = "";
@@ -145,7 +145,12 @@ async function checkInputForAddMatch(localTeamName, visitorTeamName, venueName, 
 
   badRequest = resultFromUtils.badRequest;
   message = resultFromUtils.message;
-  
+
+  if ( ! matchDate.test(/^(\d{4})\-(\d{2})\-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/) ){
+    badRequest = true;
+    message += " match's date not in the right format";
+  }
+
   if ( localTeamName == visitorTeamName ){
     badRequest = true;
     message += " visitor and local teams are the same,"
