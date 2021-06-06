@@ -52,7 +52,7 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     // const EngCharactersTest = (currentValue) => /^[a-zA-Z]+$/.test(currentValue);
     var message = "";
     var format =  /[\d/`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
-    const charactersTest = (currentValue) => format.test(currentValue);
+    const charactersTest = (currentValue) =>  currentValue.toLowerCase().match(format);
 
     const { Search_Query } = req.params;
     const { Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players } = req.query;
