@@ -90,7 +90,7 @@ exports.addEvent = addEvent;
 
 async function removeEvent(matchID, eventID){
 
-  if ( await checkIfEventExist(matchID, eventID)){
+  if ( await checkIfEventExistByID(matchID, eventID)){
 
     await DButils.execQuery(
       `delete from MatchEvents where matchID='${matchID}' and eventID='${eventID}' `
@@ -105,9 +105,9 @@ async function removeEvent(matchID, eventID){
 exports.removeEvent = removeEvent;
 
 
-//* ------------------------------ check If Event Exist------------------------------ *//
+//* ------------------------------ check If Event Exist By ID ------------------------------ *//
 
-async function checkIfEventExist(matchID, eventID){
+async function checkIfEventExistByID(matchID, eventID){
 
   const event = await DButils.execQuery(
     `select * from MatchEvents where matchID='${matchID}' and eventID='${eventID}' `
@@ -120,7 +120,26 @@ async function checkIfEventExist(matchID, eventID){
   return true;
   
 }
-exports.checkIfEventExist = checkIfEventExist;
+exports.checkIfEventExistByID = checkIfEventExistByID;
+
+
+//* ------------------------------ check If Event Exist------------------------------ *//
+
+async function checkIfEventExistByData(matchID, eventTimeAndDate, minuteInMatch, eventType){
+
+  const event = await DButils.execQuery(
+    `select * from MatchEvents where 
+    matchID='${matchID}' and eventTimeAndDate='${eventTimeAndDate}' and minuteInMatch='${minuteInMatch}' and eventType='${eventType}' `
+  );
+
+  if (event.length == 0){
+    return false;
+  }
+
+  return true;
+  
+}
+exports.checkIfEventExistByData = checkIfEventExistByData;
 
 
 //* ------------------------------ Get Referee By ID ------------------------------ *//

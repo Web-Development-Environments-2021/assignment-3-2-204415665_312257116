@@ -454,7 +454,15 @@ async function InsertMatchEventLog(matchID, eventsLog){
         eventDescription = 'null';
       }
 
-      await unionAgent_utils.addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription);
+      if ( await unionAgent_utils.checkIfEventExistByData( matchID, eventTimeAndDate, minuteInMatch, eventType ) ){
+        badRequest = true;
+        message += " event already exist,";
+      } else {
+        
+        await unionAgent_utils.addEvent(matchID, eventTimeAndDate, minuteInMatch, eventType, eventDescription);
+        
+      }
+
     }
   } else{
     badRequest = true;
