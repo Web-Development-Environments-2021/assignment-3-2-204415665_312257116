@@ -490,7 +490,7 @@ paths:
           required: true
           schema:
             type: string
-            example: Beitar Jerusalem
+            example: vic
         - name: Search_Type
           in: query
           description: Search on teams or players 
