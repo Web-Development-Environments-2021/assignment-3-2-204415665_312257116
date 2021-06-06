@@ -511,7 +511,6 @@ paths:
             type: array
             items:
               type: string
-              default: no
               enum: 
               - no
               - yes
@@ -523,7 +522,6 @@ paths:
             type: array
             items:
               type: string
-              default: no
               enum: 
               - no
               - yes
@@ -535,7 +533,6 @@ paths:
             type: array
             items:
               type: string
-              default: own name
               enum: 
               - own name
               - team name
@@ -544,7 +541,6 @@ paths:
           description: Filter the players/ by position or team name
           schema:
             type: string
-            example: "1"
       responses:
         '200':
           description: Search results returned successfully
