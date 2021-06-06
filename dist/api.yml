@@ -98,7 +98,7 @@ paths:
               type: object
               properties:
                 matchId:
-                  type: number
+                  type: integer
                   description: Match's id which the user saved
                   example: 85
       responses:
@@ -113,16 +113,13 @@ paths:
         - Users
       summary: Delete favorite match
       description: Delete favorite match from user's favorite matches
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                matchID:
-                  type: number
-                  description: Match's id needed to delete
-                  example: 20
+      parameters:
+      - in: query
+        name: matchID
+        description:  Match's id needed to delete
+        schema:
+          type: number
+          example: 20
       responses:
         '200':
           description: Match deleted from user's favorite matches successfully
@@ -181,16 +178,14 @@ paths:
                   teamsNames:
                     type: array
                     items:
-                      teamName:
-                        type: string
-                        description: Team name in our league
+                      type: string
+                      description: Team name in our league
                       example: "Midtjylland"
                   venuesNames:
                     type: array
                     items:
-                      venueName:
-                        type: string
-                        description: Venue name in out league
+                      type: string
+                      description: Venue name in out league
                       example: "MCH Arena"
                   referees:
                     type: array
@@ -243,16 +238,13 @@ paths:
         - UnionAgent
       summary: Delete match from the league
       description: Delete match from the league by union agent user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                matchID:
-                  type: number
-                  description: Match's id needed to delete
-                  example: 20
+      parameters:
+      - in: query
+        name: matchID
+        description:  Match's id needed to delete
+        schema:
+          type: integer
+          example: 20
       responses:
         '200':
           description: Match deleted from league's matches successfully
@@ -365,21 +357,19 @@ paths:
         - UnionAgent
       summary: Delete match event 
       description: Delete event from match's events log
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                matchID:
-                  type: number
-                  description: The match's ID
-                  example: 20
-                eventID:
-                  type: number
-                  description: Event's ID to delete
-                  example: 10
+      parameters:
+      - in: query
+        name: matchID
+        description:  The match's ID
+        schema:
+          type: integer
+          example: 20
+      - in: query
+        name: eventID
+        description:  Event's ID to delete
+        schema:
+          type: integer
+          example: 10
       responses:
         '200':
           description: Event deleted from match's events log successfully
@@ -482,7 +472,6 @@ paths:
                   userFavoriteMatches:
                     type: array
                     description: For logged in user - maximum 3 Favorite Matches
-                    max items: 3
                     items:
                       $ref: "#/components/schemas/FutureMatchInformation"
         "400":
@@ -1108,4 +1097,3 @@ components:
           enum: 
           - Regular
           - Main
- 
