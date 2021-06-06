@@ -77,7 +77,7 @@ router.get("/favoriteMatches", async (req, res, next) => {
 router.delete("/favoriteMatches", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const matchID = req.params.matchID;
+    const matchID = req.query.matchID;
 
     var badRequest = false;
     var message = "";
