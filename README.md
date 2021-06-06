@@ -39,7 +39,7 @@ https://app.swaggerhub.com/apis-docs/Daniel-And-Moshe/Web-Ass-3/1.0.0#/
     - Return all referees and matches without referee for union agent.
 - Post :
     - Add referee to match.
--Put :
+- Put :
     - Update referee in match.
 
 
