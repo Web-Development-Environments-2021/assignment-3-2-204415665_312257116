@@ -84,7 +84,7 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     else{
           //Submitting the request for an auxiliary function - SQL_searchByQuery
           const results = await league_domain.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-          if(results[Search_Type.toLowerCase()].length==0){
+          if(results[Search_Type.toLowerCase()]?.length==0){
             message =Search_Type + " " + Search_Query + " Does not exist in the database.";
             res.sendStatus(204);
           }

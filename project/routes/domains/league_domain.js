@@ -102,7 +102,7 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
         (('' + a["teamName"]).localeCompare(b["teamName"])));
       }
       resultQ = Qsearch;    
-      return { teams: Qsearch };
+      return {teams: Qsearch};
     }
   //-------------------------------------- Players --------------------------------------//
   
@@ -143,6 +143,6 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
       }
       
     }
-    return { players: resultQ };
+    return {players:resultQ};
 }
 exports.SQL_searchByQuery = SQL_searchByQuery;
