@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "run_server": "nodemon project/main.js"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
