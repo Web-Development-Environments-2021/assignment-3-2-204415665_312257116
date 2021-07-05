@@ -504,6 +504,7 @@ paths:
               enum:
               - Players
               - Teams
+              - All
         - name: Sort_Teams_Alphabetical
           in: query
           description: Sort the teams by names in alphabetical order 

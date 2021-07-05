@@ -185,7 +185,7 @@ async function getQueryInfo(Search_Query, Search_Type) {
   var QueryRelevantInfo;
   let promises = [];
 
-  if (Search_Type =="Players"){  //A switch that differentiates between teams and players
+  if (Search_Type !="Teams" ){  //A switch that differentiates between teams and players
     include_params = "squad.player";
   }
   promises.push(axios.get(`${api_domain}/teams/season/${CURRENT_SEASON_ID}`, {
@@ -197,6 +197,11 @@ async function getQueryInfo(Search_Query, Search_Type) {
   let Query_info = await Promise.all(promises);
   if (Search_Type =="Players"){
      QueryRelevantInfo = await getAllRelevantPlayers(Search_Query, Query_info[0].data.data);
+  }
+  else if(Search_Type =="All"){
+      QueryRelevantInfo={};
+      QueryRelevantInfo["Players"] = await getAllRelevantPlayers(Search_Query, Query_info[0].data.data, Search_Type);
+      QueryRelevantInfo["Teams"] = await getAllRelevantTeams(Search_Query, Query_info[0].data.data, Search_Type);
   }
   else{
      QueryRelevantInfo = await getAllRelevantTeams(Search_Query, Query_info[0].data.data);
@@ -210,14 +215,20 @@ exports.getQueryInfo = getQueryInfo;
 //* ---------------------------- extractRelevantPlayerData ---------------------------- *//
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
-async function getAllRelevantTeams(Search_Query,Query_info) {
+async function getAllRelevantTeams(Search_Query,Query_info, Search_Type) {
   teams_arr = Query_info.map((element) => {
-    if (element.name.toLowerCase().includes(Search_Query.toLowerCase())){
+    if (Search_Type=='All'){
       return {
         teamName: element.name,
         teamLogo: element.logo_path
       };
     }
+    else if (element.name.toLowerCase().includes(Search_Query.toLowerCase())){
+      return {
+        teamName: element.name,
+        teamLogo: element.logo_path
+      };
+    }    
   });
   teams_arr=teams_arr.filter(function (el) {return el != null});
   return teams_arr;
@@ -228,12 +239,12 @@ exports.getAllRelevantTeams = getAllRelevantTeams;
 //* ---------------------------- getAllRelevantPlayers ---------------------------- *//
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
-async function getAllRelevantPlayers(Search_Query, Query_info) {
+async function getAllRelevantPlayers(Search_Query, Query_info, Search_Type) {
   var last_players_standing=[];
   Query_info.forEach(team_info => {
     team_info.squad.data.forEach((player_info) => {
       const { player_id, position_id, fullname, image_path} = player_info.player.data;
-      if(fullname?.toLowerCase()?.includes(Search_Query?.toLowerCase())){
+      if(Search_Type=='All'){
         last_players_standing.push({
             playerID: player_id,
             name: fullname,
@@ -242,7 +253,18 @@ async function getAllRelevantPlayers(Search_Query, Query_info) {
             team_name: team_info.name
         
       });
-    }});
+    }
+    else       if(fullname?.toLowerCase()?.includes(Search_Query?.toLowerCase())){
+      last_players_standing.push({
+          playerID: player_id,
+          name: fullname,
+          image: image_path,
+          position: position_id,
+          team_name: team_info.name
+      
+    });
+  }
+  });
   });
 
   return last_players_standing;

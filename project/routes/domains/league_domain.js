@@ -90,8 +90,12 @@ exports.getFavoriteMatchesForMainPage = getFavoriteMatchesForMainPage;
  */
 async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
 
+
     const Qsearch = await league_utils.getQueryInfo(Search_Query, Search_Type);
     let resultQ;
+    if(Search_Type=="All"){
+      return {all_Info: Qsearch};
+    }
   
   //-------------------------------------- Teams --------------------------------------//
     if(Search_Type=="Teams" ){
