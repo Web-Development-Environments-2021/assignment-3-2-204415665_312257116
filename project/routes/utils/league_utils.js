@@ -206,7 +206,6 @@ async function getQueryInfo(Search_Query, Search_Type) {
   else{
      QueryRelevantInfo = await getAllRelevantTeams(Search_Query, Query_info[0].data.data);
   }
-
   return QueryRelevantInfo;
 }
 exports.getQueryInfo = getQueryInfo;

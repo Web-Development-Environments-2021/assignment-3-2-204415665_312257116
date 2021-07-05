@@ -504,7 +504,6 @@ paths:
               enum:
               - Players
               - Teams
-              - All
         - name: Sort_Teams_Alphabetical
           in: query
           description: Sort the teams by names in alphabetical order 
@@ -546,6 +545,42 @@ paths:
       responses:
         '200':
           description: Search results returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:   
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlayerPreview'
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamName:
+                          type: string
+                        teamLogo:
+                          type: string
+                          format: URL
+                      example:
+                        teamName: Beitar Jerusalem
+                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        '400':
+          description: Bad request
+        '204':
+          description: No Content
+
+  /league/search/searchInfo:
+    get:
+      tags: 
+        - League
+      summary: Return all search info
+      description: Returns all Teams/Players search info from the DB 
+      responses:
+        '200':
+          description: All Search info returned successfully
           content:
             application/json:
               schema:

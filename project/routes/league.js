@@ -41,6 +41,14 @@ router.get("/getDetails", async (req, res, next) => {
   }
 });
 
+router.get("/search/searchInfo", async (req, res, next) => {
+  try {
+    const results = await league_domain.SQL_searchByQuery(undefined, "All", undefined, undefined, undefined, undefined);
+    res.status(200).send(results);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /*----------------------------- search -----------------------------*/
 //Returns all results according to the user's search query
