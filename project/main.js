@@ -1,7 +1,8 @@
 /*
 Server=tcp:daniel-moshe.database.windows.net,1433;Initial Catalog=Web_Dev_Ass_3;Persist Security Info=False;User ID=Dini_Moses;Password=Mo204415665;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30; 
-*/
-//* ------------------------------ Global Imports ------------------------------ *//
+
+
+//* ------------------------------ Global Imports ------------------------------ */
 
 const DButils = require("./routes/utils/DButils");
 const axios = require("axios");

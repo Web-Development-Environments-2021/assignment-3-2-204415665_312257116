@@ -572,6 +572,42 @@ paths:
         '204':
           description: No Content
 
+  /league/search/searchInfo:
+    get:
+      tags: 
+        - League
+      summary: Return all search info
+      description: Returns all Teams/Players search info from the DB 
+      responses:
+        '200':
+          description: All Search info returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:   
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlayerPreview'
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamName:
+                          type: string
+                        teamLogo:
+                          type: string
+                          format: URL
+                      example:
+                        teamName: Beitar Jerusalem
+                        teamLogo: 'https://cdn.sportmonks.com/images//soccer/teams/11/939.png'
+        '400':
+          description: Bad request
+        '204':
+          description: No Content
+
   /players/playerFullDetails/{playerID}:
     get:
       summary: Get full details about a player
