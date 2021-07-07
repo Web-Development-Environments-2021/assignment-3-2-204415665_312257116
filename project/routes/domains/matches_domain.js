@@ -98,7 +98,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
       {
       matchID : element.match_id,
-      matchDateAndTime : getDateTimeDisplayFormat(element.matchDateAndTime),
+      matchDate : getDateTimeDisplayFormat(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
