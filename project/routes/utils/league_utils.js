@@ -215,11 +215,21 @@ exports.getQueryInfo = getQueryInfo;
 //Auxiliary function - returns the relevant information about the array of elements - teams / players.
 
 async function getAllRelevantTeams(Search_Query,Query_info, Search_Type) {
+
   teams_arr = Query_info.map((element) => {
+    var last_players_standing=[];
+
     if (Search_Type=='All'){
+      element.squad.data.forEach((player_info) => {
+        const { player_id, position_id, fullname, image_path} = player_info.player.data;
+        if(Search_Type=='All'){
+          last_players_standing.push(player_id);
+        }
+      })
       return {
         teamName: element.name,
-        teamLogo: element.logo_path
+        teamLogo: element.logo_path,
+        teamSquad: last_players_standing
       };
     }
     else if (element.name.toLowerCase().includes(Search_Query.toLowerCase())){
@@ -242,14 +252,29 @@ async function getAllRelevantPlayers(Search_Query, Query_info, Search_Type) {
   var last_players_standing=[];
   Query_info.forEach(team_info => {
     team_info.squad.data.forEach((player_info) => {
-      const { player_id, position_id, fullname, image_path} = player_info.player.data;
+      const { player_id, fullname, image_path, position_id, common_name, nationality, birthdate, birthcountry, height, weight} = player_info.player.data;
       if(Search_Type=='All'){
         last_players_standing.push({
-            playerID: player_id,
-            name: fullname,
-            image: image_path,
-            position: position_id,
-            team_name: team_info.name
+            // playerID: player_id,
+            // name: fullname,
+            // image: image_path,
+            // position: position_id,
+            // team_name: team_info.name
+            playerShortInfo: {
+              playerID: player_id,
+              name: fullname,
+              image: image_path,
+              position: position_id,
+              team_name: team_info.name,
+            },
+            commonName: common_name,
+            nationality: nationality,
+            birthDate: birthdate,
+            birthCountry: birthcountry,
+            height: height,
+            weight: weight
+          
+
         
       });
     }
