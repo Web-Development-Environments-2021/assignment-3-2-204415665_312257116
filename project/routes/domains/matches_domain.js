@@ -51,7 +51,7 @@ async function getMatchesToCurrentStage(){
   var futureMatches = await SortMatchesBy(await addRefereeToFutureMatches(leagueMatches[1]), "Date", "future");
   var pastMatches = await SortMatchesBy(await addRefereeToPastMatches(leagueMatches[0]), "Date", "past");
 
-  pastMatches = pastMatches.filter(function (match) { return match.eventsLog.length >= 3 } );
+  // pastMatches = pastMatches.filter(function (match) { return match.eventsLog.length >= 3 } );
 
   return { futureMatches : futureMatches, pastMatches : pastMatches };
 
@@ -98,7 +98,7 @@ async function addRefereeToPastMatches(matchesToAdd){
   matchesToAdd.map((element) => matchesWithReferee.push(
       {
       matchID : element.match_id,
-      matchDateAndTime : getDateTimeDisplayFormat(element.matchDateAndTime),
+      matchDate : getDateTimeDisplayFormat(element.matchDateAndTime),
       localTeamName : element.localTeamName,
       visitorTeamName : element.visitorTeamName,
       venueName : element.venueName,
@@ -107,7 +107,6 @@ async function addRefereeToPastMatches(matchesToAdd){
       visitorTeamScore : element.visitorTeamScore
     }
   ));
-
   for (var i = 0 ; i < matchesWithReferee.length ; i++){
 
     var refereeDic = await matches_utils.extractRefereeInfo(matchesWithReferee[i]["refereeID"]);
@@ -127,7 +126,6 @@ async function addRefereeToPastMatches(matchesToAdd){
     }
     
   }
-  
   return matchesWithReferee;
 }
 exports.addRefereeToPastMatches = addRefereeToPastMatches;
@@ -153,7 +151,7 @@ async function SortMatchesBy(matchesToAdd, sortBy, futureOrPast){
     if (futureOrPast == "future"){
       var SortedMatches = matchesToAdd.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
     } else{
-      var SortedMatches = matchesToAdd.sort((a, b) =>  (('' + a.matchDateAndTime).localeCompare(b.matchDateAndTime)));
+      var SortedMatches = matchesToAdd.sort((a, b) =>  (('' + a.matchDate).localeCompare(b.matchDate)));
     }
   } else if (sortBy != undefined){
     var SortedMatches = matchesToAdd.sort((a, b) => 

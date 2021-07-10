@@ -41,6 +41,14 @@ router.get("/getDetails", async (req, res, next) => {
   }
 });
 
+router.get("/search/searchInfo", async (req, res, next) => {
+  try {
+    const results = await league_domain.SQL_searchByQuery(undefined, "All", undefined, undefined, undefined, undefined);
+    res.status(200).send(results);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /*----------------------------- search -----------------------------*/
 //Returns all results according to the user's search query
@@ -84,7 +92,7 @@ router.get("/search/:Search_Query", async (req, res, next) => {
     else{
           //Submitting the request for an auxiliary function - SQL_searchByQuery
           const results = await league_domain.SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players);
-          if(results[Search_Type.toLowerCase()].length==0){
+          if(results[Search_Type.toLowerCase()]?.length==0){
             message =Search_Type + " " + Search_Query + " Does not exist in the database.";
             res.sendStatus(204);
           }

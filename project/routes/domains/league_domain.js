@@ -90,8 +90,12 @@ exports.getFavoriteMatchesForMainPage = getFavoriteMatchesForMainPage;
  */
 async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabetical, Sort_Players, Sort_Players_By, Filter_Players) {
 
+
     const Qsearch = await league_utils.getQueryInfo(Search_Query, Search_Type);
     let resultQ;
+    if(Search_Type=="All"){
+      return {all_Info: Qsearch};
+    }
   
   //-------------------------------------- Teams --------------------------------------//
     if(Search_Type=="Teams" ){
@@ -102,7 +106,7 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
         (('' + a["teamName"]).localeCompare(b["teamName"])));
       }
       resultQ = Qsearch;    
-      return { teams: Qsearch };
+      return {teams: Qsearch};
     }
   //-------------------------------------- Players --------------------------------------//
   
@@ -143,6 +147,6 @@ async function SQL_searchByQuery(Search_Query, Search_Type, Sort_Teams_Alphabeti
       }
       
     }
-    return { players: resultQ };
+    return {players:resultQ};
 }
 exports.SQL_searchByQuery = SQL_searchByQuery;
